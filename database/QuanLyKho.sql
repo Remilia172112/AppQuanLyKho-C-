@@ -156,7 +156,7 @@ CREATE TABLE `NHASANXUAT` (
     `SDT` VARCHAR(12) COMMENT 'Số điện thoại',
     `EMAIL` VARCHAR(50) COMMENT 'Email',
     `TT` INT(11) NOT NULL DEFAULT 1 COMMENT 'Trạng thái',
-    PRIMARY KEY(MNXB)
+    PRIMARY KEY(MNSX)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE `KHUVUCKHO` (
@@ -164,7 +164,7 @@ CREATE TABLE `KHUVUCKHO` (
     `TEN` VARCHAR(255) NOT NULL COMMENT 'Tên khu vực sách',
     `GHICHU` VARCHAR(255) DEFAULT '' COMMENT 'Ghi chú',
     `TT` INT(11) NOT NULL DEFAULT 1 COMMENT 'Trạng thái',
-    PRIMARY KEY(MKVS)
+    PRIMARY KEY(MKVK)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 /*Thêm dữ liệu*/
@@ -174,21 +174,15 @@ VALUES
         ('sanpham', 'Quản lý sản phẩm', 1),
         ('khachhang', 'Quản lý khách hàng', 1),
         ('nhacungcap', 'Quản lý nhà cung cấp', 1),
-        ('nhaxuatban', 'Quản lý nhà xuất bản', 1),
+        ('nhasanxuat', 'Quản lý nhà sản xuất', 1),
         ('nhanvien', 'Quản lý nhân viên', 1),
         ('nhaphang', 'Quản lý nhập hàng', 1),
         ('xuathang', 'Quản lý xuất hàng', 1),
         ('kiemke', 'Quản lý kiểm kê', 1),
-        ('trahang', 'Quản lý trả hàng', 1),
-        ('khuvucsach', 'Quản lý khu vực sách', 1),
+        ('khuvuckho', 'Quản lý khu vực kho', 1),
         ('nhomquyen', 'Quản lý nhóm quyền', 1),
         ('taikhoan', 'Quản lý tài khoản', 1),
-        ('taikhoankh', 'Quản lý tài khoản khách hàng', 1),
-        ('makhuyenmai', 'Quản lý mã khuyến mãi', 1),
-        ('thongke', 'Quản lý thống kê', 1),
-        ('xemhang', 'Chức năng xem hàng', 1),
-        ('giohang', 'Chức năng xem giỏ hàng', 1),
-        ('donhang', 'Chức năng xem đơn hàng', 1);
+        ('thongke', 'Quản lý thống kê', 1);
 
 INSERT INTO `CTQUYEN` (`MNQ`, `MCN`, `HANHDONG`)
 VALUES
@@ -358,15 +352,14 @@ VALUES
         (1, 1, 1 ,'Hư' );
 
 
-INSERT INTO `SANPHAM` (`TEN`, `HINHANH`, `DANHMUC`, `MSX`, `MKVK`, `MLSP`, `TIENX`, `TIENN`, `SL`, `TT`) 
+INSERT INTO `SANPHAM` (`TEN`, `HINHANH`, `DANHMUC`, `MNSX`, `MKVK`, `MLSP`, `TIENX`, `TIENN`, `SL`, `TT`) 
 VALUES
         ('Laptop Dell XPS 13', 'dell_xps.png', 'Laptop', 1, 1, 1, 25000000, 22000000, 10, 1),
         ('iPhone 15 Pro Max', 'iphone15.png', 'Điện thoại', 2, 1, 1, 35000000, 31000000, 25, 1),
         ('Chuột Logitech G502', 'mouse_g502.png', 'Phụ kiện', 3, 2, 2, 1200000, 900000, 100, 1),
         ('Bàn phím cơ Keychron', 'keychron_k2.png', 'Phụ kiện', 4, 2, 2, 1800000, 1400000, 50, 1),
-        ('Màn hình LG 27 inch', 'lg_27.png', 'Màn hình', 5, 1, 1, 5500000, 4800000, 15, 1);
+        ('Màn hình LG 27 inch', 'lg_27.png', 'Màn hình', 5, 1, 1, 5500000, 4800000, 15, 1),
         
-        --Thêm sp--
 	    -- LAPTOP & PC (MLSP: 1)
 	    ('MacBook Air M2 2023', 'macbook_m2.png', 'Laptop', 2, 1, 1, 28000000, 24500000, 12, 1),
 	    ('Asus ROG Strix G15', 'asus_rog.png', 'Laptop', 7, 1, 1, 32000000, 28000000, 8, 1),
@@ -412,7 +405,7 @@ VALUES
 	    ('Máy in màu Canon G3010', 'canon_g3010.png', 'Văn phòng', 10, 3, 5, 4500000, 3700000, 8, 1),
 	    ('Máy chiếu Sony VPL-DX221', 'sony_projector.png', 'Văn phòng', 11, 3, 5, 10500000, 8900000, 5, 1),
 	    ('Máy hủy tài liệu Silicon', 'shredder.png', 'Văn phòng', 10, 3, 5, 2100000, 1500000, 10, 1),
-	    ('Máy chấm công vân tay', 'fingerprint.png', 'Văn phòng', 9, 3, 5, 2500000, 1800000, 7, 1);s
+	    ('Máy chấm công vân tay', 'fingerprint.png', 'Văn phòng', 9, 3, 5, 2500000, 1800000, 7, 1);
 
 INSERT INTO `LOAISANPHAM` (`TEN`, `GHICHU`, `TT`) 
 VALUES
@@ -458,7 +451,6 @@ ALTER TABLE `PHIEUXUAT` ADD CONSTRAINT FK_MKH_PHIEUXUAT FOREIGN KEY (MKH) REFERE
 
 ALTER TABLE `CTPHIEUXUAT` ADD CONSTRAINT FK_MPX_CTPHIEUXUAT FOREIGN KEY (MPX) REFERENCES `PHIEUXUAT`(MPX) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `CTPHIEUXUAT` ADD CONSTRAINT FK_MSP_CTPHIEUXUAT FOREIGN KEY (MSP) REFERENCES `SANPHAM`(MSP) ON DELETE NO ACTION ON UPDATE NO ACTION;
-ALTER TABLE `CTPHIEUXUAT` ADD CONSTRAINT FK_MKM_CTPHIEUXUAT FOREIGN KEY (MKM) REFERENCES `MAKHUYENMAI`(MKM) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `PHIEUNHAP` ADD CONSTRAINT FK_MNV_PHIEUNHAP FOREIGN KEY (MNV) REFERENCES `NHANVIEN`(MNV) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `PHIEUNHAP` ADD CONSTRAINT FK_MNCC_PHIEUNHAP FOREIGN KEY (MNCC) REFERENCES `NHACUNGCAP`(MNCC) ON DELETE NO ACTION ON UPDATE NO ACTION;
