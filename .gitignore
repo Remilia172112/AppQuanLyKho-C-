@@ -1,0 +1,51 @@
+# Ignore build results
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore Rider settings
+.idea/
+
+# Ignore Visual Studio working folder
+.vs/
+
+# Ignore build outputs
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.mdb
+*.db
+*.TestResults
+TestResults/
+
+# Ignore NuGet packages
+*.nupkg
+packages/
+
+# Ignore other common files
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Ignore publish folder
+publish/
+
+# Ignore database files
+*.mdf
+*.ldf
+*.ndf
+
+# Ignore generated files
+*.generated.cs

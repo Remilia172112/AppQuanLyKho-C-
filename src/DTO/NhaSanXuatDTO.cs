@@ -4,7 +4,7 @@ namespace src.DTO
 {
     public class NhaSanXuatDTO
     {
-        public int MSX { get; set; }
+        public int MNSX { get; set; }
         public string TEN { get; set; }
         public string DIACHI { get; set; }
         public string EMAIL { get; set; }
@@ -13,9 +13,9 @@ namespace src.DTO
 
         public NhaSanXuatDTO() { }
 
-        public NhaSanXuatDTO(int msx, string ten, string diachi, string email, string sdt, int tt)
+        public NhaSanXuatDTO(int mnsx, string ten, string diachi, string email, string sdt, int tt)
         {
-            MSX = msx;
+            MNSX = mnsx;
             TEN = ten;
             DIACHI = diachi;
             EMAIL = email;
@@ -27,12 +27,12 @@ namespace src.DTO
         {
             if (obj == null || GetType() != obj.GetType()) return false;
             NhaSanXuatDTO other = (NhaSanXuatDTO)obj;
-            return MSX == other.MSX;
+            return MNSX == other.MNSX;
         }
 
         public override int GetHashCode()
         {
-            return MSX.GetHashCode();
+            return MNSX.GetHashCode();
         }
     }
 }

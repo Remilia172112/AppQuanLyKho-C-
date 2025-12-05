@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms; // Dùng cho MessageBox, OpenFileDialog, SaveFileDialog
 using OfficeOpenXml; // Thư viện EPPlus cho Excel
 using src.DAO;
 using src.DTO;
@@ -56,6 +55,12 @@ namespace src.BUS
             return nv != null ? nv.HOTEN : "";
         }
 
+        // Lấy thông tin nhân viên theo ID
+        public NhanVienDTO? GetById(int manv)
+        {
+            return nhanVienDAO.selectById(manv.ToString());
+        }
+
         public string[] GetArrTenNhanVien()
         {
             int size = listNv.Count;
@@ -69,11 +74,41 @@ namespace src.BUS
 
         // --- Các hàm xử lý logic (Thay thế cho actionPerformed) ---
 
+        // Thêm nhân viên mới
+        public bool Add(NhanVienDTO nv)
+        {
+            int result = nhanVienDAO.insert(nv);
+            if (result > 0)
+            {
+                listNv.Add(nv);
+                return true;
+            }
+            return false;
+        }
+
+        // Cập nhật thông tin nhân viên
+        public bool Update(NhanVienDTO nv)
+        {
+            int result = nhanVienDAO.update(nv);
+            if (result > 0)
+            {
+                int index = GetIndexById(nv.MNV);
+                if (index != -1)
+                {
+                    listNv[index] = nv;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // [Deprecated] Chỉ cập nhật cache - sử dụng Add() thay thế
         public void InsertNv(NhanVienDTO nv)
         {
             listNv.Add(nv);
         }
 
+        // [Deprecated] Chỉ cập nhật cache - sử dụng Update() thay thế
         public void UpdateNv(int index, NhanVienDTO nv)
         {
             listNv[index] = nv;
@@ -82,26 +117,18 @@ namespace src.BUS
         public bool DeleteNv(NhanVienDTO nv)
         {
             // Xóa nhân viên và tài khoản liên quan
-            try
-            {
-                var nvDAO = NhanVienDAO.Instance;
-                var tkDAO = TaiKhoanDAO.Instance;
+            var nvDAO = NhanVienDAO.Instance;
+            var tkDAO = TaiKhoanDAO.Instance;
 
-                // Xóa tài khoản trước (nếu có khóa ngoại)
-                tkDAO.delete(nv.MNV.ToString());
-                
-                // Xóa nhân viên
-                nvDAO.delete(nv.MNV.ToString());
+            // Xóa tài khoản trước (nếu có khóa ngoại)
+            tkDAO.delete(nv.MNV.ToString());
+            
+            // Xóa nhân viên
+            nvDAO.delete(nv.MNV.ToString());
 
-                // Xóa khỏi danh sách bộ nhớ
-                listNv.RemoveAll(n => n.MNV == nv.MNV);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi xóa nhân viên: " + ex.Message);
-                return false;
-            }
+            // Xóa khỏi danh sách bộ nhớ
+            listNv.RemoveAll(n => n.MNV == nv.MNV);
+            return true;
         }
 
         // --- Tìm kiếm ---
@@ -158,140 +185,109 @@ namespace src.BUS
 
         // --- Xử lý Excel ---
 
-        public void ExportExcel(List<NhanVienDTO> list)
+        // Xuất danh sách nhân viên ra file Excel
+        // Trả về true nếu thành công, throw exception nếu lỗi
+        public void ExportToExcelFile(List<NhanVienDTO> list, string filePath)
         {
-            try
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (ExcelPackage package = new ExcelPackage())
             {
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Title = "Xuất danh sách nhân viên";
-                saveFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx";
-                
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                ExcelWorksheet sheet = package.Workbook.Worksheets.Add("Nhân viên");
+
+                // Header
+                string[] header = { "MãNV", "Tên nhân viên", "Email nhân viên", "Số điện thoại", "Giới tính", "Ngày sinh" };
+                for (int i = 0; i < header.Length; i++)
                 {
-                    string filePath = saveFileDialog.FileName;
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-                    using (ExcelPackage package = new ExcelPackage())
-                    {
-                        ExcelWorksheet sheet = package.Workbook.Worksheets.Add("Nhân viên");
-
-                        // Header
-                        string[] header = { "MãNV", "Tên nhân viên", "Email nhân viên", "Số điện thoại", "Giới tính", "Ngày sinh" };
-                        for (int i = 0; i < header.Length; i++)
-                        {
-                            sheet.Cells[1, i + 1].Value = header[i];
-                            sheet.Cells[1, i + 1].Style.Font.Bold = true;
-                        }
-
-                        // Data
-                        int rowIndex = 2;
-                        foreach (NhanVienDTO nv in list)
-                        {
-                            sheet.Cells[rowIndex, 1].Value = nv.MNV;
-                            sheet.Cells[rowIndex, 2].Value = nv.HOTEN;
-                            sheet.Cells[rowIndex, 3].Value = nv.EMAIL;
-                            sheet.Cells[rowIndex, 4].Value = nv.SDT;
-                            sheet.Cells[rowIndex, 5].Value = nv.GIOITINH == 1 ? "Nam" : "Nữ";
-                            sheet.Cells[rowIndex, 6].Value = nv.NGAYSINH.ToString("dd/MM/yyyy");
-                            
-                            rowIndex++;
-                        }
-
-                        sheet.Cells.AutoFitColumns();
-                        package.SaveAs(new FileInfo(filePath));
-                    }
-                    MessageBox.Show("Xuất Excel thành công!");
+                    sheet.Cells[1, i + 1].Value = header[i];
+                    sheet.Cells[1, i + 1].Style.Font.Bold = true;
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi xuất Excel: " + ex.Message);
+
+                // Data
+                int rowIndex = 2;
+                foreach (NhanVienDTO nv in list)
+                {
+                    sheet.Cells[rowIndex, 1].Value = nv.MNV;
+                    sheet.Cells[rowIndex, 2].Value = nv.HOTEN;
+                    sheet.Cells[rowIndex, 3].Value = nv.EMAIL;
+                    sheet.Cells[rowIndex, 4].Value = nv.SDT;
+                    sheet.Cells[rowIndex, 5].Value = nv.GIOITINH == 1 ? "Nam" : "Nữ";
+                    sheet.Cells[rowIndex, 6].Value = nv.NGAYSINH.ToString("dd/MM/yyyy");
+                    
+                    rowIndex++;
+                }
+
+                sheet.Cells.AutoFitColumns();
+                package.SaveAs(new FileInfo(filePath));
             }
         }
 
-        public void ImportExcel()
+        // Nhập danh sách nhân viên từ file Excel
+        // Trả về số dòng lỗi, throw exception nếu lỗi nghiêm trọng
+        public int ImportFromExcelFile(string filePath)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Nhập danh sách nhân viên từ Excel";
-            openFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx";
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            int errorCount = 0;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            
+            using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
             {
-                int k = 0; // Đếm số dòng lỗi
-                try
+                ExcelWorksheet sheet = package.Workbook.Worksheets[0];
+                int rowCount = sheet.Dimension.Rows;
+
+                // Bắt đầu từ dòng 2 (bỏ header)
+                for (int row = 2; row <= rowCount; row++)
                 {
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    using (ExcelPackage package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    try 
                     {
-                        ExcelWorksheet sheet = package.Workbook.Worksheets[0];
-                        int rowCount = sheet.Dimension.Rows;
-
-                        // Bắt đầu từ dòng 2 (bỏ header)
-                        for (int row = 2; row <= rowCount; row++)
+                        int id = NhanVienDAO.Instance.getAutoIncrement();
+                        string tennv = sheet.Cells[row, 1].Text;
+                        string gioitinhStr = sheet.Cells[row, 2].Text;
+                        int gt = (gioitinhStr.Equals("Nam", StringComparison.OrdinalIgnoreCase)) ? 1 : 0;
+                        
+                        // Xử lý ngày sinh (Excel lưu ngày là số hoặc chuỗi)
+                        DateTime ngaysinh;
+                        var cellDate = sheet.Cells[row, 3].Value;
+                        if (cellDate is DateTime dt)
                         {
-                            try 
+                            ngaysinh = dt;
+                        }
+                        else
+                        {
+                            // Thử parse chuỗi
+                            if (!DateTime.TryParse(sheet.Cells[row, 3].Text, out ngaysinh))
                             {
-                                int id = NhanVienDAO.Instance.getAutoIncrement();
-                                string tennv = sheet.Cells[row, 1].Text;
-                                string gioitinhStr = sheet.Cells[row, 2].Text;
-                                int gt = (gioitinhStr.Equals("Nam", StringComparison.OrdinalIgnoreCase)) ? 1 : 0;
-                                
-                                // Xử lý ngày sinh (Excel lưu ngày là số hoặc chuỗi)
-                                DateTime ngaysinh;
-                                var cellDate = sheet.Cells[row, 3].Value;
-                                if (cellDate is DateTime dt)
-                                {
-                                    ngaysinh = dt;
-                                }
-                                else
-                                {
-                                    // Thử parse chuỗi
-                                    if (!DateTime.TryParse(sheet.Cells[row, 3].Text, out ngaysinh))
-                                    {
-                                        k++; continue; // Lỗi ngày
-                                    }
-                                }
-
-                                string sdt = sheet.Cells[row, 4].Text;
-                                string email = sheet.Cells[row, 5].Text;
-
-                                // Validate dữ liệu
-                                if (Validation.IsEmpty(tennv) || 
-                                    Validation.IsEmpty(email) || !Validation.IsEmail(email) ||
-                                    Validation.IsEmpty(sdt) || !Validation.IsPhoneNumber(sdt))
-                                {
-                                    k++;
-                                    continue;
-                                }
-
-                                // Tạo DTO và Insert
-                                NhanVienDTO nvdto = new NhanVienDTO(id, tennv, gt, ngaysinh, sdt, 1, email);
-                                NhanVienDAO.Instance.insert(nvdto);
-                                
-                                // Thêm vào list hiện tại để cập nhật GUI
-                                listNv.Add(nvdto);
-                            }
-                            catch 
-                            {
-                                k++; // Lỗi dòng này thì bỏ qua, đếm lỗi
+                                errorCount++;
+                                continue; // Lỗi ngày
                             }
                         }
+
+                        string sdt = sheet.Cells[row, 4].Text;
+                        string email = sheet.Cells[row, 5].Text;
+
+                        // Validate dữ liệu
+                        if (Validation.IsEmpty(tennv) || 
+                            Validation.IsEmpty(email) || !Validation.IsEmail(email) ||
+                            Validation.IsEmpty(sdt) || !Validation.IsPhoneNumber(sdt))
+                        {
+                            errorCount++;
+                            continue;
+                        }
+
+                        // Tạo DTO và Insert
+                        NhanVienDTO nvdto = new NhanVienDTO(id, tennv, gt, ngaysinh, sdt, 1, email);
+                        NhanVienDAO.Instance.insert(nvdto);
+                        
+                        // Thêm vào list hiện tại để cập nhật GUI
+                        listNv.Add(nvdto);
                     }
-                    
-                    if (k > 0)
+                    catch 
                     {
-                        MessageBox.Show($"Nhập thành công. Có {k} dòng dữ liệu lỗi không được thêm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        errorCount++; // Lỗi dòng này thì bỏ qua, đếm lỗi
                     }
-                    else
-                    {
-                        MessageBox.Show("Nhập Excel thành công tất cả!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi đọc file Excel: " + ex.Message);
                 }
             }
+            
+            return errorCount;
         }
     }
 }

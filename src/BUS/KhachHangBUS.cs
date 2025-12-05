@@ -13,8 +13,17 @@ namespace src.BUS
 
         public KhachHangBUS()
         {
-            // Lấy danh sách khách hàng đang hoạt động (TT=1)
-            listKhachHang = khDAO.selectAll();
+            try
+            {
+                // Lấy danh sách khách hàng đang hoạt động (TT=1)
+                var data = khDAO.selectAll();
+                listKhachHang = data ?? new List<KhachHangDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khởi tạo KhachHangBUS: {ex.Message}");
+                listKhachHang = new List<KhachHangDTO>();
+            }
         }
 
         public List<KhachHangDTO> GetAll()

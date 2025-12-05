@@ -12,8 +12,17 @@ namespace src.BUS
 
         public NhaSanXuatBUS()
         {
-            // Load danh sách nhà sản xuất từ DAO khi khởi tạo
-            this.listNSX = nsxDAO.selectAll();
+            try
+            {
+                // Load danh sách nhà sản xuất từ DAO khi khởi tạo
+                var data = nsxDAO.selectAll();
+                this.listNSX = data ?? new List<NhaSanXuatDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khởi tạo NhaSanXuatBUS: {ex.Message}");
+                this.listNSX = new List<NhaSanXuatDTO>();
+            }
         }
 
         public List<NhaSanXuatDTO> GetAll()
@@ -41,7 +50,7 @@ namespace src.BUS
         public bool Delete(NhaSanXuatDTO nsx, int index)
         {
             // Gọi DAO xóa (xóa mềm)
-            bool check = nsxDAO.delete(nsx.MSX.ToString()) != 0;
+            bool check = nsxDAO.delete(nsx.MNSX.ToString()) != 0;
             if (check)
             {
                 this.listNSX.RemoveAt(index);
@@ -56,7 +65,7 @@ namespace src.BUS
             if (check)
             {
                 // Cập nhật lại đối tượng trong list
-                int index = GetIndexByMaNSX(nsx.MSX);
+                int index = GetIndexByMaNSX(nsx.MNSX);
                 if (index != -1)
                 {
                     this.listNSX[index] = nsx;
@@ -71,7 +80,7 @@ namespace src.BUS
             int vitri = -1;
             while (i < this.listNSX.Count && vitri == -1)
             {
-                if (listNSX[i].MSX == mansx) // DTO C# dùng MSX
+                if (listNSX[i].MNSX == mansx) // DTO C# dùng MNSX
                 {
                     vitri = i;
                 }
@@ -93,7 +102,7 @@ namespace src.BUS
                 case "Tất cả":
                     foreach (NhaSanXuatDTO i in listNSX)
                     {
-                        if (i.MSX.ToString().Contains(txt) || 
+                        if (i.MNSX.ToString().Contains(txt) || 
                             i.TEN.ToLower().Contains(txt) || 
                             i.DIACHI.ToLower().Contains(txt) || 
                             i.EMAIL.ToLower().Contains(txt) || 
@@ -106,7 +115,7 @@ namespace src.BUS
                 case "Mã nhà sản xuất": // Đổi tên cho khớp ngữ cảnh
                     foreach (NhaSanXuatDTO i in listNSX)
                     {
-                        if (i.MSX.ToString().Contains(txt))
+                        if (i.MNSX.ToString().Contains(txt))
                         {
                             result.Add(i);
                         }

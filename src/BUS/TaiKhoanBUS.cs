@@ -57,6 +57,9 @@ namespace src.BUS
 
         public void AddAcc(TaiKhoanDTO tk)
         {
+            // Mã hóa mật khẩu bằng BCrypt trước khi lưu vào DB
+            tk.MK = BCrypt.Net.BCrypt.HashPassword(tk.MK);
+            
             taiKhoanDAO.insert(tk);
             // Sau khi thêm vào DB, nên thêm vào list cache để đồng bộ
             listTaiKhoan.Add(tk);
@@ -64,6 +67,13 @@ namespace src.BUS
 
         public void UpdateAcc(TaiKhoanDTO tk)
         {
+            // Nếu mật khẩu không bắt đầu bằng $2 (BCrypt hash), nghĩa là mật khẩu mới cần mã hóa
+            // Hash BCrypt luôn bắt đầu với $2a$, $2b$, $2x$, $2y$
+            if (!tk.MK.StartsWith("$2"))
+            {
+                tk.MK = BCrypt.Net.BCrypt.HashPassword(tk.MK);
+            }
+            
             taiKhoanDAO.update(tk);
             // Cập nhật lại list cache
             int index = GetTaiKhoanByMaNV(tk.MNV);
@@ -129,6 +139,23 @@ namespace src.BUS
                     break;
             }
             return result;
+        }
+    
+        // �ang nh?p - x�c th?c t�i kho?n
+        public TaiKhoanDTO? DangNhap(string tenDangNhap, string matKhau)
+        {
+            try
+            {
+                TaiKhoanDTO? tk = taiKhoanDAO.selectByUser(tenDangNhap);
+                if (tk == null) return null;
+                bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(matKhau, tk.MK);
+                if (!isPasswordCorrect) return null;
+                return tk;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

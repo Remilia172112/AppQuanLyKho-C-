@@ -29,18 +29,18 @@ namespace src.DAO
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
                     // MSP tự tăng, không cần insert
-                    // Các cột mới: MSX (Nhà SX), MKVK (Khu vực), MLSP (Loại SP)
+                    // Các cột: MNSX (Nhà SX), MKVK (Khu vực), MLSP (Loại SP)
                     string sql = @"INSERT INTO SANPHAM 
-                        (TEN, HINHANH, DANHMUC, MSX, MKVK, MLSP, TIENX, TIENN, SL, TT) 
+                        (TEN, HINHANH, DANHMUC, MNSX, MKVK, MLSP, TIENX, TIENN, SL, TT) 
                         VALUES 
-                        (@ten, @hinhanh, @danhmuc, @msx, @mkvk, @mlsp, @tienx, @tienn, @sl, 1)";
+                        (@ten, @hinhanh, @danhmuc, @mnsx, @mkvk, @mlsp, @tienx, @tienn, @sl, 1)";
 
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@ten", t.TEN);
                         cmd.Parameters.AddWithValue("@hinhanh", t.HINHANH);
                         cmd.Parameters.AddWithValue("@danhmuc", t.DANHMUC);
-                        cmd.Parameters.AddWithValue("@msx", t.MSX);
+                        cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
                         cmd.Parameters.AddWithValue("@mkvk", t.MKVK);
                         cmd.Parameters.AddWithValue("@mlsp", t.MLSP);
                         cmd.Parameters.AddWithValue("@tienx", t.TIENX);
@@ -70,7 +70,7 @@ namespace src.DAO
                         TEN = @ten, 
                         HINHANH = @hinhanh, 
                         DANHMUC = @danhmuc, 
-                        MSX = @msx, 
+                        MNSX = @mnsx, 
                         MKVK = @mkvk, 
                         MLSP = @mlsp, 
                         TIENX = @tienx, 
@@ -83,7 +83,7 @@ namespace src.DAO
                         cmd.Parameters.AddWithValue("@ten", t.TEN);
                         cmd.Parameters.AddWithValue("@hinhanh", t.HINHANH);
                         cmd.Parameters.AddWithValue("@danhmuc", t.DANHMUC);
-                        cmd.Parameters.AddWithValue("@msx", t.MSX);
+                        cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
                         cmd.Parameters.AddWithValue("@mkvk", t.MKVK);
                         cmd.Parameters.AddWithValue("@mlsp", t.MLSP);
                         cmd.Parameters.AddWithValue("@tienx", t.TIENX);
@@ -133,7 +133,13 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
+                    if (conn == null || conn.State != System.Data.ConnectionState.Open)
+                    {
+                        return result;
+                    }
+
                     string sql = "SELECT * FROM SANPHAM WHERE TT = 1";
+                    
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         using (MySqlDataReader rs = cmd.ExecuteReader())
@@ -146,8 +152,8 @@ namespace src.DAO
                                 sp.HINHANH = rs.IsDBNull(rs.GetOrdinal("HINHANH")) ? "" : rs.GetString("HINHANH");
                                 sp.DANHMUC = rs.IsDBNull(rs.GetOrdinal("DANHMUC")) ? "" : rs.GetString("DANHMUC");
                                 
-                                // Các cột khóa ngoại mới
-                                sp.MSX = rs.GetInt32("MSX");
+                                // Các cột khóa ngoại
+                                sp.MNSX = rs.GetInt32("MNSX");
                                 sp.MKVK = rs.GetInt32("MKVK");
                                 sp.MLSP = rs.GetInt32("MLSP");
                                 
@@ -190,7 +196,7 @@ namespace src.DAO
                                 result.TEN = rs.GetString("TEN");
                                 result.HINHANH = rs.IsDBNull(rs.GetOrdinal("HINHANH")) ? "" : rs.GetString("HINHANH");
                                 result.DANHMUC = rs.IsDBNull(rs.GetOrdinal("DANHMUC")) ? "" : rs.GetString("DANHMUC");
-                                result.MSX = rs.GetInt32("MSX");
+                                result.MNSX = rs.GetInt32("MNSX");
                                 result.MKVK = rs.GetInt32("MKVK");
                                 result.MLSP = rs.GetInt32("MLSP");
                                 result.TIENX = rs.GetInt32("TIENX");
@@ -231,7 +237,7 @@ namespace src.DAO
                                 sp.TEN = rs.GetString("TEN");
                                 sp.HINHANH = rs.IsDBNull(rs.GetOrdinal("HINHANH")) ? "" : rs.GetString("HINHANH");
                                 sp.DANHMUC = rs.IsDBNull(rs.GetOrdinal("DANHMUC")) ? "" : rs.GetString("DANHMUC");
-                                sp.MSX = rs.GetInt32("MSX");
+                                sp.MNSX = rs.GetInt32("MNSX");
                                 sp.MKVK = rs.GetInt32("MKVK");
                                 sp.MLSP = rs.GetInt32("MLSP");
                                 sp.TIENX = rs.GetInt32("TIENX");

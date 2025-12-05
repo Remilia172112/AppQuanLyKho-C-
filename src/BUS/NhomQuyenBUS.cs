@@ -99,6 +99,18 @@ namespace src.BUS
             return chitietquyenDAO.selectAll(manhomquyen);
         }
 
+        // Lấy nhóm quyền theo ID
+        public NhomQuyenDTO? GetById(int id)
+        {
+            return nhomquyenDAO.selectById(id.ToString());
+        }
+
+        // Lấy chi tiết quyền theo mã nhóm quyền (int)
+        public List<ChiTietQuyenDTO> GetChiTietQuyen(int manhomquyen)
+        {
+            return chitietquyenDAO.selectAll(manhomquyen.ToString());
+        }
+
         public bool AddChiTietQuyen(List<ChiTietQuyenDTO> listctquyen)
         {
             return chitietquyenDAO.insert(listctquyen) != 0;

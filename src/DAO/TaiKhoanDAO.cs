@@ -37,10 +37,9 @@ namespace src.DAO
                         cmd.Parameters.AddWithValue("@mnv", t.MNV);
                         cmd.Parameters.AddWithValue("@tdn", t.TDN);
                         
-                        // Sử dụng BCrypt từ src.Helper để mã hóa
-                        // Logic giống hệt Java: BCrypt.hashpw(t.getMK(), BCrypt.gensalt(12))
-                        string hashedPassword = BCrypts.hashpw(t.MK, BCrypts.gensalt(12));
-                        cmd.Parameters.AddWithValue("@mk", hashedPassword);
+                        // Mật khẩu đã được mã hóa BCrypt ở tầng BUS/GUI rồi
+                        // Không cần mã hóa lại, chỉ lưu trực tiếp
+                        cmd.Parameters.AddWithValue("@mk", t.MK);
                         
                         cmd.Parameters.AddWithValue("@mnq", t.MNQ);
                         cmd.Parameters.AddWithValue("@tt", t.TT);
@@ -56,7 +55,7 @@ namespace src.DAO
             return result;
         }
 
-        // 2. Cập nhật thông tin (Không đổi mật khẩu)
+        // 2. Cập nhật thông tin tài khoản (bao gồm cả mật khẩu nếu có)
         public int update(TaiKhoanDTO t)
         {
             int result = 0;
@@ -64,11 +63,13 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "UPDATE TAIKHOAN SET TDN = @tdn, TT = @tt, MNQ = @mnq WHERE MNV = @mnv";
+                    // Cập nhật cả mật khẩu (đã được mã hóa BCrypt từ tầng trên)
+                    string sql = "UPDATE TAIKHOAN SET TDN = @tdn, MK = @mk, TT = @tt, MNQ = @mnq WHERE MNV = @mnv";
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@tdn", t.TDN);
+                        cmd.Parameters.AddWithValue("@mk", t.MK); // Mật khẩu đã mã hóa
                         cmd.Parameters.AddWithValue("@tt", t.TT);
                         cmd.Parameters.AddWithValue("@mnq", t.MNQ);
                         cmd.Parameters.AddWithValue("@mnv", t.MNV);

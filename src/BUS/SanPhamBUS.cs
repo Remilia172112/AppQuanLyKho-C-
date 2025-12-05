@@ -15,7 +15,14 @@ namespace src.BUS
         public SanPhamBUS()
         {
             // Load dữ liệu ban đầu
-            listSP = spDAO.selectAll();
+            try
+            {
+                listSP = spDAO.selectAll();
+            }
+            catch (Exception ex)
+            {
+                listSP = new List<SanPhamDTO>();
+            }
         }
 
         public List<SanPhamDTO> GetAll()

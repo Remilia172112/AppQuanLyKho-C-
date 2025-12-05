@@ -33,7 +33,7 @@ namespace src.DAO
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
-                        cmd.Parameters.AddWithValue("@mnsx", t.MSX); // Java: getManxb
+                        cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
                         cmd.Parameters.AddWithValue("@ten", t.TEN);
                         cmd.Parameters.AddWithValue("@diachi", t.DIACHI);
                         cmd.Parameters.AddWithValue("@email", t.EMAIL);
@@ -66,7 +66,7 @@ namespace src.DAO
                         cmd.Parameters.AddWithValue("@diachi", t.DIACHI);
                         cmd.Parameters.AddWithValue("@email", t.EMAIL);
                         cmd.Parameters.AddWithValue("@sdt", t.SDT);
-                        cmd.Parameters.AddWithValue("@mnsx", t.MSX);
+                        cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
 
                         result = cmd.ExecuteNonQuery();
                     }

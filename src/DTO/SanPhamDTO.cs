@@ -8,7 +8,7 @@ namespace src.DTO
         public string TEN { get; set; }
         public string HINHANH { get; set; }
         public string DANHMUC { get; set; }
-        public int MSX { get; set; }
+        public int MNSX { get; set; }
         public int MKVK { get; set; }
         public int MLSP { get; set; }
         public int TIENX { get; set; }
@@ -18,13 +18,13 @@ namespace src.DTO
 
         public SanPhamDTO() { }
 
-        public SanPhamDTO(int msp, string ten, string hinhanh, string danhmuc, int msx, int mkvk, int mlsp, int tienx, int tienn, int sl, int tt)
+        public SanPhamDTO(int msp, string ten, string hinhanh, string danhmuc, int mnsx, int mkvk, int mlsp, int tienx, int tienn, int sl, int tt)
         {
             MSP = msp;
             TEN = ten;
             HINHANH = hinhanh;
             DANHMUC = danhmuc;
-            MSX = msx;
+            MNSX = mnsx;
             MKVK = mkvk;
             MLSP = mlsp;
             TIENX = tienx;

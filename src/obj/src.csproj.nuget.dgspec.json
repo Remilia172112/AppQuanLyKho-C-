@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj": {}
+    "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj": {}
   },
   "projects": {
-    "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj": {
+    "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj",
+        "projectUniqueName": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj",
         "projectName": "src",
-        "projectPath": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj",
-        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\obj\\",
+        "projectPath": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj",
+        "packagesPath": "C:\\Users\\nguye\\.nuget\\packages\\",
+        "outputPath": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\nguye\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0-windows"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -80,7 +82,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
