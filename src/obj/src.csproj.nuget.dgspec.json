@@ -1,27 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj": {}
+    "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj": {}
   },
   "projects": {
-    "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj": {
+    "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj",
+        "projectUniqueName": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj",
         "projectName": "src",
-        "projectPath": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\src.csproj",
-        "packagesPath": "C:\\Users\\nguye\\.nuget\\packages\\",
-        "outputPath": "D:\\Dai Hoc\\HK1 N4\\C#\\DoAn\\AppQuanLyKho-C-\\src\\obj\\",
+        "projectPath": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\src.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "D:\\DaiHoc\\DCT1221\\NamTu\\HK1\\C#\\Doan\\src\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\nguye\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0-windows"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -58,6 +56,14 @@
               "target": "Package",
               "version": "[9.5.0, )"
             },
+            "Svg": {
+              "target": "Package",
+              "version": "[3.4.7, )"
+            },
+            "System.Text.Encoding.CodePages": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
             "iTextSharp": {
               "target": "Package",
               "version": "[5.5.13.4, )"
@@ -82,7 +88,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

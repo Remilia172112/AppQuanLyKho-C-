@@ -18,6 +18,15 @@ namespace src.GUI.Auth
 
         public MainForm()
         {
+            try 
+            {
+                string iconPath = "icon/app.ico";
+                if (System.IO.File.Exists(iconPath))
+                {
+                    this.Icon = new System.Drawing.Icon(iconPath);
+                }
+            }
+            catch { }
             InitializeComponent();
             LoadUserInfo();
             LoadDefaultContent();
@@ -325,7 +334,7 @@ namespace src.GUI.Auth
             {
                 SessionManager.Logout();
                 this.Hide();
-                LoginForm loginForm = new LoginForm();
+                LoginPage loginForm = new LoginPage();
                 loginForm.FormClosed += (s, args) => this.Close();
                 loginForm.Show();
             }
