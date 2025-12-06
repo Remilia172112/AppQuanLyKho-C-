@@ -41,7 +41,7 @@ namespace src.GUI.Auth
             this.Text = "Hệ thống Quản lý Kho hàng";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimumSize = new Size(1200, 600);
-            this.WindowState = FormWindowState.Maximized;
+            this.WindowState = FormWindowState.Normal;
 
             // Header Panel
             headerPanel = new Panel
@@ -111,6 +111,8 @@ namespace src.GUI.Auth
             // Header Panel - Add cuối cùng để nó nằm trên cùng
             // Position controls on right side
             this.Resize += (s, e) => PositionHeaderControls();
+            this.Load += (s, e) => PositionHeaderControls();
+            this.Shown += (s, e) => PositionHeaderControls();
             PositionHeaderControls();
             this.Controls.Add(headerPanel);
 

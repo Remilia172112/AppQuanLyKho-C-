@@ -49,3 +49,15 @@ publish/
 
 # Ignore generated files
 *.generated.cs
+
+# Ignore MSBuild/obj generated files
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.assets.cache
+*.AssemblyReference.cache
+*.nuget.g.props
+*.nuget.g.targets
+*.nuget.dgspec.json
+*.nuget.cache
+
