@@ -73,19 +73,6 @@ namespace src.GUI.Auth
         {
             try
             {
-                // Tìm control trả về mảng
-                var foundUsers = this.Controls.Find("txtUsername", true);
-                var foundPasss = this.Controls.Find("txtPassword", true);
-
-                // Kiểm tra xem có tìm thấy ít nhất 1 cái không
-                if (foundUsers.Length == 0 || foundPasss.Length == 0) return;
-
-                // Lấy phần tử đầu tiên và ép kiểu
-                TextBox txtUsername = foundUsers[0] as TextBox;
-                TextBox txtPassword = foundPasss[0] as TextBox;
-
-                if (txtUsername == null || txtPassword == null) return;
-                
                 string username = txtUsername.Text.Trim();
                 string password = txtPassword.Text.Trim();
 
