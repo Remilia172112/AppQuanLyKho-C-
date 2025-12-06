@@ -12,151 +12,21 @@ namespace src.GUI.NghiepVu
         private SanPhamBUS sanPhamBUS = new SanPhamBUS();
         public ChiTietPhieuNhapDTO SelectedItem { get; private set; }
 
-        // UI Controls
-        private Panel pnlSearch;
-        private TextBox txtSearch;
-        private Button btnSearch;
-        private DataGridView dgvSanPham;
-        private Panel pnlInput;
-        private Label lblSoLuong;
-        private NumericUpDown nudSoLuong;
-        private Label lblGia;
-        private TextBox txtGia;
-        private Button btnChon;
-        private Button btnHuy;
-
         private ChiTietPhieuNhapDTO editingItem = null;
 
         public ChonSanPhamDialog(ChiTietPhieuNhapDTO existingItem = null)
         {
             this.editingItem = existingItem;
             InitializeComponent();
+            
+            // Set dynamic form title based on mode
+            this.Text = editingItem == null ? "Chọn sản phẩm" : "Sửa sản phẩm";
+            
             LoadData();
             if (existingItem != null)
             {
                 LoadExistingItem();
             }
-        }
-
-        private void InitializeComponent()
-        {
-            this.Text = editingItem == null ? "Chọn sản phẩm" : "Sửa sản phẩm";
-            this.Size = new System.Drawing.Size(900, 600);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-
-            // Panel Search
-            pnlSearch = new Panel();
-            pnlSearch.Location = new Point(20, 20);
-            pnlSearch.Size = new Size(860, 50);
-
-            Label lblSearch = new Label();
-            lblSearch.Text = "Tìm kiếm sản phẩm:";
-            lblSearch.Location = new Point(10, 15);
-            lblSearch.AutoSize = true;
-
-            txtSearch = new TextBox();
-            txtSearch.Location = new Point(150, 12);
-            txtSearch.Size = new Size(500, 25);
-            txtSearch.PlaceholderText = "Nhập tên hoặc mã sản phẩm...";
-
-            btnSearch = new Button();
-            btnSearch.Text = "Tìm";
-            btnSearch.Location = new Point(670, 10);
-            btnSearch.Size = new Size(80, 30);
-            btnSearch.BackColor = Color.FromArgb(8, 133, 204);
-            btnSearch.ForeColor = Color.White;
-            btnSearch.FlatStyle = FlatStyle.Flat;
-            btnSearch.Click += BtnSearch_Click;
-
-            pnlSearch.Controls.AddRange(new Control[] { lblSearch, txtSearch, btnSearch });
-
-            // DataGridView
-            dgvSanPham = new DataGridView();
-            dgvSanPham.Location = new Point(20, 80);
-            dgvSanPham.Size = new Size(860, 350);
-            dgvSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvSanPham.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvSanPham.MultiSelect = false;
-            dgvSanPham.AllowUserToAddRows = false;
-            dgvSanPham.AllowUserToDeleteRows = false;
-            dgvSanPham.ReadOnly = true;
-            dgvSanPham.BackgroundColor = Color.White;
-            dgvSanPham.RowHeadersVisible = false;
-            dgvSanPham.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(8, 133, 204);
-            dgvSanPham.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvSanPham.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            dgvSanPham.EnableHeadersVisualStyles = false;
-            dgvSanPham.CellClick += DgvSanPham_CellClick;
-
-            // Add columns
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "MSP", HeaderText = "Mã SP", DataPropertyName = "MSP" });
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "TEN", HeaderText = "Tên sản phẩm", DataPropertyName = "TEN" });
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "SL", HeaderText = "Tồn kho", DataPropertyName = "SL" });
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "TIENN", HeaderText = "Giá", DataPropertyName = "TIENN" });
-
-            dgvSanPham.Columns["SL"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dgvSanPham.Columns["TIENN"].DefaultCellStyle.Format = "N0";
-            dgvSanPham.Columns["TIENN"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-
-            // Panel Input
-            pnlInput = new Panel();
-            pnlInput.Location = new Point(20, 440);
-            pnlInput.Size = new Size(860, 60);
-            pnlInput.BorderStyle = BorderStyle.FixedSingle;
-
-            lblSoLuong = new Label();
-            lblSoLuong.Text = "Số lượng:";
-            lblSoLuong.Location = new Point(20, 20);
-            lblSoLuong.AutoSize = true;
-
-            nudSoLuong = new NumericUpDown();
-            nudSoLuong.Location = new Point(100, 17);
-            nudSoLuong.Size = new Size(150, 25);
-            nudSoLuong.Minimum = 1;
-            nudSoLuong.Maximum = 1000000;
-            nudSoLuong.Value = 1;
-
-            lblGia = new Label();
-            lblGia.Text = "Đơn giá:";
-            lblGia.Location = new Point(280, 20);
-            lblGia.AutoSize = true;
-
-            txtGia = new TextBox();
-            txtGia.Location = new Point(350, 17);
-            txtGia.Size = new Size(200, 25);
-            txtGia.Text = "0";
-
-            btnChon = new Button();
-            btnChon.Text = "Chọn";
-            btnChon.Location = new Point(650, 12);
-            btnChon.Size = new Size(90, 35);
-            btnChon.BackColor = Color.FromArgb(40, 167, 69);
-            btnChon.ForeColor = Color.White;
-            btnChon.FlatStyle = FlatStyle.Flat;
-            btnChon.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnChon.Click += BtnChon_Click;
-
-            btnHuy = new Button();
-            btnHuy.Text = "Hủy";
-            btnHuy.Location = new Point(750, 12);
-            btnHuy.Size = new Size(90, 35);
-            btnHuy.BackColor = Color.Gray;
-            btnHuy.ForeColor = Color.White;
-            btnHuy.FlatStyle = FlatStyle.Flat;
-            btnHuy.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            btnHuy.Click += BtnHuy_Click;
-
-            pnlInput.Controls.AddRange(new Control[] {
-                lblSoLuong, nudSoLuong, lblGia, txtGia, btnChon, btnHuy
-            });
-
-            // Add to form
-            this.Controls.AddRange(new Control[] {
-                pnlSearch, dgvSanPham, pnlInput
-            });
         }
 
         private void LoadData()
