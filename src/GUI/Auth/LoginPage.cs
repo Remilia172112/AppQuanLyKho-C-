@@ -45,7 +45,9 @@ namespace src.GUI.Auth
             btnLogin.MouseLeave += (s, e) => btnLogin.BackColor = Color.Black;
 
             // Sự kiện Quên mật khẩu
-            lblForgotPass.Click += (s, e) => MessageBox.Show("Chức năng đang phát triển!");
+            lblForgotPass.Click += (s, e) => {
+                new QuenMatKhau().ShowDialog();
+            };
             lblForgotPass.MouseEnter += (s, e) => lblForgotPass.ForeColor = Color.FromArgb(0, 202, 232);
             lblForgotPass.MouseLeave += (s, e) => lblForgotPass.ForeColor = Color.Black;
 
