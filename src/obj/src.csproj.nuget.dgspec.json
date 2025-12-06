@@ -56,6 +56,14 @@
               "target": "Package",
               "version": "[9.5.0, )"
             },
+            "Svg": {
+              "target": "Package",
+              "version": "[3.4.7, )"
+            },
+            "System.Text.Encoding.CodePages": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
             "iTextSharp": {
               "target": "Package",
               "version": "[5.5.13.4, )"

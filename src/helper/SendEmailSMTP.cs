@@ -24,8 +24,8 @@ namespace src.Helper
             // Mà phải là "APP PASSWORD" (Mật khẩu ứng dụng) 16 ký tự do Google cấp
             // Cách lấy: Google Account -> Security -> 2-Step Verification -> App passwords
             
-            string fromEmail = "";
-            string password = ""; // Thay bằng App Password thực tế
+            string fromEmail = "khoquanly152@gmail.com";
+            string password = "oasp zkhs gibg blfy"; // Thay bằng App Password thực tế
 
             try
             {

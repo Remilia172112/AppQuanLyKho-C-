@@ -59,6 +59,15 @@
           "lib/net9.0/EPPlus.Interfaces.dll": {}
         }
       },
+      "ExCSS/4.2.3": {
+        "type": "package",
+        "compile": {
+          "lib/net7.0/ExCSS.dll": {}
+        },
+        "runtime": {
+          "lib/net7.0/ExCSS.dll": {}
+        }
+      },
       "Google.Protobuf/3.32.0": {
         "type": "package",
         "compile": {
@@ -297,6 +306,37 @@
           }
         }
       },
+      "Microsoft.NETCore.Platforms/5.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/_._": {}
+        }
+      },
+      "Microsoft.Win32.SystemEvents/5.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "5.0.0"
+        },
+        "compile": {
+          "ref/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
+            "assetType": "runtime",
+            "rid": "win"
+          }
+        }
+      },
       "MySql.Data/9.5.0": {
         "type": "package",
         "dependencies": {
@@ -337,6 +377,23 @@
           "runtimes/win-x64/native/krbcc64.dll": {
             "assetType": "native",
             "rid": "win-x64"
+          }
+        }
+      },
+      "Svg/3.4.7": {
+        "type": "package",
+        "dependencies": {
+          "ExCSS": "4.2.3",
+          "System.Drawing.Common": "5.0.3"
+        },
+        "compile": {
+          "lib/net8.0/Svg.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Svg.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -394,6 +451,32 @@
             "rid": "win"
           },
           "runtimes/win/lib/net8.0/System.Diagnostics.EventLog.dll": {
+            "assetType": "runtime",
+            "rid": "win"
+          }
+        }
+      },
+      "System.Drawing.Common/5.0.3": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "5.0.0"
+        },
+        "compile": {
+          "ref/netcoreapp3.0/System.Drawing.Common.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/System.Drawing.Common.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll": {
+            "assetType": "runtime",
+            "rid": "unix"
+          },
+          "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll": {
             "assetType": "runtime",
             "rid": "win"
           }
@@ -491,7 +574,7 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
-      "System.Text.Encoding.CodePages/9.0.3": {
+      "System.Text.Encoding.CodePages/10.0.0": {
         "type": "package",
         "compile": {
           "lib/net9.0/System.Text.Encoding.CodePages.dll": {
@@ -639,6 +722,24 @@
         "lib/netstandard2.0/EPPlus.Interfaces.dll",
         "lib/netstandard2.1/EPPlus.Interfaces.dll",
         "license.md",
+        "readme.md"
+      ]
+    },
+    "ExCSS/4.2.3": {
+      "sha512": "SyeAfu2wL5247sipJoPUzQfjiwQtfSd8hN4IbgoyVcDx4PP6Dud4znwPRibWQzLtTlUxYYcbf5f4p+EfFC7KtQ==",
+      "type": "package",
+      "path": "excss/4.2.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "excss.4.2.3.nupkg.sha512",
+        "excss.nuspec",
+        "lib/net48/ExCSS.dll",
+        "lib/net6.0/ExCSS.dll",
+        "lib/net7.0/ExCSS.dll",
+        "lib/netcoreapp3.1/ExCSS.dll",
+        "lib/netstandard2.0/ExCSS.dll",
+        "lib/netstandard2.1/ExCSS.dll",
         "readme.md"
       ]
     },
@@ -988,6 +1089,52 @@
         "microsoft.io.recyclablememorystream.nuspec"
       ]
     },
+    "Microsoft.NETCore.Platforms/5.0.0": {
+      "sha512": "VyPlqzH2wavqquTcYpkIIAQ6WdenuKoFN0BdYBbCWsclXacSOHNQn66Gt4z5NBqEYW0FAPm5rlvki9ZiCij5xQ==",
+      "type": "package",
+      "path": "microsoft.netcore.platforms/5.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/netstandard1.0/_._",
+        "microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+        "microsoft.netcore.platforms.nuspec",
+        "runtime.json",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
+    "Microsoft.Win32.SystemEvents/5.0.0": {
+      "sha512": "Bh6blKG8VAKvXiLe2L+sEsn62nc1Ij34MrNxepD2OCrS5cpCwQa9MeLyhVQPQ/R4Wlzwuy6wMK8hLb11QPDRsQ==",
+      "type": "package",
+      "path": "microsoft.win32.systemevents/5.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/Microsoft.Win32.SystemEvents.dll",
+        "lib/net461/Microsoft.Win32.SystemEvents.xml",
+        "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll",
+        "lib/netstandard2.0/Microsoft.Win32.SystemEvents.xml",
+        "microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+        "microsoft.win32.systemevents.nuspec",
+        "ref/net461/Microsoft.Win32.SystemEvents.dll",
+        "ref/net461/Microsoft.Win32.SystemEvents.xml",
+        "ref/netstandard2.0/Microsoft.Win32.SystemEvents.dll",
+        "ref/netstandard2.0/Microsoft.Win32.SystemEvents.xml",
+        "runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.dll",
+        "runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.xml",
+        "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll",
+        "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.xml",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "MySql.Data/9.5.0": {
       "sha512": "pbIrDv7vuvMlok6ldjliFOeb5fpGofAInUhG/8LraQBqT2a2xZTcAVjm/GyfZ9ZyjZeHJLWuMRbe0uI98sCoWg==",
       "type": "package",
@@ -1018,6 +1165,34 @@
         "runtimes/win-x64/native/k5sprt64.dll",
         "runtimes/win-x64/native/krb5_64.dll",
         "runtimes/win-x64/native/krbcc64.dll"
+      ]
+    },
+    "Svg/3.4.7": {
+      "sha512": "Omez7ly5BGhg3OzdV+LHZ5sI0+JQ6hF7WVKUeyHw4jRvcEWNCPCf1MWMBaf+R0DRBSZHx5EUHwBTEF+2oYtsAw==",
+      "type": "package",
+      "path": "svg/3.4.7",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net462/Svg.dll",
+        "lib/net462/Svg.xml",
+        "lib/net472/Svg.dll",
+        "lib/net472/Svg.xml",
+        "lib/net481/Svg.dll",
+        "lib/net481/Svg.xml",
+        "lib/net6.0/Svg.dll",
+        "lib/net6.0/Svg.xml",
+        "lib/net8.0/Svg.dll",
+        "lib/net8.0/Svg.xml",
+        "lib/netcoreapp3.1/Svg.dll",
+        "lib/netcoreapp3.1/Svg.xml",
+        "lib/netstandard2.0/Svg.dll",
+        "lib/netstandard2.0/Svg.xml",
+        "lib/netstandard2.1/Svg.dll",
+        "lib/netstandard2.1/Svg.xml",
+        "svg-logo-v.png",
+        "svg.3.4.7.nupkg.sha512",
+        "svg.nuspec"
       ]
     },
     "System.ComponentModel.Annotations/5.0.0": {
@@ -1179,6 +1354,48 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "System.Drawing.Common/5.0.3": {
+      "sha512": "rEQZuslijqdsO0pkJn7LtGBaMc//YVA8de0meGihkg9oLPaN+w+/Pb5d71lgp0YjPoKgBKNMvdq0IPnoW4PEng==",
+      "type": "package",
+      "path": "system.drawing.common/5.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net461/System.Drawing.Common.dll",
+        "lib/netcoreapp3.0/System.Drawing.Common.dll",
+        "lib/netcoreapp3.0/System.Drawing.Common.xml",
+        "lib/netstandard2.0/System.Drawing.Common.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net461/System.Drawing.Common.dll",
+        "ref/netcoreapp3.0/System.Drawing.Common.dll",
+        "ref/netcoreapp3.0/System.Drawing.Common.xml",
+        "ref/netstandard2.0/System.Drawing.Common.dll",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "runtimes/unix/lib/netcoreapp2.0/System.Drawing.Common.dll",
+        "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll",
+        "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.xml",
+        "runtimes/win/lib/netcoreapp2.0/System.Drawing.Common.dll",
+        "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll",
+        "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.xml",
+        "system.drawing.common.5.0.3.nupkg.sha512",
+        "system.drawing.common.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.IO.Pipelines/6.0.3": {
       "sha512": "ryTgF+iFkpGZY1vRQhfCzX0xTdlV3pyaTTqRu2ETbEv+HlV7O6y7hyQURnghNIXvctl5DuZ//Dpks6HdL/Txgw==",
       "type": "package",
@@ -1329,15 +1546,14 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "System.Text.Encoding.CodePages/9.0.3": {
-      "sha512": "80ABiml18jG+6PB6GmrOyMlWla66f4Tp6RgUCJXZLki1Zu+yqbflXvweT86j2xImKHXoVgivto25Z8P5+FO85w==",
+    "System.Text.Encoding.CodePages/10.0.0": {
+      "sha512": "QLP54mIATaBpjGlsZIxga38VPk1G9js0Kw651B+bvrXi2kSgGZYrxJSpM3whhTZCBK4HEBHX3fzfDQMw7CXHGQ==",
       "type": "package",
-      "path": "system.text.encoding.codepages/9.0.3",
+      "path": "system.text.encoding.codepages/10.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
-        "LICENSE.TXT",
         "PACKAGE.md",
         "THIRD-PARTY-NOTICES.TXT",
         "buildTransitive/net461/System.Text.Encoding.CodePages.targets",
@@ -1346,6 +1562,8 @@
         "buildTransitive/netcoreapp2.0/System.Text.Encoding.CodePages.targets",
         "lib/MonoAndroid10/_._",
         "lib/MonoTouch10/_._",
+        "lib/net10.0/System.Text.Encoding.CodePages.dll",
+        "lib/net10.0/System.Text.Encoding.CodePages.xml",
         "lib/net462/System.Text.Encoding.CodePages.dll",
         "lib/net462/System.Text.Encoding.CodePages.xml",
         "lib/net8.0/System.Text.Encoding.CodePages.dll",
@@ -1358,11 +1576,13 @@
         "lib/xamarinmac20/_._",
         "lib/xamarintvos10/_._",
         "lib/xamarinwatchos10/_._",
+        "runtimes/win/lib/net10.0/System.Text.Encoding.CodePages.dll",
+        "runtimes/win/lib/net10.0/System.Text.Encoding.CodePages.xml",
         "runtimes/win/lib/net8.0/System.Text.Encoding.CodePages.dll",
         "runtimes/win/lib/net8.0/System.Text.Encoding.CodePages.xml",
         "runtimes/win/lib/net9.0/System.Text.Encoding.CodePages.dll",
         "runtimes/win/lib/net9.0/System.Text.Encoding.CodePages.xml",
-        "system.text.encoding.codepages.9.0.3.nupkg.sha512",
+        "system.text.encoding.codepages.10.0.0.nupkg.sha512",
         "system.text.encoding.codepages.nuspec",
         "useSharedDesignerContext.txt"
       ]
@@ -1420,6 +1640,8 @@
       "BCrypt.Net-Next >= 4.0.3",
       "EPPlus >= 8.3.1",
       "MySql.Data >= 9.5.0",
+      "Svg >= 3.4.7",
+      "System.Text.Encoding.CodePages >= 10.0.0",
       "iTextSharp >= 5.5.13.4"
     ]
   },
@@ -1477,6 +1699,14 @@
           "MySql.Data": {
             "target": "Package",
             "version": "[9.5.0, )"
+          },
+          "Svg": {
+            "target": "Package",
+            "version": "[3.4.7, )"
+          },
+          "System.Text.Encoding.CodePages": {
+            "target": "Package",
+            "version": "[10.0.0, )"
           },
           "iTextSharp": {
             "target": "Package",
