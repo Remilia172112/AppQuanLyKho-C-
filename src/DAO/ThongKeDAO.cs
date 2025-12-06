@@ -127,34 +127,28 @@ namespace src.DAO
 
         // 2. Doanh thu theo từng năm (Dùng Session Variable @start_year)
         public List<ThongKeDoanhThuDTO> GetDoanhThuTheoTungNam(int yearStart, int yearEnd)
-        {
+{
             List<ThongKeDoanhThuDTO> result = new List<ThongKeDoanhThuDTO>();
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    // Thiết lập biến session
-                    using (MySqlCommand cmdSet = new MySqlCommand("SET @start_year = @s; SET @end_year = @e;", conn))
-                    {
-                        cmdSet.Parameters.AddWithValue("@s", yearStart);
-                        cmdSet.Parameters.AddWithValue("@e", yearEnd);
-                        cmdSet.ExecuteNonQuery();
-                    }
-
+                    // Query sửa lại: Truyền trực tiếp @s và @e vào CTE
+                    // Không dùng SET @start_year = ... nữa
                     string sqlSelect = @"
                         WITH RECURSIVE years(year) AS (
-                            SELECT @start_year
+                            SELECT @s
                             UNION ALL
                             SELECT year + 1
                             FROM years
-                            WHERE year < @end_year
+                            WHERE year < @e
                         )
                         SELECT 
                             years.year AS nam,
                             COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, 
                             COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu
                         FROM years
-                        LEFT JOIN PHIEUXUAT ON YEAR(PHIEUXUAT.TG) = years.year
+                        LEFT JOIN PHIEUXUAT ON YEAR(PHIEUXUAT.TG) = years.year AND PHIEUXUAT.TT = 1
                         LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                         LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
                         LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
@@ -163,13 +157,19 @@ namespace src.DAO
 
                     using (MySqlCommand cmd = new MySqlCommand(sqlSelect, conn))
                     {
+                        // Gán giá trị tham số
+                        cmd.Parameters.AddWithValue("@s", yearStart);
+                        cmd.Parameters.AddWithValue("@e", yearEnd);
+
                         using (MySqlDataReader rs = cmd.ExecuteReader())
                         {
                             while (rs.Read())
                             {
                                 int tg = rs.GetInt32("nam");
-                                long chiphi = rs.GetInt64("chiphi"); // Dùng GetInt64 cho Long
-                                long doanhthu = rs.GetInt64("doanhthu");
+                                // Dùng Convert.ToInt64 để an toàn với số lớn
+                                long chiphi = rs.IsDBNull(rs.GetOrdinal("chiphi")) ? 0 : Convert.ToInt64(rs.GetDouble("chiphi"));
+                                long doanhthu = rs.IsDBNull(rs.GetOrdinal("doanhthu")) ? 0 : Convert.ToInt64(rs.GetDouble("doanhthu"));
+                                
                                 ThongKeDoanhThuDTO x = new ThongKeDoanhThuDTO(tg, chiphi, doanhthu, doanhthu - chiphi);
                                 result.Add(x);
                             }
@@ -183,7 +183,6 @@ namespace src.DAO
             }
             return result;
         }
-
         // 3. Thống kê khách hàng
         public List<ThongKeKhachHangDTO> GetThongKeKhachHang(string text, DateTime timeStart, DateTime timeEnd)
         {
@@ -455,46 +454,42 @@ namespace src.DAO
 
         // 8. Thống kê từ ngày A đến ngày B
         public List<ThongKeTungNgayTrongThangDTO> GetThongKeTuNgayDenNgay(string start, string end)
-        {
+{
             List<ThongKeTungNgayTrongThangDTO> result = new List<ThongKeTungNgayTrongThangDTO>();
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    using (MySqlCommand cmdSet = new MySqlCommand("SET @start_date = @s; SET @end_date = @e;", conn))
-                    {
-                        cmdSet.Parameters.AddWithValue("@s", start);
-                        cmdSet.Parameters.AddWithValue("@e", end);
-                        cmdSet.ExecuteNonQuery();
-                    }
-
+                    // Query này tạo ra danh sách ngày liên tục giữa Start và End
+                    // Không dùng SET @var nữa mà truyền thẳng tham số vào hàm DATEDIFF/DATE_ADD
                     string sqlSelect = @"
                         SELECT 
-                         dates.date AS ngay, 
-                         COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, 
-                         COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu
+                        dates.date AS ngay, 
+                        COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, 
+                        COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu
                         FROM (
-                          SELECT DATE_ADD(@start_date, INTERVAL c.number DAY) AS date
-                          FROM (
+                        SELECT DATE_ADD(@start, INTERVAL c.number DAY) AS date
+                        FROM (
                             SELECT a.number + b.number * 31 AS number
                             FROM (
-                              SELECT 0 AS number UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-                              UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
-                              UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14
-                              UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19
-                              UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24
-                              UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29
-                              UNION ALL SELECT 30
+                            SELECT 0 AS number UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 
+                            UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 
+                            UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 
+                            UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 
+                            UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 
+                            UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 
+                            UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 
+                            UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30
                             ) AS a
                             CROSS JOIN (
-                              SELECT 0 AS number UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
-                              UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9
-                              UNION ALL SELECT 10
+                            SELECT 0 AS number UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 
+                            UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 
+                            UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
                             ) AS b
-                          ) AS c
-                          WHERE DATE_ADD(@start_date, INTERVAL c.number DAY) <= @end_date
+                        ) AS c
+                        WHERE DATE_ADD(@start, INTERVAL c.number DAY) <= @end
                         ) AS dates
-                        LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date
+                        LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date AND PHIEUXUAT.TT = 1
                         LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                         LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
                         LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
@@ -503,15 +498,20 @@ namespace src.DAO
 
                     using (MySqlCommand cmd = new MySqlCommand(sqlSelect, conn))
                     {
+                        // Truyền tham số trực tiếp, không dùng SET @var
+                        cmd.Parameters.AddWithValue("@start", start);
+                        cmd.Parameters.AddWithValue("@end", end);
+                        
                         using (MySqlDataReader rs = cmd.ExecuteReader())
                         {
                             while (rs.Read())
                             {
                                 DateTime ngay = rs.GetDateTime("ngay");
-                                int chiphi = rs.GetInt32("chiphi");
-                                int doanhthu = rs.GetInt32("doanhthu");
-                                int loinhuan = doanhthu - chiphi;
-                                ThongKeTungNgayTrongThangDTO tn = new ThongKeTungNgayTrongThangDTO(ngay, chiphi, doanhthu, loinhuan);
+                                // Dùng Convert.ToInt64 để an toàn với kiểu số lớn (DECIMAL/DOUBLE trong SQL)
+                                long chiphi = rs.IsDBNull(rs.GetOrdinal("chiphi")) ? 0 : Convert.ToInt64(rs.GetDouble("chiphi"));
+                                long doanhthu = rs.IsDBNull(rs.GetOrdinal("doanhthu")) ? 0 : Convert.ToInt64(rs.GetDouble("doanhthu"));
+                                
+                                ThongKeTungNgayTrongThangDTO tn = new ThongKeTungNgayTrongThangDTO(ngay, (int)chiphi, (int)doanhthu, (int)(doanhthu - chiphi));
                                 result.Add(tn);
                             }
                         }

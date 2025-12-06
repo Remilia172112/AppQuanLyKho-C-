@@ -60,9 +60,17 @@
               "target": "Package",
               "version": "[3.4.7, )"
             },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.9.0, )"
+            },
             "System.Text.Encoding.CodePages": {
               "target": "Package",
               "version": "[10.0.0, )"
+            },
+            "System.Windows.Forms.DataVisualization": {
+              "target": "Package",
+              "version": "[1.0.0-prerelease.20110.1, )"
             },
             "iTextSharp": {
               "target": "Package",

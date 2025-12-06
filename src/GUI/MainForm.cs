@@ -1,11 +1,6 @@
-using System;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 using src.GUI.Components;
 using src.GUI.DanhMuc;
 using src.GUI.NghiepVu;
-using src.GUI.ThongKe;
 using src.GUI.PhanQuyen;
 
 namespace src.GUI.Auth
@@ -223,7 +218,7 @@ namespace src.GUI.Auth
             // Thống kê
             if (SessionManager.CanView("thongke"))
             {
-                AddMenuButton("Thống kê & Báo cáo", y, () => OpenForm(new ThongKeForm()));
+                AddMenuButton("Thống kê và Báo cáo", y, () => OpenForm(new ThongKe.ThongKe()));
                 y += buttonHeight + spacing;
             }
 
@@ -301,7 +296,12 @@ namespace src.GUI.Auth
             };
             contentPanel.Controls.Add(lblInfo);
         }
-
+        private void OpenControl(UserControl control)
+        {
+            contentPanel.Controls.Clear();
+            control.Dock = DockStyle.Fill;
+            contentPanel.Controls.Add(control);
+        }
         private void OpenForm(Form childForm)
         {
             contentPanel.Controls.Clear();

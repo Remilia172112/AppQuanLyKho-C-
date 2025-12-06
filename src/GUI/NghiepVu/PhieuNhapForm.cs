@@ -16,9 +16,9 @@ namespace src.GUI.NghiepVu
         private NhanVienBUS nhanVienBUS = new NhanVienBUS();
 
         // UI Controls
-        private Panel pnlTop;
+        private System.Windows.Forms.Panel pnlTop;
         private Label lblTitle;
-        private Panel pnlFilter;
+        private System.Windows.Forms.Panel pnlFilter;
         private TextBox txtSearch;
         private ComboBox cboNhaCungCap;
         private ComboBox cboNhanVien;
