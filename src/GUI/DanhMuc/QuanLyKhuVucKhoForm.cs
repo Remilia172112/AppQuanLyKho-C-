@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using src.BUS;
 using src.DTO;
+using src.GUI.Components;
 
 namespace src.GUI.DanhMuc
 {
@@ -427,9 +428,9 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
-            btnThem.Enabled = !editing;
-            btnSua.Enabled = !editing;
-            btnXoa.Enabled = !editing;
+            btnThem.Enabled = !editing && SessionManager.CanCreate("khuvuckho");
+            btnSua.Enabled = !editing && SessionManager.CanUpdate("khuvuckho");
+            btnXoa.Enabled = !editing && SessionManager.CanDelete("khuvuckho");
             btnLuu.Enabled = editing;
             btnHuy.Enabled = editing;
             dgvKhuVucKho.Enabled = !editing;

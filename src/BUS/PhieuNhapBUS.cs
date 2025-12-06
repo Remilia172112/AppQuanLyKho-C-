@@ -33,6 +33,12 @@ namespace src.BUS
             return listPhieuNhap;
         }
 
+        // Get single phieu by ID
+        public PhieuNhapDTO GetById(int maphieu)
+        {
+            return phieunhapDAO.selectById(maphieu.ToString());
+        }
+
         // Chuyển đổi Dictionary (Giỏ hàng) thành List sản phẩm
         public List<SanPhamDTO> ConvertHashMapToArray(Dictionary<int, List<SanPhamDTO>> chitietsanpham)
         {
@@ -69,27 +75,60 @@ namespace src.BUS
 
         // Thêm phiếu nhập và chi tiết
         // Lưu ý: Trong Java bạn truyền HashMap, nhưng ở đây mình khuyên dùng List<ChiTietPhieuNhapDTO> cho chuẩn
-        public bool Add(PhieuNhapDTO phieu, List<ChiTietPhieuNhapDTO> ctPhieu)
+        public int Add(PhieuNhapDTO phieu, List<ChiTietPhieuNhapDTO> ctPhieu)
         {
-            bool check = phieunhapDAO.insert(phieu) != 0;
-            if (check)
+            int newMPN = phieunhapDAO.insert(phieu);
+            if (newMPN > 0)
             {
-                // Cập nhật mã phiếu cho chi tiết (nếu ID tự tăng)
-                // Tuy nhiên, logic Java cũ của bạn là lấy ID từ GetMPMAX rồi gán vào
-                // Ở đây giả sử phieu.MPN đã có giá trị đúng
+                phieu.MPN = newMPN;
+                // Cập nhật mã phiếu cho chi tiết
                 foreach (var item in ctPhieu)
                 {
-                    item.MPN = phieu.MPN;
+                    item.MPN = newMPN;
                 }
 
-                check = ctPhieuNhapDAO.insert(ctPhieu) != 0;
+                bool check = ctPhieuNhapDAO.insert(ctPhieu) != 0;
                 
                 if(check)
                 {
                     listPhieuNhap.Add(phieu);
+                    return newMPN;
                 }
             }
-            return check;
+            return 0;
+        }
+
+        // Update phiếu nhập và chi tiết
+        public int Update(PhieuNhapDTO phieu, List<ChiTietPhieuNhapDTO> ctPhieu)
+        {
+            // Kiểm tra chỉ sửa khi TT=2
+            if (!CanUpdate(phieu.MPN))
+            {
+                Console.WriteLine("Không thể sửa phiếu nhập đã duyệt (TT=1) hoặc đã xóa (TT=0)");
+                return 0;
+            }
+
+            int result = phieunhapDAO.update(phieu);
+            if (result > 0)
+            {
+                // Xóa chi tiết cũ
+                ctPhieuNhapDAO.delete(phieu.MPN.ToString());
+                
+                // Thêm chi tiết mới
+                foreach (var item in ctPhieu)
+                {
+                    item.MPN = phieu.MPN;
+                }
+                ctPhieuNhapDAO.insert(ctPhieu);
+
+                // Cập nhật cache
+                int index = listPhieuNhap.FindIndex(x => x.MPN == phieu.MPN);
+                if (index >= 0)
+                {
+                    listPhieuNhap[index] = phieu;
+                }
+            }
+            return result;
         }
 
         public ChiTietPhieuNhapDTO FindCT(List<ChiTietPhieuNhapDTO> ctphieu, int masp)
@@ -178,9 +217,70 @@ namespace src.BUS
             return phieunhapDAO.checkSLPn(maphieu);
         }
 
+        // Duyệt phiếu nhập (TT: 2->1) - Chỉ quản lý kho mới được duyệt
+        public int DuyetPhieuNhap(int maphieu)
+        {
+            int result = phieunhapDAO.DuyetPhieuNhap(maphieu);
+            if(result > 0)
+            {
+                // Cập nhật lại cache
+                PhieuNhapDTO updatedPhieu = phieunhapDAO.selectById(maphieu.ToString());
+                if (updatedPhieu != null)
+                {
+                    // Tìm và cập nhật trong list
+                    int index = listPhieuNhap.FindIndex(x => x.MPN == maphieu);
+                    if (index != -1)
+                    {
+                        listPhieuNhap[index] = updatedPhieu;
+                    }
+                }
+            }
+            return result;
+        }
+
+        // Kiểm tra có thể cập nhật phiếu không (Chỉ cập nhật khi TT=2)
+        public bool CanUpdate(int maphieu)
+        {
+            PhieuNhapDTO phieu = phieunhapDAO.selectById(maphieu.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Kiểm tra có thể xóa phiếu không (Chỉ xóa khi TT=2)
+        public bool CanDelete(int maphieu)
+        {
+            PhieuNhapDTO phieu = phieunhapDAO.selectById(maphieu.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Lọc phiếu nhập theo trạng thái (0: Đã xóa, 1: Đã duyệt, 2: Chờ duyệt)
+        public List<PhieuNhapDTO> FillerPhieuNhapByStatus(int status)
+        {
+            List<PhieuNhapDTO> result = new List<PhieuNhapDTO>();
+            foreach (PhieuNhapDTO phieu in GetAllList())
+            {
+                if (phieu.TT == status)
+                {
+                    result.Add(phieu);
+                }
+            }
+            return result;
+        }
+
         public int CancelPhieuNhap(int maphieu)
         {
-            int result = phieunhapDAO.cancelPhieuNhap(maphieu);
+            // Kiểm tra chỉ xóa khi TT=2
+            if (!CanDelete(maphieu))
+            {
+                Console.WriteLine("Không thể xóa phiếu nhập đã duyệt (TT=1) hoặc đã xóa (TT=0)");
+                return 0;
+            }
+
+            // Xóa chi tiết phiếu nhập
+            ctPhieuNhapDAO.delete(maphieu.ToString());
+
+            // Xóa phiếu nhập (UPDATE TT=0)
+            int result = phieunhapDAO.delete(maphieu.ToString());
+            
             if(result > 0)
             {
                 // Xóa khỏi list cache

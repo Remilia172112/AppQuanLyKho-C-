@@ -80,6 +80,16 @@ namespace src.BUS
             return vitri;
         }
 
+        public NhaCungCapDTO GetById(int mancc)
+        {
+            int index = GetIndexByMaNCC(mancc);
+            if (index != -1)
+            {
+                return this.listNcc[index];
+            }
+            return null;
+        }
+
         public List<NhaCungCapDTO> Search(string txt, string type)
         {
             List<NhaCungCapDTO> result = new List<NhaCungCapDTO>();

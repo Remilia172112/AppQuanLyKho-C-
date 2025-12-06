@@ -143,5 +143,47 @@ namespace src.BUS
             }
             return null;
         }
+
+        // DUYỆT PHIẾU KIỂM KÊ - Chuyển TT từ 2 (chờ duyệt) -> 1 (đã duyệt) và điều chỉnh tồn kho
+        public bool DuyetPhieuKiemKe(int mpkk)
+        {
+            int result = phieuKiemKeDAO.DuyetPhieuKiemKe(mpkk);
+            if (result > 0)
+            {
+                // Refresh cache sau khi duyệt thành công
+                this.danhSachPhieu = phieuKiemKeDAO.selectAll();
+                return true;
+            }
+            return false;
+        }
+
+        // Kiểm tra có thể sửa phiếu không (chỉ sửa được khi TT=2 - chờ duyệt)
+        public bool CanUpdate(int mpkk)
+        {
+            var phieu = phieuKiemKeDAO.selectById(mpkk.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Kiểm tra có thể xóa phiếu không (chỉ xóa được khi TT=2 - chờ duyệt)
+        public bool CanDelete(int mpkk)
+        {
+            var phieu = phieuKiemKeDAO.selectById(mpkk.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Lọc phiếu kiểm kê theo trạng thái (TT)
+        // status: 0 = đã xóa, 1 = đã duyệt, 2 = chờ duyệt
+        public List<PhieuKiemKeDTO> FillerPhieuKiemKeByStatus(int status)
+        {
+            List<PhieuKiemKeDTO> result = new List<PhieuKiemKeDTO>();
+            foreach (var phieu in this.danhSachPhieu)
+            {
+                if (phieu.TT == status)
+                {
+                    result.Add(phieu);
+                }
+            }
+            return result;
+        }
     }
 }

@@ -84,21 +84,25 @@ namespace src.BUS
             return check;
         }
 
-        public bool Delete(KhachHangDTO kh)
+    public bool Delete(KhachHangDTO kh)
+    {
+        bool check = khDAO.delete(kh.MKH.ToString()) != 0;
+        if (check)
         {
-            bool check = khDAO.delete(kh.MKH.ToString()) != 0;
-            if (check)
+            int index = GetIndexByMaKH(kh.MKH);
+            if (index != -1)
             {
-                int index = GetIndexByMaKH(kh.MKH);
-                if (index != -1)
-                {
-                    this.listKhachHang.RemoveAt(index);
-                }
+                this.listKhachHang.RemoveAt(index);
             }
-            return check;
         }
+        return check;
+    }
 
-        public bool Update(KhachHangDTO kh)
+    public KhachHangDTO GetById(int makh)
+    {
+        int index = GetIndexByMaKH(makh);
+        return index >= 0 ? listKhachHang[index] : null;
+    }        public bool Update(KhachHangDTO kh)
         {
             bool check = khDAO.update(kh) != 0;
             if (check)

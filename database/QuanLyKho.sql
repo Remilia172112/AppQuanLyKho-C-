@@ -248,10 +248,15 @@ VALUES
         (3, 'sanpham', 'update'),
         (3, 'sanpham', 'view'),
         (3, 'nhaphang', 'create'),
+        (3, 'nhaphang', 'delete'),
         (3, 'nhaphang', 'update'),
         (3, 'nhaphang', 'view'),
+        (3, 'nhaphang', 'approve'),
+        (3, 'xuathang', 'delete'),
+        (3, 'xuathang', 'approve'),
         (3, 'kiemke', 'create'),
         (3, 'kiemke', 'delete'),
+        (3, 'kiemke', 'approve'),
         (3, 'kiemke', 'update'),
         (3, 'kiemke', 'view'),
         (3, 'nhacungcap', 'create'),
@@ -437,6 +442,7 @@ VALUES
         ('Khu vực B', 'Văn học - Nghệ thuật', 1),
         ('Khu vực C', 'Văn học thiếu nhi', 1),
         ('Khu vực D', 'Sách Chính trị - Xã hội', 1);
+
 
 /*Tạo quan hệ*/
 

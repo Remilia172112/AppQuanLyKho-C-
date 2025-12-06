@@ -20,16 +20,18 @@ namespace src.DAO
 
         private PhieuNhapDAO() { }
 
-        // 1. Thêm phiếu nhập (INSERT)
+        // 1. Thêm phiếu nhập (INSERT) - Mặc định TT=2 (Chờ duyệt)
+        // Trả về MPN mới được insert (LAST_INSERT_ID)
         public int insert(PhieuNhapDTO t)
         {
-            int result = 0;
+            int newMPN = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
                     // MPN tự tăng, nên không insert
-                    string sql = "INSERT INTO PHIEUNHAP (MNV, MNCC, TIEN, TG, TT) VALUES (@mnv, @mncc, @tien, @tg, @tt)";
+                    // TT mặc định = 2 (Chờ duyệt)
+                    string sql = "INSERT INTO PHIEUNHAP (MNV, MNCC, TIEN, TG, TT) VALUES (@mnv, @mncc, @tien, @tg, 2)";
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
@@ -37,17 +39,23 @@ namespace src.DAO
                         cmd.Parameters.AddWithValue("@mncc", t.MNCC);
                         cmd.Parameters.AddWithValue("@tien", t.TIEN);
                         cmd.Parameters.AddWithValue("@tg", t.TG); // DateTime
-                        cmd.Parameters.AddWithValue("@tt", t.TT);
                         
-                        result = cmd.ExecuteNonQuery();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        
+                        if (rowsAffected > 0)
+                        {
+                            // Lấy ID vừa insert (AUTO_INCREMENT)
+                            newMPN = (int)cmd.LastInsertedId;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi Insert PhieuNhap: " + ex.Message);
+                Console.WriteLine("Stack Trace: " + ex.StackTrace);
             }
-            return result;
+            return newMPN;
         }
 
         // 2. Cập nhật phiếu nhập (UPDATE)
@@ -79,7 +87,7 @@ namespace src.DAO
             return result;
         }
 
-        // 3. Xóa phiếu nhập (DELETE MỀM - UPDATE TT=0)
+        // 3. Xóa phiếu nhập (DELETE MỀM - UPDATE TT=0) - Chỉ xóa khi TT=2 (chờ duyệt)
         public int delete(string t)
         {
             int result = 0;
@@ -87,7 +95,8 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "UPDATE PHIEUNHAP SET TT = 0 WHERE MPN = @mpn";
+                    // Chỉ xóa được phiếu nhập chưa duyệt (TT=2)
+                    string sql = "UPDATE PHIEUNHAP SET TT = 0 WHERE MPN = @mpn AND TT = 2";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@mpn", t);
@@ -333,6 +342,49 @@ namespace src.DAO
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi getAutoIncrement PhieuNhap: " + ex.Message);
+            }
+            return result;
+        }
+
+        // 10. Duyệt phiếu nhập (Chuyển TT từ 2->1 và cập nhật tồn kho)
+        public int DuyetPhieuNhap(int maphieu)
+        {
+            int result = 0;
+            try
+            {
+                // Kiểm tra phiếu nhập có tồn tại và đang ở trạng thái chờ duyệt (TT=2)
+                PhieuNhapDTO phieu = this.selectById(maphieu.ToString());
+                if (phieu == null || phieu.TT != 2)
+                {
+                    Console.WriteLine("Phiếu nhập không tồn tại hoặc không ở trạng thái chờ duyệt");
+                    return 0;
+                }
+
+                // Bước 1: Cập nhật trạng thái phiếu nhập từ 2 -> 1
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    string sql = "UPDATE PHIEUNHAP SET TT = 1 WHERE MPN = @mpn AND TT = 2";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@mpn", maphieu);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Bước 2: Cập nhật tồn kho cho từng sản phẩm trong chi tiết phiếu nhập
+                if (result > 0)
+                {
+                    List<ChiTietPhieuNhapDTO> listCT = ChiTietPhieuNhapDAO.Instance.selectAll(maphieu.ToString());
+                    foreach (var item in listCT)
+                    {
+                        // Cộng số lượng vào tồn kho
+                        SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, item.SL);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DuyetPhieuNhap: " + ex.Message);
             }
             return result;
         }

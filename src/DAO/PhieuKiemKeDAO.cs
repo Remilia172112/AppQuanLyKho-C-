@@ -20,7 +20,7 @@ namespace src.DAO
 
         private PhieuKiemKeDAO() { }
 
-        // 1. Thêm phiếu kiểm kê (INSERT)
+        // 1. Thêm phiếu kiểm kê (INSERT) - Mặc định TT=2 (chờ duyệt)
         public int insert(PhieuKiemKeDTO t)
         {
             int result = 0;
@@ -28,8 +28,8 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    // MPKK là Auto Increment, TT mặc định là 1
-                    string sql = "INSERT INTO PHIEUKIEMKE (MNV, TG, TT) VALUES (@mnv, @tg, 1)";
+                    // MPKK là Auto Increment, TT mặc định = 2 (chờ duyệt)
+                    string sql = "INSERT INTO PHIEUKIEMKE (MNV, TG, TT) VALUES (@mnv, @tg, 2)";
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
@@ -53,8 +53,7 @@ namespace src.DAO
             throw new NotImplementedException("Chức năng cập nhật phiếu kiểm kê chưa được hỗ trợ.");
         }
 
-        // 3. Xóa phiếu kiểm kê (DELETE CỨNG - theo code Java cũ)
-        // Nếu muốn xóa mềm thì sửa thành: UPDATE PHIEUKIEMKE SET TT=0 WHERE MPKK=@mpkk
+        // 3. Xóa phiếu kiểm kê (DELETE MỀM - UPDATE TT=0) - CHỈ XÓA KHI TT=2 (chờ duyệt)
         public int delete(string t)
         {
             int result = 0;
@@ -62,7 +61,8 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "DELETE FROM PHIEUKIEMKE WHERE MPKK = @mpkk";
+                    // Xóa mềm và chỉ cho phép xóa phiếu chưa duyệt (TT=2)
+                    string sql = "UPDATE PHIEUKIEMKE SET TT = 0 WHERE MPKK = @mpkk AND TT = 2";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@mpkk", t);
@@ -146,7 +146,75 @@ namespace src.DAO
             return result;
         }
 
-        // 6. Lấy giá trị Auto Increment
+        // 6. DUYỆT PHIẾU KIỂM KÊ - Chuyển TT từ 2 -> 1 và ĐIỀU CHỈNH TỒN KHO theo TRANGTHAISP
+        // TRANGTHAISP: Trạng thái sản phẩm sau kiểm kê (số lượng thực tế)
+        public int DuyetPhieuKiemKe(int maphieu)
+        {
+            int result = 0;
+            try
+            {
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    // Kiểm tra phiếu có tồn tại và đang ở trạng thái chờ duyệt (TT=2) không
+                    string sqlCheck = "SELECT TT FROM PHIEUKIEMKE WHERE MPKK = @mpkk";
+                    int currentStatus = -1;
+                    
+                    using (MySqlCommand cmdCheck = new MySqlCommand(sqlCheck, conn))
+                    {
+                        cmdCheck.Parameters.AddWithValue("@mpkk", maphieu);
+                        object statusObj = cmdCheck.ExecuteScalar();
+                        if (statusObj != null)
+                            currentStatus = Convert.ToInt32(statusObj);
+                    }
+
+                    if (currentStatus != 2)
+                    {
+                        Console.WriteLine($"Phiếu kiểm kê {maphieu} không ở trạng thái chờ duyệt (TT={currentStatus})");
+                        return 0;
+                    }
+
+                    // 1. Cập nhật trạng thái phiếu từ 2 -> 1
+                    string sqlUpdate = "UPDATE PHIEUKIEMKE SET TT = 1 WHERE MPKK = @mpkk AND TT = 2";
+                    using (MySqlCommand cmdUpdate = new MySqlCommand(sqlUpdate, conn))
+                    {
+                        cmdUpdate.Parameters.AddWithValue("@mpkk", maphieu);
+                        result = cmdUpdate.ExecuteNonQuery();
+                    }
+
+                    if (result > 0)
+                    {
+                        // 2. Điều chỉnh tồn kho cho từng sản phẩm theo TRANGTHAISP
+                        var chiTiet = ChiTietPhieuKiemKeDAO.Instance.selectAll(maphieu.ToString());
+                        foreach (var item in chiTiet)
+                        {
+                            // TRANGTHAISP = số lượng thực tế sau kiểm kê
+                            // Lấy số lượng tồn hiện tại
+                            var sanpham = SanPhamDAO.Instance.selectById(item.MSP.ToString());
+                            if (sanpham != null)
+                            {
+                                int tonHienTai = sanpham.SL;
+                                int tonThucTe = item.TRANGTHAISP; // Số lượng thực tế sau kiểm kê
+                                int chenhLech = tonThucTe - tonHienTai; // Chênh lệch cần điều chỉnh
+                                
+                                if (chenhLech != 0)
+                                {
+                                    // Cập nhật tồn kho theo chênh lệch
+                                    SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, chenhLech);
+                                }
+                            }
+                        }
+                        Console.WriteLine($"Đã duyệt phiếu kiểm kê {maphieu} và điều chỉnh tồn kho thành công");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DuyetPhieuKiemKe: " + ex.Message);
+            }
+            return result;
+        }
+
+        // 7. Lấy giá trị Auto Increment
         public int getAutoIncrement()
         {
             int result = -1;

@@ -21,16 +21,17 @@ namespace src.DAO
 
         private PhieuXuatDAO() { }
 
-        // 1. Thêm phiếu xuất (INSERT)
+        // 1. Thêm phiếu xuất (INSERT) - Mặc định TT=2 (chờ duyệt)
+        // Trả về MPX mới được insert (LAST_INSERT_ID)
         public int insert(PhieuXuatDTO t)
         {
-            int result = 0;
+            int newMPX = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    // MPX tự tăng
-                    string sql = "INSERT INTO PHIEUXUAT (MNV, MKH, TIEN, TG, TT) VALUES (@mnv, @mkh, @tien, @tg, @tt)";
+                    // MPX tự tăng, TT mặc định = 2 (chờ duyệt), KHÔNG trừ kho ngay
+                    string sql = "INSERT INTO PHIEUXUAT (MNV, MKH, TIEN, TG, TT) VALUES (@mnv, @mkh, @tien, @tg, 2)";
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
@@ -38,17 +39,23 @@ namespace src.DAO
                         cmd.Parameters.AddWithValue("@mkh", t.MKH);
                         cmd.Parameters.AddWithValue("@tien", t.TIEN);
                         cmd.Parameters.AddWithValue("@tg", t.TG); // DateTime
-                        cmd.Parameters.AddWithValue("@tt", t.TT);
                         
-                        result = cmd.ExecuteNonQuery();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        
+                        if (rowsAffected > 0)
+                        {
+                            // Lấy ID vừa insert (AUTO_INCREMENT)
+                            newMPX = (int)cmd.LastInsertedId;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi Insert PhieuXuat: " + ex.Message);
+                Console.WriteLine("Stack Trace: " + ex.StackTrace);
             }
-            return result;
+            return newMPX;
         }
 
         // 2. Cập nhật phiếu xuất (UPDATE)
@@ -81,7 +88,7 @@ namespace src.DAO
             return result;
         }
 
-        // 3. Xóa phiếu xuất (DELETE MỀM - UPDATE TT=0)
+        // 3. Xóa phiếu xuất (DELETE MỀM - UPDATE TT=0) - CHỈ XÓA KHI TT=2 (chờ duyệt)
         public int delete(string t)
         {
             int result = 0;
@@ -89,7 +96,8 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MPX = @mpx";
+                    // Chỉ cho phép xóa phiếu chưa duyệt (TT=2)
+                    string sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MPX = @mpx AND TT = 2";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@mpx", t);
@@ -351,6 +359,45 @@ namespace src.DAO
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi UpdateDP PhieuXuat: " + ex.Message);
+            }
+            return result;
+        }
+
+        // 11. Duyệt phiếu xuất - Chuyển TT=2 sang TT=1 và trừ tồn kho
+        public int DuyetPhieuXuat(int mpx)
+        {
+            int result = 0;
+            try
+            {
+                // 11.1 Kiểm tra phiếu xuất có TT=2 không
+                PhieuXuatDTO phieu = selectById(mpx.ToString());
+                if (phieu == null || phieu.TT != 2)
+                {
+                    return 0; // Phiếu không tồn tại hoặc đã được duyệt/xóa
+                }
+
+                // 11.2 Trừ tồn kho cho các sản phẩm trong phiếu
+                List<ChiTietPhieuXuatDTO> listCT = ChiTietPhieuXuatDAO.Instance.selectAll(mpx.ToString());
+                foreach (var item in listCT)
+                {
+                    // Trừ số lượng tồn kho (số âm vì xuất hàng)
+                    SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, -(item.SL));
+                }
+
+                // 11.3 Cập nhật trạng thái phiếu xuất sang TT=1 (đã duyệt)
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    string sql = "UPDATE PHIEUXUAT SET TT = 1 WHERE MPX = @mpx";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@mpx", mpx);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DuyetPhieuXuat: " + ex.Message);
             }
             return result;
         }

@@ -32,12 +32,16 @@ namespace src.BUS
             return this.listPhieuXuat;
         }
 
-        public PhieuXuatDTO GetSelect(int index)
-        {
-            return listPhieuXuat[index];
-        }
+    public PhieuXuatDTO GetSelect(int index)
+    {
+        return listPhieuXuat[index];
+    }
 
-        public void Cancel(int px)
+    public PhieuXuatDTO GetById(int mapx)
+    {
+        int index = listPhieuXuat.FindIndex(p => p.MPX == mapx);
+        return index >= 0 ? listPhieuXuat[index] : null;
+    }        public void Cancel(int px)
         {
             phieuXuatDAO.cancelPhieuXuat(px);
         }
@@ -56,24 +60,59 @@ namespace src.BUS
             chiTietPhieuXuatDAO.updateSL(px.MPX.ToString());
         }
 
-        // Insert Phiếu Xuất (Trừ kho)
-        public void Insert(PhieuXuatDTO px, List<ChiTietPhieuXuatDTO> ct)
+    // Insert Phiếu Xuất (Trừ kho)
+    public int Insert(PhieuXuatDTO px, List<ChiTietPhieuXuatDTO> ct)
+    {
+        // Insert phiếu xuất
+        int newMPX = phieuXuatDAO.insert(px);
+        
+        // Cập nhật MPX cho chi tiết phiếu
+        px.MPX = newMPX;
+        foreach(var item in ct)
         {
-            // Insert phiếu xuất
-            phieuXuatDAO.insert(px);
-            
-            // Cập nhật MPX cho chi tiết phiếu (nếu ID tự tăng thì phải lấy lại ID mới)
-            // Giả sử px.MPX đã đúng
-            foreach(var item in ct)
-            {
-                item.MPX = px.MPX;
-            }
-
-            // Insert chi tiết (đã bao gồm logic trừ kho trong DAO)
-            chiTietPhieuXuatDAO.insert(ct);
+            item.MPX = newMPX;
         }
 
-        // Insert Giỏ hàng tạm (Không trừ kho?) - Theo logic code cũ
+        // Insert chi tiết (đã bao gồm logic trừ kho trong DAO)
+        chiTietPhieuXuatDAO.insert(ct);
+        
+        // Cập nhật cache
+        this.listPhieuXuat.Add(px);
+        
+        return newMPX;
+    }
+
+    // Update Phiếu Xuất (chỉ cho phép sửa phiếu chờ duyệt TT=2)
+    public bool Update(PhieuXuatDTO px, List<ChiTietPhieuXuatDTO> ct)
+    {
+        // Chỉ cho phép sửa phiếu chờ duyệt
+        if (px.TT != 2) return false;
+        
+        int result = phieuXuatDAO.update(px);
+        if (result == 0) return false;
+        
+        // Xóa chi tiết cũ và thêm mới
+        chiTietPhieuXuatDAO.delete(px.MPX.ToString());
+        
+        // Cập nhật MPX cho chi tiết
+        foreach(var item in ct)
+        {
+            item.MPX = px.MPX;
+        }
+        
+        chiTietPhieuXuatDAO.insert(ct);
+        
+        // Cập nhật cache
+        int index = listPhieuXuat.FindIndex(p => p.MPX == px.MPX);
+        if (index >= 0)
+        {
+            listPhieuXuat[index] = px;
+        }
+        
+        return true;
+    }
+
+    // Insert Giỏ hàng tạm (Không trừ kho?) - Theo logic code cũ
         public void InsertGH(PhieuXuatDTO px, List<ChiTietPhieuXuatDTO> ct)
         {
             phieuXuatDAO.insert(px);
@@ -215,6 +254,48 @@ namespace src.BUS
         public int CancelPhieuXuat(int maphieu)
         {
             return phieuXuatDAO.cancelPhieuXuat(maphieu);
+        }
+
+        // DUYỆT PHIẾU XUẤT - Chuyển TT từ 2 (chờ duyệt) -> 1 (đã duyệt) và trừ tồn kho
+        public bool DuyetPhieuXuat(int mpx)
+        {
+            int result = phieuXuatDAO.DuyetPhieuXuat(mpx);
+            if (result > 0)
+            {
+                // Refresh cache sau khi duyệt thành công
+                this.listPhieuXuat = phieuXuatDAO.selectAll();
+                return true;
+            }
+            return false;
+        }
+
+        // Kiểm tra có thể sửa phiếu không (chỉ sửa được khi TT=2 - chờ duyệt)
+        public bool CanUpdate(int mpx)
+        {
+            var phieu = phieuXuatDAO.selectById(mpx.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Kiểm tra có thể xóa phiếu không (chỉ xóa được khi TT=2 - chờ duyệt)
+        public bool CanDelete(int mpx)
+        {
+            var phieu = phieuXuatDAO.selectById(mpx.ToString());
+            return phieu != null && phieu.TT == 2;
+        }
+
+        // Lọc phiếu xuất theo trạng thái (TT)
+        // status: 0 = đã xóa, 1 = đã duyệt, 2 = chờ duyệt
+        public List<PhieuXuatDTO> FillerPhieuXuatByStatus(int status)
+        {
+            List<PhieuXuatDTO> result = new List<PhieuXuatDTO>();
+            foreach (var phieu in this.listPhieuXuat)
+            {
+                if (phieu.TT == status)
+                {
+                    result.Add(phieu);
+                }
+            }
+            return result;
         }
     }
 }

@@ -75,5 +75,13 @@ namespace src.GUI.Components
         {
             return HasPermission(machucnang, "delete");
         }
+
+        /// <summary>
+        /// Kiểm tra có quyền duyệt không (approve - dành cho phiếu nhập/xuất/kiểm kê)
+        /// </summary>
+        public static bool CanApprove(string machucnang)
+        {
+            return HasPermission(machucnang, "approve");
+        }
     }
 }

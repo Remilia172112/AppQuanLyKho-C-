@@ -21,7 +21,7 @@ namespace src.DAO
 
         private ChiTietPhieuXuatDAO() { }
 
-        // 1. Insert chi tiết phiếu xuất + Cập nhật tồn kho (Trừ đi)
+        // 1. Insert chi tiết phiếu xuất - KHÔNG trừ tồn kho ngay (chờ duyệt phiếu)
         public int insert(List<ChiTietPhieuXuatDTO> t)
         {
             int result = 0;
@@ -44,9 +44,10 @@ namespace src.DAO
                             result += cmd.ExecuteNonQuery();
                         }
 
-                        // 1.2 Trừ số lượng tồn kho (Xuất hàng -> Tồn kho giảm)
-                        int soLuongGiam = -(item.SL); // Chuyển thành số âm để trừ
-                        SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, soLuongGiam);
+                        // KHÔNG cập nhật tồn kho tại đây - chỉ cập nhật khi phiếu xuất được DUYỆT
+                        // Logic trừ kho được chuyển sang PhieuXuatDAO.DuyetPhieuXuat()
+                        // int soLuongGiam = -(item.SL);
+                        // SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, soLuongGiam);
                     }
                     catch (Exception ex)
                     {

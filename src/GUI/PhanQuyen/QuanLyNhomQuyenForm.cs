@@ -295,8 +295,8 @@ namespace src.GUI.PhanQuyen
         private void InitializePermissionPanel()
         {
             var listChucNang = chucNangDAO.SelectAll();
-            string[] actions = { "view", "create", "update", "delete" };
-            string[] actionLabels = { "Xem", "Thêm", "Sửa", "Xóa" };
+            string[] actions = { "view", "create", "update", "delete", "approve" };
+            string[] actionLabels = { "Xem", "Thêm", "Sửa", "Xóa", "Duyệt" };
 
             int yPos = 15;
 
@@ -307,7 +307,7 @@ namespace src.GUI.PhanQuyen
                 {
                     Text = cn.TEN,
                     Location = new Point(15, yPos),
-                    Size = new Size(600, 60), // Giảm chiều ngang groupbox
+                    Size = new Size(720, 60), // Tăng chiều rộng để chứa checkbox "Duyệt"
                     Font = new Font("Segoe UI", 10, FontStyle.Bold),
                     ForeColor = Color.FromArgb(52, 73, 94)
                 };
@@ -316,6 +316,15 @@ namespace src.GUI.PhanQuyen
 
                 for (int i = 0; i < actions.Length; i++)
                 {
+                    // Chỉ hiển thị checkbox "Duyệt" cho nhaphang, xuathang, kiemke
+                    if (actions[i] == "approve" && 
+                        cn.MCN != "nhaphang" && 
+                        cn.MCN != "xuathang" && 
+                        cn.MCN != "kiemke")
+                    {
+                        continue; // Bỏ qua checkbox "Duyệt" cho các chức năng khác
+                    }
+
                     CheckBox chk = new CheckBox
                     {
                         Text = actionLabels[i],

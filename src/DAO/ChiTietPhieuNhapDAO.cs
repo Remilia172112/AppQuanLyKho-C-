@@ -47,10 +47,9 @@ namespace src.DAO
                             result += cmd.ExecuteNonQuery();
                         }
 
-                        // 1.2 Cập nhật số lượng tồn kho (Gọi sang SanPhamDAO)
-                        // Giả định bạn sẽ viết hàm UpdateSoLuongTon bên SanPhamDAO
-                        // Logic nhập hàng: Tồn kho tăng lên (+)
-                        // SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, item.SL); 
+                        // 1.2 Cập nhật số lượng tồn kho
+                        // KHÔNG cập nhật tại đây - chỉ cập nhật khi phiếu nhập được DUYỆT (TT: 2->1)
+                        // Logic cập nhật kho nằm trong PhieuNhapDAO.DuyetPhieuNhap()
                     }
                     catch (Exception ex)
                     {

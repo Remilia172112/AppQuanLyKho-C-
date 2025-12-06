@@ -5,6 +5,7 @@ using System.ComponentModel;
 using src.BUS;
 using src.DTO;
 using src.Helper;
+using src.GUI.Components;
 
 namespace src.GUI.DanhMuc
 {
@@ -581,9 +582,9 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
-            btnThem.Enabled = !editing;
-            btnSua.Enabled = !editing;
-            btnXoa.Enabled = !editing;
+            btnThem.Enabled = !editing && SessionManager.CanCreate("nhanvien");
+            btnSua.Enabled = !editing && SessionManager.CanUpdate("nhanvien");
+            btnXoa.Enabled = !editing && SessionManager.CanDelete("nhanvien");
             btnLuu.Enabled = editing;
             btnHuy.Enabled = editing;
             dgvNhanVien.Enabled = !editing;
