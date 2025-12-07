@@ -9,35 +9,36 @@ namespace src.BUS
     {
         private readonly PhieuKiemKeDAO phieuKiemKeDAO = PhieuKiemKeDAO.Instance;
         private readonly ChiTietPhieuKiemKeDAO chiTietKiemKeDAO = ChiTietPhieuKiemKeDAO.Instance;
-        private readonly NhanVienBUS nvBUS = new NhanVienBUS();
-        private List<PhieuKiemKeDTO> danhSachPhieu;
-
-        public PhieuKiemKeBUS()
-        {
-            danhSachPhieu = phieuKiemKeDAO.selectAll();
-        }
-
-        // Lấy danh sách phiếu (Getter/Setter)
-        public List<PhieuKiemKeDTO> DanhSachPhieu
-        {
-            get { return danhSachPhieu; }
-            set { danhSachPhieu = value; }
-        }
 
         public List<PhieuKiemKeDTO> SelectAll()
         {
-            return phieuKiemKeDAO.selectAll();
+            var result = phieuKiemKeDAO.selectAll();
+            return result ?? new List<PhieuKiemKeDTO>();
         }
 
-        public List<ChiTietPhieuKiemKeDTO> GetChiTietPhieu(int maphieukiemke)
+        // Alias for SelectAll - for consistency with other BUS classes
+        public List<PhieuKiemKeDTO> GetAll()
         {
-            return chiTietKiemKeDAO.selectAll(maphieukiemke.ToString());
+            return SelectAll();
         }
 
-        public int GetAutoIncrement()
+        // Get phieu by ID
+        public PhieuKiemKeDTO GetById(int mpkk)
         {
-            return phieuKiemKeDAO.getAutoIncrement();
+            var list = phieuKiemKeDAO.selectAll();
+            if (list == null) return null;
+            
+            foreach (var phieu in list)
+            {
+                if (phieu.MPKK == mpkk)
+                {
+                    return phieu;
+                }
+            }
+            return null;
         }
+
+
 
         // Thêm phiếu kiểm kê và chi tiết
         public bool Add(PhieuKiemKeDTO phieu, List<ChiTietPhieuKiemKeDTO> dsPhieu)
@@ -54,107 +55,58 @@ namespace src.BUS
                 }
 
                 check = chiTietKiemKeDAO.insert(dsPhieu) != 0;
-                
-                if (check)
-                {
-                    danhSachPhieu.Add(phieu);
-                }
             }
             return check;
         }
 
-        // Hủy phiếu kiểm kê
-        public void Cancel(int index)
+        // Lấy chi tiết phiếu kiểm kê
+        public List<ChiTietPhieuKiemKeDTO> GetChiTietPhieu(int mpkk)
         {
-            if (index >= 0 && index < danhSachPhieu.Count)
+            var result = chiTietKiemKeDAO.selectAll(mpkk.ToString());
+            return result ?? new List<ChiTietPhieuKiemKeDTO>();
+        }
+
+        // Cập nhật phiếu kiểm kê và chi tiết (chỉ cho phép sửa phiếu chờ duyệt TT=2)
+        public bool Update(PhieuKiemKeDTO phieu, List<ChiTietPhieuKiemKeDTO> dsPhieu)
+        {
+            // Kiểm tra chỉ sửa khi TT=2
+            if (!CanUpdate(phieu.MPKK))
             {
-                PhieuKiemKeDTO phieu = danhSachPhieu[index];
-                
-                // Xóa chi tiết trước
-                chiTietKiemKeDAO.delete(phieu.MPKK.ToString());
-                
-                // Xóa phiếu
-                phieuKiemKeDAO.delete(phieu.MPKK.ToString());
-                
-                // Xóa khỏi list
-                danhSachPhieu.RemoveAt(index);
+                return false;
             }
-        }
 
-        public List<ChiTietPhieuKiemKeDTO> GetChitietTiemKe(int maphieu)
-        {
-            return chiTietKiemKeDAO.selectAll(maphieu.ToString());
-        }
-
-        // Lọc phiếu kiểm kê
-        public List<PhieuKiemKeDTO> FilterPhieuKiemKe(int type, string input, int manv, DateTime timeStart, DateTime timeEnd)
-        {
-            List<PhieuKiemKeDTO> result = new List<PhieuKiemKeDTO>();
+            // Xóa chi tiết cũ
+            chiTietKiemKeDAO.delete(phieu.MPKK.ToString());
             
-            // Chuyển input về chữ thường để so sánh
-            input = input.ToLower();
-
-            foreach (PhieuKiemKeDTO phieu in danhSachPhieu)
+            // Cập nhật MPKK cho các chi tiết mới
+            foreach (var item in dsPhieu)
             {
-                bool match = false;
-                switch (type)
-                {
-                    case 0: // Tất cả
-                        if (phieu.MPKK.ToString().Contains(input) || 
-                            nvBUS.GetNameById(phieu.MNV).ToLower().Contains(input))
-                        {
-                            match = true;
-                        }
-                        break;
-                    case 1: // Mã phiếu
-                        if (phieu.MPKK.ToString().Contains(input))
-                        {
-                            match = true;
-                        }
-                        break;
-                    case 2: // Người tạo
-                        if (nvBUS.GetNameById(phieu.MNV).ToLower().Contains(input))
-                        {
-                            match = true;
-                        }
-                        break;
-                }
-
-                // Kiểm tra các điều kiện kết hợp: Match + Nhân viên + Thời gian
-                if (match &&
-                    (manv == 0 || phieu.MNV == manv) &&
-                    (phieu.TG >= timeStart) && 
-                    (phieu.TG <= timeEnd))
-                {
-                    result.Add(phieu);
-                }
+                item.MPKK = phieu.MPKK;
             }
-            return result;
+            
+            // Thêm chi tiết mới
+            bool check = chiTietKiemKeDAO.insert(dsPhieu) != 0;
+            
+            return check;
         }
 
-        public ChiTietPhieuKiemKeDTO FindCT(List<ChiTietPhieuKiemKeDTO> ctphieu, int masp)
+        // Hủy phiếu kiểm kê (xóa mềm - UPDATE TT=0)
+        public bool Cancel(int mpkk)
         {
-            foreach (var item in ctphieu)
-            {
-                if (item.MSP == masp)
-                {
-                    return item;
-                }
-            }
-            return null;
+            // Xóa chi tiết trước
+            chiTietKiemKeDAO.delete(mpkk.ToString());
+            
+            // Xóa phiếu (soft delete: UPDATE TT=0)
+            int result = phieuKiemKeDAO.delete(mpkk.ToString());
+            
+            return result > 0;
         }
 
         // DUYỆT PHIẾU KIỂM KÊ - Chuyển TT từ 2 (chờ duyệt) -> 1 (đã duyệt) và điều chỉnh tồn kho
         public bool DuyetPhieuKiemKe(int mpkk)
         {
             int result = phieuKiemKeDAO.DuyetPhieuKiemKe(mpkk);
-            if (result > 0)
-            {
-                // Refresh cache sau khi duyệt thành công
-                this.danhSachPhieu = phieuKiemKeDAO.selectAll();
-                return true;
-            }
-            return false;
+            return result > 0;
         }
 
         // Kiểm tra có thể sửa phiếu không (chỉ sửa được khi TT=2 - chờ duyệt)
@@ -169,21 +121,6 @@ namespace src.BUS
         {
             var phieu = phieuKiemKeDAO.selectById(mpkk.ToString());
             return phieu != null && phieu.TT == 2;
-        }
-
-        // Lọc phiếu kiểm kê theo trạng thái (TT)
-        // status: 0 = đã xóa, 1 = đã duyệt, 2 = chờ duyệt
-        public List<PhieuKiemKeDTO> FillerPhieuKiemKeByStatus(int status)
-        {
-            List<PhieuKiemKeDTO> result = new List<PhieuKiemKeDTO>();
-            foreach (var phieu in this.danhSachPhieu)
-            {
-                if (phieu.TT == status)
-                {
-                    result.Add(phieu);
-                }
-            }
-            return result;
         }
     }
 }

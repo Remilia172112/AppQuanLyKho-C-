@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using src.BUS;
-using src.DAO;
 using src.DTO;
 
 namespace src.GUI.PhanQuyen
@@ -12,7 +11,6 @@ namespace src.GUI.PhanQuyen
     public partial class QuanLyNhomQuyenForm : Form
     {
         private NhomQuyenBUS nhomQuyenBUS;
-        private DanhMucChucNangDAO chucNangDAO;
         
         // Trạng thái form
         private enum FormMode { View, Add, Edit }
@@ -21,7 +19,6 @@ namespace src.GUI.PhanQuyen
         public QuanLyNhomQuyenForm()
         {
             nhomQuyenBUS = new NhomQuyenBUS();
-            chucNangDAO = DanhMucChucNangDAO.Instance;
             checkBoxQuyen = new Dictionary<string, Dictionary<string, CheckBox>>();
 
             InitializeComponent();
@@ -72,7 +69,7 @@ namespace src.GUI.PhanQuyen
 
         private void InitializePermissionPanel()
         {
-            var listChucNang = chucNangDAO.SelectAll();
+            var listChucNang = nhomQuyenBUS.GetAllChucNang();
             string[] actions = { "view", "create", "update", "delete", "approve" };
             string[] actionLabels = { "Xem", "Thêm", "Sửa", "Xóa", "Duyệt" };
 

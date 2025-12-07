@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Forms;
 using src.BUS;
 using src.DTO;
-using src.DAO;
 using src.GUI.Components;
 
 namespace src.GUI.NghiepVu
@@ -17,7 +16,6 @@ namespace src.GUI.NghiepVu
         private PhieuXuatBUS phieuXuatBUS = new PhieuXuatBUS();
         private KhachHangBUS khachHangBUS = new KhachHangBUS();
         private NhanVienBUS nhanVienBUS = new NhanVienBUS();
-        private ChiTietPhieuXuatDAO chiTietDAO = ChiTietPhieuXuatDAO.Instance;
         private List<ChiTietPhieuXuatDTO> danhSachChiTiet = new List<ChiTietPhieuXuatDTO>();
 
         public ChiTietPhieuXuatDialog(DialogMode mode, int? maphieu = null)
@@ -94,7 +92,7 @@ namespace src.GUI.NghiepVu
                         txtTrangThai.Text = phieu.TT == 1 ? "Đã duyệt" : (phieu.TT == 2 ? "Chờ duyệt" : "Đã xóa");
 
                         // Load chi tiet
-                        danhSachChiTiet = chiTietDAO.selectAll(maphieu.Value.ToString());
+                        danhSachChiTiet = phieuXuatBUS.SelectCTP(maphieu.Value);
                         LoadChiTietGrid();
                     }
                 }

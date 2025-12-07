@@ -21,22 +21,28 @@ namespace src.DAO
         private PhieuKiemKeDAO() { }
 
         // 1. Thêm phiếu kiểm kê (INSERT) - Mặc định TT=2 (chờ duyệt)
+        // Returns: new MPKK (auto-increment ID) if success, 0 if failed
         public int insert(PhieuKiemKeDTO t)
         {
-            int result = 0;
+            int newId = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
                     // MPKK là Auto Increment, TT mặc định = 2 (chờ duyệt)
-                    string sql = "INSERT INTO PHIEUKIEMKE (MNV, TG, TT) VALUES (@mnv, @tg, 2)";
+                    string sql = "INSERT INTO PHIEUKIEMKE (MNV, TG, TT) VALUES (@mnv, @tg, 2); SELECT LAST_INSERT_ID();";
                     
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@mnv", t.MNV);
                         cmd.Parameters.AddWithValue("@tg", t.TG); // DateTime
                         
-                        result = cmd.ExecuteNonQuery();
+                        object result = cmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            newId = Convert.ToInt32(result);
+                            t.MPKK = newId;  // Update DTO with new ID
+                        }
                     }
                 }
             }
@@ -44,7 +50,7 @@ namespace src.DAO
             {
                 Console.WriteLine("Lỗi Insert PhieuKiemKe: " + ex.Message);
             }
-            return result;
+            return newId;
         }
 
         // 2. Cập nhật (UPDATE) - Chưa hỗ trợ
@@ -187,14 +193,18 @@ namespace src.DAO
                         var chiTiet = ChiTietPhieuKiemKeDAO.Instance.selectAll(maphieu.ToString());
                         foreach (var item in chiTiet)
                         {
-                            // TRANGTHAISP = số lượng thực tế sau kiểm kê
-                            // Lấy số lượng tồn hiện tại
+                            // ⚠️ IMPORTANT: TRANGTHAISP is a MISLEADING column name!
+                            // - Column name suggests "Product Status" but actually stores QUANTITY
+                            // - See ChiTietPhieuKiemKeDTO.cs for detailed explanation
+                            // - Current fix: Use clear variable names (tonThucTe, soLuongThucTe)
+                            
+                            // Lấy số lượng tồn hiện tại trong hệ thống
                             var sanpham = SanPhamDAO.Instance.selectById(item.MSP.ToString());
                             if (sanpham != null)
                             {
-                                int tonHienTai = sanpham.SL;
-                                int tonThucTe = item.TRANGTHAISP; // Số lượng thực tế sau kiểm kê
-                                int chenhLech = tonThucTe - tonHienTai; // Chênh lệch cần điều chỉnh
+                                int tonHienTai = sanpham.SL;  // Current inventory in system
+                                int tonThucTe = item.TRANGTHAISP;  // ⚠️ Actual quantity found (NOT status!)
+                                int chenhLech = tonThucTe - tonHienTai;  // Difference to adjust
                                 
                                 if (chenhLech != 0)
                                 {

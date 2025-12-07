@@ -9,6 +9,7 @@ namespace src.BUS
     {
         private readonly NhomQuyenDAO nhomquyenDAO = NhomQuyenDAO.Instance;
         private readonly ChiTietQuyenDAO chitietquyenDAO = ChiTietQuyenDAO.Instance;
+        private readonly DanhMucChucNangDAO danhMucChucNangDAO = DanhMucChucNangDAO.Instance;
         private List<NhomQuyenDTO> listNhomQuyen = new List<NhomQuyenDTO>();
 
         public NhomQuyenBUS()
@@ -97,6 +98,12 @@ namespace src.BUS
         public List<ChiTietQuyenDTO> GetChiTietQuyen(string manhomquyen)
         {
             return chitietquyenDAO.selectAll(manhomquyen);
+        }
+
+        // Lấy danh sách tất cả các chức năng trong hệ thống
+        public List<DanhMucChucNangDTO> GetAllChucNang()
+        {
+            return danhMucChucNangDAO.SelectAll();
         }
 
         // Lấy nhóm quyền theo ID

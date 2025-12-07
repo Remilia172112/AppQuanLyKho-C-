@@ -110,16 +110,14 @@ namespace src.DAO
                                 string ghichu = "";
                                 if (!reader.IsDBNull(reader.GetOrdinal("GHICHU")))
                                 {
-                                     // Nếu SQL của bạn thực sự là DateTime thì sửa dòng này thành GetDateTime
                                      ghichu = reader.GetString("GHICHU"); 
                                 }
 
-                              
                                 ChiTietPhieuKiemKeDTO ct = new ChiTietPhieuKiemKeDTO();
                                 ct.MPKK = mpkk;
                                 ct.MSP = msp;
                                 ct.TRANGTHAISP = trangthaisp;
-                                // ct.GHICHU = ghichu; // Uncomment dòng này khi DTO đã sửa GHICHU thành string
+                                ct.GHICHU = ghichu;
 
                                 result.Add(ct);
                             }

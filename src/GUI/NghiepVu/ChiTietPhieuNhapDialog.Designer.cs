@@ -32,7 +32,7 @@ namespace src.GUI.NghiepVu
             // Form Configuration
             // 
             this.Text = "Chi tiết Phiếu Nhập";
-            this.Size = new System.Drawing.Size(1000, 740);
+            this.Size = new System.Drawing.Size(1000, 700);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
