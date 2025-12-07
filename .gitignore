@@ -60,4 +60,5 @@ publish/
 *.nuget.g.targets
 *.nuget.dgspec.json
 *.nuget.cache
-
+# .NET restore output
+project.assets.json
