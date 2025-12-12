@@ -131,7 +131,7 @@ namespace src.GUI.Auth
                     SizeF textSize = g.MeasureString(lblUser.Text, lblUser.Font);
                     lblUser.Size = new Size((int)Math.Ceiling(textSize.Width) + 5, (int)Math.Ceiling(textSize.Height));
                 }
-                
+
                 int rightMargin = 20;
                 btnLogout.Location = new Point(headerPanel.Width - btnLogout.Width - rightMargin, 15);
                 lblUser.Location = new Point(btnLogout.Left - lblUser.Width - 15, 22);
@@ -154,7 +154,7 @@ namespace src.GUI.Auth
                 y += buttonHeight + spacing;
             }
 
-            if (SessionManager.CanView("loaisanpham")) 
+            if (SessionManager.CanView("loaisanpham"))
             {
                 AddMenuButton("Loại sản phẩm", "book.svg", y, () => OpenForm(new LoaiSanPhamForm()));
                 y += buttonHeight + spacing;
@@ -244,16 +244,16 @@ namespace src.GUI.Auth
                 Padding = new Padding(10, 0, 0, 0),
                 Cursor = Cursors.Hand
             };
-            
+
             // XỬ LÝ LOAD ICON
             if (!string.IsNullOrEmpty(iconName))
             {
-                btn.Image = LoadIconFromSrc(iconName, 24, 24); 
+                btn.Image = LoadIconFromSrc(iconName, 24, 24);
             }
 
             btn.FlatAppearance.BorderSize = 0;
             btn.Click += (s, e) => onClick();
-            
+
             btn.MouseEnter += (s, e) => btn.BackColor = Color.FromArgb(41, 128, 185);
             btn.MouseLeave += (s, e) => btn.BackColor = Color.FromArgb(52, 73, 94);
 
@@ -268,11 +268,11 @@ namespace src.GUI.Auth
             if (File.Exists(pathInBin)) return pathInBin;
 
             // 2. Tìm trong thư mục src/icon (Khi chạy Debug từ VS)
-            try 
+            try
             {
                 string projectRoot = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
                 string pathInSrc = Path.Combine(projectRoot, "src", "icon", fileName);
-                
+
                 if (File.Exists(pathInSrc)) return pathInSrc;
             }
             catch { }
@@ -298,7 +298,7 @@ namespace src.GUI.Auth
                             return svgDocument.Draw(w, h); // Render ra Bitmap
                         }
                     }
-                    else 
+                    else
                     {
                         // Nếu là file ảnh thường (png, jpg, ico)
                         using (Image original = Image.FromFile(path))
@@ -342,43 +342,23 @@ namespace src.GUI.Auth
 
         private void LoadDashboard()
         {
-            contentPanel.Controls.Clear();
-
-            Label lblWelcome = new Label
-            {
-                Text = $"Chào mừng, {SessionManager.CurrentEmployee?.HOTEN}!",
-                Font = new Font("Segoe UI", 20F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(52, 73, 94),
-                Location = new Point(30, 30),
-                AutoSize = true
-            };
-            contentPanel.Controls.Add(lblWelcome);
-
-            Label lblInfo = new Label
-            {
-                Text = "Hệ thống quản lý kho hàng\nPhiên bản 1.0",
-                Font = new Font("Segoe UI", 12F),
-                ForeColor = Color.FromArgb(127, 140, 141),
-                Location = new Point(30, 80),
-                AutoSize = true
-            };
-            contentPanel.Controls.Add(lblInfo);
+            OpenForm(new DashboardForm());
         }
 
         private void OpenForm(Form childForm)
         {
             contentPanel.Controls.Clear();
-            
+
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Location = new Point(0, 0);
             childForm.Size = contentPanel.ClientSize;
             childForm.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            
+
             contentPanel.Controls.Add(childForm);
             childForm.Show();
-            
-            contentPanel.Resize += (s, e) => 
+
+            contentPanel.Resize += (s, e) =>
             {
                 if (contentPanel.Controls.Count > 0 && contentPanel.Controls[0] is Form form)
                 {
@@ -389,7 +369,7 @@ namespace src.GUI.Auth
 
         private void BtnLogout_Click(object? sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận", 
+            DialogResult result = MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
