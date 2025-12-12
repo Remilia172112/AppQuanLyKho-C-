@@ -136,5 +136,11 @@ namespace src.BUS
         public KhachHangDTO? FindByEmail(string email)
             => listKhachHang.FirstOrDefault(kh =>
                 kh.EMAIL.Equals(email, StringComparison.OrdinalIgnoreCase));
+        
+        public int AddMany(List<KhachHangDTO> listKH)
+        {
+            return listKH.Count(kh => Add(kh));
+        }
     }
+    
 }

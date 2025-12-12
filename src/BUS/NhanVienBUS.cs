@@ -234,5 +234,9 @@ namespace src.BUS
 
             return errorCount;
         }
+        public int AddMany(List<NhanVienDTO> listNV)
+        {
+            return listNV.Count(nv => Add(nv));
+        }
     }
 }

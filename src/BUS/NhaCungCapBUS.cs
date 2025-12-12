@@ -136,5 +136,9 @@ namespace src.BUS
         // LINQ: Tìm nhà cung cấp theo tên trong list hiện tại
         public NhaCungCapDTO? FindByTen(string tenncc)
             => listNcc.FirstOrDefault(ncc => ncc.TEN.Equals(tenncc, StringComparison.OrdinalIgnoreCase));
+        public int AddMany(List<NhaCungCapDTO> listNCC)
+        {
+            return listNCC.Count(ncc => Add(ncc));
+        }
     }
 }

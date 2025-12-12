@@ -48,7 +48,7 @@ namespace src.GUI.DanhMuc
             { 
                 Name = "MKVK", 
                 DataPropertyName = "MKVK", 
-                HeaderText = "Mã khu vực", 
+                HeaderText = "Mã KVK", 
                 Width = 100,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });

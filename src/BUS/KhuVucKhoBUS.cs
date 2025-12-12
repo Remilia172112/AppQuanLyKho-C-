@@ -117,5 +117,9 @@ namespace src.BUS
         {
             return listKVK.FirstOrDefault(kvk => kvk.MKVK == makhuvuc)?.TEN ?? "";
         }
+        public int AddMany(List<KhuVucKhoDTO> listKVK)
+        {
+            return listKVK.Count(kvk => Add(kvk));
+        }
     }
 }

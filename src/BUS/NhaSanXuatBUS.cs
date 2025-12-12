@@ -139,5 +139,9 @@ namespace src.BUS
             => listNSX.FirstOrDefault(nsx =>
                 nsx.TEN.Equals(tennsx, StringComparison.OrdinalIgnoreCase));
 
+        public int AddMany(List<NhaSanXuatDTO> listNSX)
+        {
+            return listNSX.Count(nsx => Add(nsx));
+        }
     }
 }

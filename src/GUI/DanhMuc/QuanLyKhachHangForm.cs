@@ -66,7 +66,7 @@ namespace src.GUI.DanhMuc
                 Name = "SDT",
                 DataPropertyName = "SDT",
                 HeaderText = "Số điện thoại",
-                Width = 120
+                Width = 140
             });
 
             // 4. Địa Chỉ
@@ -75,7 +75,7 @@ namespace src.GUI.DanhMuc
                 Name = "DIACHI",
                 DataPropertyName = "DIACHI",
                 HeaderText = "Địa chỉ",
-                Width = 200
+                Width = 240
             });
 
             // 5. Ngày Tham Gia
@@ -84,7 +84,7 @@ namespace src.GUI.DanhMuc
                 Name = "NGAYTHAMGIA",
                 DataPropertyName = "NGAYTHAMGIA",
                 HeaderText = "Ngày tham gia",
-                Width = 120,
+                Width = 140,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
@@ -114,7 +114,7 @@ namespace src.GUI.DanhMuc
             if (dgvKhachHang.Columns.Contains("MKH"))
             {
                 dgvKhachHang.Columns["MKH"].HeaderText = "Mã KH";
-                dgvKhachHang.Columns["MKH"].Width = 80;
+                dgvKhachHang.Columns["MKH"].Width = 60;
                 dgvKhachHang.Columns["MKH"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
 
@@ -127,19 +127,19 @@ namespace src.GUI.DanhMuc
             if (dgvKhachHang.Columns.Contains("SDT"))
             {
                 dgvKhachHang.Columns["SDT"].HeaderText = "Số điện thoại";
-                dgvKhachHang.Columns["SDT"].Width = 120;
+                dgvKhachHang.Columns["SDT"].Width = 160;
             }
 
             if (dgvKhachHang.Columns.Contains("DIACHI"))
             {
                 dgvKhachHang.Columns["DIACHI"].HeaderText = "Địa chỉ";
-                dgvKhachHang.Columns["DIACHI"].Width = 200;
+                dgvKhachHang.Columns["DIACHI"].Width = 240;
             }
 
             if (dgvKhachHang.Columns.Contains("NGAYTHAMGIA"))
             {
                 dgvKhachHang.Columns["NGAYTHAMGIA"].HeaderText = "Ngày tham gia";
-                dgvKhachHang.Columns["NGAYTHAMGIA"].Width = 120;
+                dgvKhachHang.Columns["NGAYTHAMGIA"].Width = 160;
                 dgvKhachHang.Columns["NGAYTHAMGIA"].DefaultCellStyle.Format = "dd/MM/yyyy";
                 dgvKhachHang.Columns["NGAYTHAMGIA"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
