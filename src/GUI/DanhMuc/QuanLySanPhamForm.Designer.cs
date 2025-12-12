@@ -115,8 +115,15 @@ namespace src.GUI.DanhMuc
             // 
             cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
             cboTimKiem.Location = new Point(10, 12);
-            cboTimKiem.Size = new Size(120, 25);
-            cboTimKiem.Items.AddRange(new string[] { "Tất cả", "Tên SP" });
+            cboTimKiem.Size = new Size(130, 25);
+            cboTimKiem.Items.AddRange(new string[] { 
+                "Tất cả", 
+                "Mã sản phẩm", 
+                "Tên sản phẩm", 
+                "Danh mục", 
+                "Giá xuất", 
+                "Số lượng" 
+            });
             cboTimKiem.SelectedIndex = 0;
 
             // 
@@ -149,10 +156,40 @@ namespace src.GUI.DanhMuc
             btnRefresh.FlatAppearance.BorderSize = 0;
             btnRefresh.Click += (s, e) => LoadData();
 
+            // Chỉnh lại vị trí nút TimKiem và Refresh để nhường chỗ
+            btnTimKiem.Location = new Point(400, 10);
+            btnRefresh.Location = new Point(500, 10);
+
+            // --- THÊM MỚI ---
+            
+            // Nút Nhập Excel
+            btnImport = new Button();
+            btnImport.BackColor = Color.FromArgb(46, 204, 113); // Xanh lá
+            btnImport.FlatStyle = FlatStyle.Flat;
+            btnImport.ForeColor = Color.White;
+            btnImport.Location = new Point(600, 10);
+            btnImport.Size = new Size(100, 30);
+            btnImport.Text = "📥 Nhập Excel";
+            btnImport.FlatAppearance.BorderSize = 0;
+            btnImport.Click += BtnImport_Click;
+
+            // Nút Xuất Excel
+            btnExport = new Button();
+            btnExport.BackColor = Color.FromArgb(39, 174, 96); // Xanh đậm
+            btnExport.FlatStyle = FlatStyle.Flat;
+            btnExport.ForeColor = Color.White;
+            btnExport.Location = new Point(710, 10);
+            btnExport.Size = new Size(100, 30);
+            btnExport.Text = "📤 Xuất Excel";
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.Click += BtnExport_Click;
+
             panel.Controls.Add(cboTimKiem);
             panel.Controls.Add(txtTimKiem);
             panel.Controls.Add(btnTimKiem);
             panel.Controls.Add(btnRefresh);
+            panel.Controls.Add(btnImport); // Add
+            panel.Controls.Add(btnExport); // Add
 
             return panel;
         }
@@ -339,6 +376,63 @@ namespace src.GUI.DanhMuc
             return btn;
         }
 
+        private void FormatDataGridView()
+        {
+            // Nếu chưa có cột nào thì không làm gì cả
+            if (dgvSanPham.Columns.Count == 0) return;
+
+            // --- A. CẤU HÌNH CÁC CỘT HIỂN THỊ ---
+            
+            // Mã SP
+            if (dgvSanPham.Columns.Contains("MSP")) 
+            {
+                dgvSanPham.Columns["MSP"].HeaderText = "Mã SP";
+                dgvSanPham.Columns["MSP"].Width = 80;
+                dgvSanPham.Columns["MSP"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+            
+            // Tên SP
+            if (dgvSanPham.Columns.Contains("TEN")) 
+            {
+                dgvSanPham.Columns["TEN"].HeaderText = "Tên sản phẩm";
+                dgvSanPham.Columns["TEN"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // Tự động giãn
+            }
+            
+            // Danh mục
+            if (dgvSanPham.Columns.Contains("DANHMUC")) 
+            {
+                dgvSanPham.Columns["DANHMUC"].HeaderText = "Danh mục";
+                dgvSanPham.Columns["DANHMUC"].Width = 150;
+            }
+            
+            // Giá xuất (Format số tiền có dấu phẩy)
+            if (dgvSanPham.Columns.Contains("TIENX")) 
+            {
+                dgvSanPham.Columns["TIENX"].HeaderText = "Giá xuất";
+                dgvSanPham.Columns["TIENX"].DefaultCellStyle.Format = "N0"; 
+                dgvSanPham.Columns["TIENX"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvSanPham.Columns["TIENX"].Width = 120;
+            }
+
+            // Số lượng
+            if (dgvSanPham.Columns.Contains("SL")) 
+            {
+                dgvSanPham.Columns["SL"].HeaderText = "Số lượng";
+                dgvSanPham.Columns["SL"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dgvSanPham.Columns["SL"].Width = 80;
+            }
+
+            // --- B. ẨN CÁC CỘT KHÔNG CẦN THIẾT ---
+            string[] hiddenColumns = { "TIENN", "HINHANH", "MNSX", "MKVK", "MLSP", "TT" };
+            foreach (string colName in hiddenColumns)
+            {
+                if (dgvSanPham.Columns.Contains(colName))
+                {
+                    dgvSanPham.Columns[colName].Visible = false;
+                }
+            }
+        }
+
         #region Windows Form Designer generated code
 
         private DataGridView dgvSanPham;
@@ -354,6 +448,8 @@ namespace src.GUI.DanhMuc
         private ComboBox cboDanhMuc;
         private ComboBox cboLoaiSP;
         private PictureBox picHinhAnh;
+        private Button btnImport;
+        private Button btnExport;
         private Button btnThem;
         private Button btnSua;
         private Button btnXoa;

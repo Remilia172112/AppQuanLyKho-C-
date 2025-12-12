@@ -115,7 +115,6 @@ namespace src.BUS
             return result;
         }
 
-        // Tìm kiếm (Đã xóa ISBN)
         public List<SanPhamDTO> Search(string text, string type)
         {
             text = text.ToLower();
@@ -126,7 +125,9 @@ namespace src.BUS
                 case "Tất cả":
                     foreach (SanPhamDTO i in this.listSP)
                     {
-                        if (i.MSP.ToString().Contains(text) || i.TEN.ToLower().Contains(text))
+                        if (i.MSP.ToString().Contains(text) || 
+                            i.TEN.ToLower().Contains(text) ||
+                            i.DANHMUC.ToLower().Contains(text))
                         {
                             result.Add(i);
                         }
@@ -135,25 +136,38 @@ namespace src.BUS
                 case "Mã sản phẩm":
                     foreach (SanPhamDTO i in this.listSP)
                     {
-                        if (i.MSP.ToString().Contains(text))
-                        {
-                            result.Add(i);
-                        }
+                        if (i.MSP.ToString().Contains(text)) result.Add(i);
                     }
                     break;
                 case "Tên sản phẩm":
                     foreach (SanPhamDTO i in this.listSP)
                     {
-                        if (i.TEN.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
+                        if (i.TEN.ToLower().Contains(text)) result.Add(i);
                     }
                     break;
+                case "Danh mục":
+                    foreach (SanPhamDTO i in this.listSP)
+                    {
+                        if (i.DANHMUC.ToLower().Contains(text)) result.Add(i);
+                    }
+                    break;
+                case "Giá xuất":
+                    foreach (SanPhamDTO i in this.listSP)
+                    {
+                        // Tìm kiếm tương đối: nhập "50" sẽ ra giá 500, 50000...
+                        if (i.TIENX.ToString().Contains(text)) result.Add(i);
+                    }
+                    break;
+                case "Số lượng":
+                    foreach (SanPhamDTO i in this.listSP)
+                    {
+                        if (i.SL.ToString().Contains(text)) result.Add(i);
+                    }
+                    break;
+                // ---------------------
             }
             return result;
         }
-
         // Overload hàm Search cho List tùy chỉnh
         public List<SanPhamDTO> Search(List<SanPhamDTO> listSource, string text, string type)
         {
@@ -210,6 +224,19 @@ namespace src.BUS
                 }
             }
             return n;
+        }
+        public int AddMany(List<SanPhamDTO> listSP)
+        {
+            int successCount = 0;
+            foreach (var sp in listSP)
+            {
+                // Có thể thêm logic kiểm tra trùng tên ở đây nếu muốn
+                if (Add(sp))
+                {
+                    successCount++;
+                }
+            }
+            return successCount;
         }
     }
 }

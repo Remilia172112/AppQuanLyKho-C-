@@ -18,7 +18,7 @@ namespace src.GUI.DanhMuc
         {
             InitializeComponent();
             lspBUS = new LoaiSanPhamBUS();
-            
+            InitializeDataGridView();
             LoadData();
             SetButtonStates(false);
             CheckPermissions();
@@ -32,25 +32,72 @@ namespace src.GUI.DanhMuc
             btnXoa.Enabled = SessionManager.CanDelete("loaisanpham");
         }
 
+        private void InitializeDataGridView()
+        {
+            dgvLoaiSanPham.Columns.Clear();
+            // Ngăn tự động tạo cột để tránh lặp và dễ kiểm soát
+            dgvLoaiSanPham.AutoGenerateColumns = false; 
+
+            // 1. Mã Loại Sản Phẩm
+            dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "MLSP",
+                DataPropertyName = "MLSP",
+                HeaderText = "Mã loại",
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 2. Tên Loại Sản Phẩm
+            dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TEN",
+                DataPropertyName = "TEN",
+                HeaderText = "Tên loại sản phẩm",
+                Width = 200,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 3. Ghi Chú (Cho giãn hết phần còn lại)
+            dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "GHICHU",
+                DataPropertyName = "GHICHU",
+                HeaderText = "Ghi chú",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // --- CỘT ẨN (Trạng thái) ---
+            dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TT",
+                DataPropertyName = "TT",
+                Visible = false
+            });
+        }
+
         private void LoadData()
         {
             try
             {
-                var list = lspBUS.GetAll();
-                dgvLoaiSanPham.DataSource = null;
-                dgvLoaiSanPham.DataSource = list;
+                var listLoaiSP = lspBUS.GetAll();
 
-                if (dgvLoaiSanPham.Columns.Count > 0)
+                if (listLoaiSP == null)
                 {
-                    dgvLoaiSanPham.Columns["MLSP"].HeaderText = "Mã Loại";
-                    dgvLoaiSanPham.Columns["TEN"].HeaderText = "Tên Loại Sản Phẩm";
-                    dgvLoaiSanPham.Columns["GHICHU"].HeaderText = "Ghi chú";
-                    dgvLoaiSanPham.Columns["TT"].Visible = false;
+                    listLoaiSP = new System.Collections.Generic.List<LoaiSanPhamDTO>();
                 }
+
+                // Dùng BindingList để hỗ trợ cập nhật giao diện tốt hơn
+                dgvLoaiSanPham.DataSource = new System.ComponentModel.BindingList<LoaiSanPhamDTO>(listLoaiSP);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi load dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

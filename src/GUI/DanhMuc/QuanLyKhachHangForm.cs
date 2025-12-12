@@ -37,80 +37,81 @@ namespace src.GUI.DanhMuc
             }
         }
 
-        // QUAN TRỌNG: Tạo columns THỦ CÔNG TRƯỚC KHI LOAD DATA
         private void InitializeDataGridView()
         {
             dgvKhachHang.Columns.Clear();
+            // Ngăn tự động tạo cột để dễ kiểm soát định dạng
+            dgvKhachHang.AutoGenerateColumns = false;
 
+            // 1. Mã Khách Hàng
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MKH",
                 DataPropertyName = "MKH",
                 HeaderText = "Mã KH",
-                Width = 70,
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 Resizable = DataGridViewTriState.True
             });
 
+            // 2. Họ Tên
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "HOTEN",
                 DataPropertyName = "HOTEN",
                 HeaderText = "Họ tên",
-                Width = 140,
+                Width = 150,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 Resizable = DataGridViewTriState.True
             });
 
+            // 3. Số Điện Thoại
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "NGAYTHAMGIA",
-                DataPropertyName = "NGAYTHAMGIA",
-                HeaderText = "Ngày tham gia",
-                Width = 120,
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" },
+                Name = "SDT",
+                DataPropertyName = "SDT",
+                HeaderText = "Số điện thoại",
+                Width = 130,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 Resizable = DataGridViewTriState.True
             });
 
+            // 4. Địa Chỉ (Cho giãn hết phần còn lại)
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "DIACHI",
                 DataPropertyName = "DIACHI",
                 HeaderText = "Địa chỉ",
-                Width = 160,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 Resizable = DataGridViewTriState.True
             });
 
+            // 5. Ngày Tham Gia (Định dạng ngày tháng)
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
-                Name = "SDT",
-                DataPropertyName = "SDT",
-                HeaderText = "SĐT",
-                Width = 110,
+                Name = "NGAYTHAMGIA",
+                DataPropertyName = "NGAYTHAMGIA",
+                HeaderText = "Ngày tham gia",
+                Width = 140,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter },
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 Resizable = DataGridViewTriState.True
             });
 
+            // --- CỘT ẨN (Email, Trạng thái - Có thể hiện Email nếu muốn) ---
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "EMAIL",
                 DataPropertyName = "EMAIL",
-                HeaderText = "Email",
-                Width = 150,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                Visible = false // Hoặc để true nếu bạn muốn hiện Email
             });
 
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
                 DataPropertyName = "TT",
-                HeaderText = "Trạng thái",
-                Width = 90,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                Visible = false
             });
         }
 
@@ -118,14 +119,15 @@ namespace src.GUI.DanhMuc
         {
             try
             {
-                var khachHangList = khachHangBUS.GetAll();
-                
-                if (khachHangList == null)
+                var listKhachHang = khachHangBUS.GetAll();
+
+                if (listKhachHang == null)
                 {
-                    khachHangList = new List<KhachHangDTO>();
+                    listKhachHang = new List<KhachHangDTO>();
                 }
 
-                dgvKhachHang.DataSource = new BindingList<KhachHangDTO>(khachHangList);
+                // Dùng BindingList để hỗ trợ cập nhật giao diện tốt hơn
+                dgvKhachHang.DataSource = new BindingList<KhachHangDTO>(listKhachHang);
             }
             catch (Exception ex)
             {

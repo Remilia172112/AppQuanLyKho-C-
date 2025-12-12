@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using src.BUS;
 using src.DTO;
 using src.GUI.Components;
+using src.Helper;
 
 namespace src.GUI.DanhMuc
 {
@@ -22,6 +23,7 @@ namespace src.GUI.DanhMuc
         {
             InitializeComponent();
             sanPhamBUS = new SanPhamBUS();
+            InitializeDataGridView();
             nhaSanXuatBUS = new NhaSanXuatBUS();
             khuVucKhoBUS = new KhuVucKhoBUS();
             loaiSanPhamBUS = new LoaiSanPhamBUS();
@@ -31,42 +33,100 @@ namespace src.GUI.DanhMuc
             CheckPermissions();
         }
 
+        private void InitializeDataGridView()
+        {
+            dgvSanPham.Columns.Clear();
+            // Ngăn tự động tạo cột để tránh lặp
+            dgvSanPham.AutoGenerateColumns = false; 
+
+            // 1. Mã Sản Phẩm
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "MSP",
+                DataPropertyName = "MSP",
+                HeaderText = "Mã SP",
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 2. Tên Sản Phẩm (Cho giãn hết phần còn lại)
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TEN",
+                DataPropertyName = "TEN",
+                HeaderText = "Tên sản phẩm",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 3. Danh Mục
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "DANHMUC",
+                DataPropertyName = "DANHMUC",
+                HeaderText = "Danh mục",
+                Width = 150,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 4. Giá Xuất (Định dạng tiền tệ)
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TIENX",
+                DataPropertyName = "TIENX",
+                HeaderText = "Giá bán",
+                Width = 120,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // 5. Số Lượng
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "SL",
+                DataPropertyName = "SL",
+                HeaderText = "Tồn kho",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Resizable = DataGridViewTriState.True
+            });
+
+            // --- CÁC CỘT ẨN (Để Binding dữ liệu nhưng không hiện) ---
+            string[] hiddenCols = { "HINHANH", "MNSX", "MKVK", "MLSP", "TIENN", "TT" };
+            foreach (var col in hiddenCols)
+            {
+                dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    Name = col,
+                    DataPropertyName = col,
+                    Visible = false
+                });
+            }
+        }
+
         private void LoadData()
         {
             try
             {
-                var list = sanPhamBUS.GetAll();
-                
-                // Debug: Kiểm tra số lượng sản phẩm
-                Console.WriteLine($"Số lượng sản phẩm load được: {list?.Count ?? 0}");
-                
-                if (list == null || list.Count == 0)
-                {
-                    MessageBox.Show("Không có dữ liệu sản phẩm trong database hoặc tất cả sản phẩm đã bị xóa (TT=0)", 
-                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                
-                dgvSanPham.DataSource = null;
-                dgvSanPham.DataSource = new System.ComponentModel.BindingList<SanPhamDTO>(list);
+                var listSanPham = sanPhamBUS.GetAll();
 
-                if (dgvSanPham.Columns.Count > 0)
+                if (listSanPham == null)
                 {
-                    dgvSanPham.Columns["MSP"].HeaderText = "Mã SP";
-                    dgvSanPham.Columns["TEN"].HeaderText = "Tên sản phẩm";
-                    dgvSanPham.Columns["DANHMUC"].HeaderText = "Danh mục";
-                    dgvSanPham.Columns["TIENX"].HeaderText = "Giá xuất";
-                    dgvSanPham.Columns["SL"].HeaderText = "Số lượng";
-                    dgvSanPham.Columns["HINHANH"].Visible = false;
-                    dgvSanPham.Columns["MNSX"].Visible = false;
-                    dgvSanPham.Columns["MKVK"].Visible = false;
-                    dgvSanPham.Columns["MLSP"].Visible = false;
-                    dgvSanPham.Columns["TIENN"].Visible = false;
-                    dgvSanPham.Columns["TT"].Visible = false;
+                    listSanPham = new List<SanPhamDTO>();
                 }
+
+                // Dùng BindingList để hỗ trợ cập nhật giao diện tốt hơn
+                dgvSanPham.DataSource = new System.ComponentModel.BindingList<SanPhamDTO>(listSanPham);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi load dữ liệu: {ex.Message}\n\nStack Trace: {ex.StackTrace}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -366,11 +426,25 @@ namespace src.GUI.DanhMuc
 
         private void BtnTimKiem_Click(object? sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim().ToLower();
-            var all = sanPhamBUS.GetAll();
-            var filtered = all.FindAll(sp => sp.TEN.ToLower().Contains(keyword));
-            dgvSanPham.DataSource = null;
-            dgvSanPham.DataSource = filtered;
+            try 
+            {
+                string keyword = txtTimKiem.Text.Trim();
+                string type = cboTimKiem.SelectedItem?.ToString() ?? "Tất cả";
+
+                // Lấy danh sách đã lọc từ BUS
+                var filteredList = sanPhamBUS.Search(keyword, type);
+
+                // Gán dữ liệu vào Grid
+                dgvSanPham.DataSource = null;
+                dgvSanPham.DataSource = new System.ComponentModel.BindingList<SanPhamDTO>(filteredList);
+
+                // --- QUAN TRỌNG: Gọi hàm định dạng lại cột ---
+                FormatDataGridView(); 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private bool ValidateInput()
@@ -389,5 +463,53 @@ namespace src.GUI.DanhMuc
 
             return true;
         }
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvSanPham.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
+                // Gọi Helper xuất Excel (Prefix "SP")
+                TableExporter.ExportTableToExcel(dgvSanPham, "SP");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // 1. Đọc file Excel
+                List<SanPhamDTO> listNewData = ExcelHelper.ReadSanPhamFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // 2. Thêm vào DB
+                    int count = sanPhamBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} sản phẩm!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại Grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dòng nào (Có thể do lỗi dữ liệu).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 }

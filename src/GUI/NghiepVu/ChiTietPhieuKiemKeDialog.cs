@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using src.BUS;
 using src.DTO;
 using src.GUI.Components;
+using src.Helper;
 
 namespace src.GUI.NghiepVu
 {
@@ -539,19 +540,20 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                if (!maphieu.HasValue)
-                {
-                    MessageBox.Show("Vui lòng lưu phiếu trước khi xuất PDF!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+    
+                int MPKK = Convert.ToInt32(maphieu);
 
-                // TODO: Implement PDF export using writePDF helper
-                MessageBox.Show("Chức năng xuất PDF đang được phát triển!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                WritePDF pdfWriter = new WritePDF(); 
+                pdfWriter.WritePKK(MPKK); // Gọi hàm WritePN dành cho phiếu nhập
+
+                // Hàm WritePN đã tự động mở file sau khi lưu nên không cần thông báo thêm
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi xuất PDF: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi xuất PDF: {ex.Message}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
     }
 }

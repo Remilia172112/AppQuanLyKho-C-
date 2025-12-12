@@ -28,8 +28,6 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    // MSP tự tăng, không cần insert
-                    // Các cột: MNSX (Nhà SX), MKVK (Khu vực), MLSP (Loại SP)
                     string sql = @"INSERT INTO SANPHAM 
                         (TEN, HINHANH, DANHMUC, MNSX, MKVK, MLSP, TIENX, TIENN, SL, TT) 
                         VALUES 
@@ -38,7 +36,9 @@ namespace src.DAO
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@ten", t.TEN);
-                        cmd.Parameters.AddWithValue("@hinhanh", t.HINHANH);
+
+                        string hinhAnh = string.IsNullOrEmpty(t.HINHANH) ? "tmp.png" : t.HINHANH;
+                        cmd.Parameters.AddWithValue("@hinhanh", hinhAnh);
                         cmd.Parameters.AddWithValue("@danhmuc", t.DANHMUC);
                         cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
                         cmd.Parameters.AddWithValue("@mkvk", t.MKVK);
@@ -81,7 +81,8 @@ namespace src.DAO
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@ten", t.TEN);
-                        cmd.Parameters.AddWithValue("@hinhanh", t.HINHANH);
+                        string hinhAnh = string.IsNullOrEmpty(t.HINHANH) ? "tmp.png" : t.HINHANH;
+                        cmd.Parameters.AddWithValue("@hinhanh", hinhAnh);
                         cmd.Parameters.AddWithValue("@danhmuc", t.DANHMUC);
                         cmd.Parameters.AddWithValue("@mnsx", t.MNSX);
                         cmd.Parameters.AddWithValue("@mkvk", t.MKVK);

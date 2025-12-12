@@ -129,5 +129,73 @@ namespace src.Helper
             }
             return listResult;
         }
+        public static List<SanPhamDTO> ReadSanPhamFromExcel()
+        {
+            List<SanPhamDTO> listResult = new List<SanPhamDTO>();
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Chọn file Excel nhập Sản phẩm";
+            openFileDialog.Filter = "Excel Files|*.xlsx;*.xls";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+
+                        // Giả sử File Excel có cấu trúc cột:
+                        // 1: Tên SP | 2: Danh mục | 3: Mã NSX | 4: Mã KV | 5: Mã Loại | 6: Giá Nhập | 7: Giá Xuất | 8: Số Lượng
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string tenSP = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            
+                            if (!string.IsNullOrEmpty(tenSP))
+                            {
+                                SanPhamDTO sp = new SanPhamDTO();
+                                sp.TEN = tenSP;
+                                sp.DANHMUC = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? "";
+                                
+                                // Parse các cột số (có xử lý lỗi nếu ô trống hoặc sai định dạng)
+                                int.TryParse(worksheet.Cells[row, 3].Value?.ToString(), out int mnsx);
+                                sp.MNSX = mnsx;
+
+                                int.TryParse(worksheet.Cells[row, 4].Value?.ToString(), out int mkvk);
+                                sp.MKVK = mkvk;
+
+                                int.TryParse(worksheet.Cells[row, 5].Value?.ToString(), out int mlsp);
+                                sp.MLSP = mlsp;
+
+                                int.TryParse(worksheet.Cells[row, 6].Value?.ToString(), out int gianhap);
+                                sp.TIENN = gianhap;
+
+                                int.TryParse(worksheet.Cells[row, 7].Value?.ToString(), out int giaxuat);
+                                sp.TIENX = giaxuat;
+
+                                int.TryParse(worksheet.Cells[row, 8].Value?.ToString(), out int soluong);
+                                sp.SL = soluong;
+
+                                sp.HINHANH = ""; // Mặc định trống ảnh
+                                sp.TT = 1; // Hoạt động
+
+                                listResult.Add(sp);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return null;
+                }
+            }
+            return listResult;
+        }
     }
 }
