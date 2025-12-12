@@ -215,14 +215,17 @@ VALUES
         (1, 'nhaphang', 'delete'),
         (1, 'nhaphang', 'update'),
         (1, 'nhaphang', 'view'),
+        (1, 'nhaphang', 'approve'),
         (1, 'xuathang', 'create'),
         (1, 'xuathang', 'delete'),
         (1, 'xuathang', 'update'),
         (1, 'xuathang', 'view'),
+        (1, 'xuathang', 'approve'),
         (1, 'kiemke', 'create'),
         (1, 'kiemke', 'delete'),
         (1, 'kiemke', 'update'),
         (1, 'kiemke', 'view'),
+        (1, 'kiemke', 'approve'),
         (1, 'khuvuckho', 'create'),
         (1, 'khuvuckho', 'delete'),
         (1, 'khuvuckho', 'update'),
@@ -282,7 +285,7 @@ INSERT INTO `NHOMQUYEN` (`TEN`, `TT`)
 VALUES
         ('Quản lý kho hàng', 1),
         ('Nhân viên xuất hàng', 1),
-        ('Nhân viên quản lý kho', 1);
+        ('Nhân viên nhập hàng', 1);
 
 
 INSERT INTO `NHANVIEN` (`HOTEN`, `GIOITINH`, `NGAYSINH`, `SDT`, `EMAIL`, `TT`)
@@ -497,12 +500,19 @@ VALUES
     	('Sony', 'Tokyo, Japan', '1800588885', 'info@sony.com.vn', 1),             -- ID: 11
     	('Intel', 'Santa Clara, USA', '1800555999', 'support@intel.com', 1);       -- ID: 12
 
-INSERT INTO `KHUVUCKHO` (`TEN`, `GHICHU`, `TT`)
+INSERT INTO `KHUVUCKHO` (`TEN`, `GHICHU`, `TT`) 
 VALUES
-        ('Khu vực A', 'Sách dành cho giới trẻ', 1),
-        ('Khu vực B', 'Văn học - Nghệ thuật', 1),
-        ('Khu vực C', 'Văn học thiếu nhi', 1),
-        ('Khu vực D', 'Sách Chính trị - Xã hội', 1);
+    -- ID: 1 (Khớp với Laptop, Điện thoại, Màn hình)
+    ('Khu vực A - Hàng công nghệ cao', 'Lưu trữ Laptop, Điện thoại, Máy tính bảng, Màn hình LCD', 1),
+
+    -- ID: 2 (Khớp với Linh kiện, Phụ kiện)
+    ('Khu vực B - Linh phụ kiện', 'Lưu trữ RAM, SSD, Mainboard, Chuột, Phím, Tai nghe', 1),
+
+    -- ID: 3 (Khớp với Thiết bị mạng, Văn phòng)
+    ('Khu vực C - Thiết bị văn phòng', 'Lưu trữ Máy in, Máy chiếu, Router Wifi, Switch, Cáp mạng', 1),
+
+    -- ID: 4 (Dự phòng hoặc hàng lỗi)
+    ('Khu vực D - Kho bảo hành/Đổi trả', 'Lưu trữ hàng lỗi chờ xử lý hoặc hàng chờ bảo hành', 1);
 
 
 /*Tạo quan hệ*/
