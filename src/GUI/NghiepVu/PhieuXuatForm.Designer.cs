@@ -252,7 +252,7 @@ namespace src.GUI.NghiepVu
             btnXem.ForeColor = Color.White;
             btnXem.Location = new Point(startX + spacing, 15);
             btnXem.Size = btnSize;
-            btnXem.Text = "👁 Xem chi tiết";
+            btnXem.Text = "👁 Xem CT";
             btnXem.Click += BtnXem_Click;
 
             // 3. Sửa

@@ -21,7 +21,7 @@ namespace src.GUI.NghiepVu
         private void InitializeComponent()
         {
             this.Text = "Chi tiết Phiếu Xuất";
-            this.Size = new System.Drawing.Size(1000, 700);
+            this.Size = new System.Drawing.Size(1000, 800);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;

@@ -23,8 +23,8 @@ namespace src.GUI.NghiepVu
             this.mode = mode;
             this.maphieu = maphieu;
             InitializeComponent();
-            InitializeData();
-            SetupUIByMode();
+            InitializeData(); // Load dữ liệu cho ComboBox trước
+            SetupUIByMode();  // Sau đó setup giao diện
         }
 
         private void SetupUIByMode()
@@ -48,17 +48,18 @@ namespace src.GUI.NghiepVu
                     txtMaPhieu.Text = "(Tự động)";
                     txtTrangThai.Text = "Chờ duyệt";
                     dtpThoiGian.Value = DateTime.Now;
-                    // Set current user as default
+                    
+                    // Mặc định chọn nhân viên đang đăng nhập
                     if (SessionManager.CurrentEmployee != null)
                     {
                         cboNhanVien.SelectedValue = SessionManager.CurrentEmployee.MNV;
                     }
-                    cboNhanVien.Enabled = false;
+                    cboNhanVien.Enabled = false; // Không cho đổi nhân viên tạo
                     break;
 
                 case DialogMode.Edit:
                     lblTitle.Text = "SỬA PHIẾU XUẤT";
-                    cboNhanVien.Enabled = false; // Cannot change employee
+                    cboNhanVien.Enabled = false; 
                     break;
             }
         }
@@ -67,31 +68,35 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                // Load Khách hàng - CHỈ LẤY KHÁCH HÀNG ĐANG HOẠT ĐỘNG (TT = 1)
+                // --- 1. LOAD KHÁCH HÀNG ---
                 var khList = khachHangBUS.GetAll().Where(k => k.TT == 1).ToList();
                 cboKhachHang.DataSource = khList;
-                cboKhachHang.DisplayMember = "TEN";
+                // Hiển thị Tên (HOTEN), lấy giá trị là Mã (MKH)
+                cboKhachHang.DisplayMember = "HOTEN"; 
                 cboKhachHang.ValueMember = "MKH";
 
-                // Load Nhân viên - CHỈ LẤY NHÂN VIÊN ĐANG HOẠT ĐỘNG (TT = 1)
+                // --- 2. LOAD NHÂN VIÊN ---
                 var nvList = nhanVienBUS.GetAll().Where(nv => nv.TT == 1).ToList();
                 cboNhanVien.DataSource = nvList;
                 cboNhanVien.DisplayMember = "HOTEN";
                 cboNhanVien.ValueMember = "MNV";
 
+                // --- 3. LOAD DỮ LIỆU PHIẾU (NẾU SỬA/XEM) ---
                 if (mode != DialogMode.Add && maphieu.HasValue)
                 {
-                    // Load phieu data
                     PhieuXuatDTO phieu = phieuXuatBUS.GetById(maphieu.Value);
                     if (phieu != null)
                     {
                         txtMaPhieu.Text = phieu.MPX.ToString();
+                        
+                        // Tự động chọn đúng Khách hàng và Nhân viên dựa trên ValueMember (MKH, MNV)
                         cboKhachHang.SelectedValue = phieu.MKH;
                         cboNhanVien.SelectedValue = phieu.MNV;
+                        
                         dtpThoiGian.Value = phieu.TG;
                         txtTrangThai.Text = phieu.TT == 1 ? "Đã duyệt" : (phieu.TT == 2 ? "Chờ duyệt" : "Đã xóa");
 
-                        // Load chi tiet
+                        // Load chi tiết sản phẩm
                         danhSachChiTiet = phieuXuatBUS.SelectCTP(maphieu.Value);
                         LoadChiTietGrid();
                     }
@@ -115,10 +120,10 @@ namespace src.GUI.NghiepVu
                 var displayList = danhSachChiTiet.Select(ct => new
                 {
                     MSP = ct.MSP,
-                    TenSP = sanPhamBUS.GetByMaSP(ct.MSP)?.TEN ?? "",
+                    TenSP = sanPhamBUS.GetByMaSP(ct.MSP)?.TEN ?? "Sản phẩm không tồn tại",
                     SL = ct.SL,
                     GIA = ct.TIENXUAT,
-                    ThanhTien = ct.SL * ct.TIENXUAT
+                    ThanhTien = (long)ct.SL * ct.TIENXUAT // Ép kiểu long để tránh tràn số
                 }).ToList();
 
                 dgvChiTiet.DataSource = displayList;
@@ -132,7 +137,7 @@ namespace src.GUI.NghiepVu
 
         private void CalculateTongTien()
         {
-            decimal tongTien = danhSachChiTiet.Sum(ct => ct.SL * ct.TIENXUAT);
+            decimal tongTien = danhSachChiTiet.Sum(ct => (decimal)ct.SL * ct.TIENXUAT);
             txtTongTien.Text = tongTien.ToString("N0");
         }
 
@@ -144,13 +149,12 @@ namespace src.GUI.NghiepVu
                 var newItem = dialog.SelectedItem;
                 if (newItem != null)
                 {
-                    // Check if product already exists
                     var existing = danhSachChiTiet.FirstOrDefault(ct => ct.MSP == newItem.MSP);
                     if (existing != null)
                     {
-                        // Update quantity
                         existing.SL += newItem.SL;
-                        existing.TIENXUAT = newItem.TIENXUAT;
+                        // Giá xuất thường cố định hoặc lấy mới nhất, ở đây ta cập nhật theo cái mới chọn
+                        existing.TIENXUAT = newItem.TIENXUAT; 
                     }
                     else
                     {
@@ -169,17 +173,51 @@ namespace src.GUI.NghiepVu
                 return;
             }
 
-            int msp = Convert.ToInt32(dgvChiTiet.SelectedRows[0].Cells["MSP"].Value);
-            var item = danhSachChiTiet.FirstOrDefault(ct => ct.MSP == msp);
+            int oldMsp = Convert.ToInt32(dgvChiTiet.SelectedRows[0].Cells["MSP"].Value);
+            var oldItem = danhSachChiTiet.FirstOrDefault(ct => ct.MSP == oldMsp);
 
-            if (item != null)
+            if (oldItem != null)
             {
-                ChonSanPhamXuatDialog dialog = new ChonSanPhamXuatDialog(item);
+                // Truyền bản sao (Clone) để tránh sửa trực tiếp vào list khi chưa bấm OK
+                var cloneItem = new ChiTietPhieuXuatDTO
+                {
+                    MSP = oldItem.MSP,
+                    SL = oldItem.SL,
+                    TIENXUAT = oldItem.TIENXUAT,
+                    MKM = oldItem.MKM
+                };
+
+                ChonSanPhamXuatDialog dialog = new ChonSanPhamXuatDialog(cloneItem);
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    var updatedItem = dialog.SelectedItem;
-                    item.SL = updatedItem.SL;
-                    item.TIENXUAT = updatedItem.TIENXUAT;
+                    var newItem = dialog.SelectedItem;
+
+                    // Trường hợp 1: Người dùng vẫn giữ nguyên sản phẩm cũ, chỉ sửa số lượng/giá
+                    if (newItem.MSP == oldMsp)
+                    {
+                        oldItem.SL = newItem.SL;
+                        oldItem.TIENXUAT = newItem.TIENXUAT;
+                    }
+                    // Trường hợp 2: Người dùng chọn sang sản phẩm khác
+                    else
+                    {
+                        // Xóa sản phẩm cũ
+                        danhSachChiTiet.Remove(oldItem);
+
+                        // Kiểm tra xem sản phẩm mới đã có trong danh sách chưa
+                        var existingNewItem = danhSachChiTiet.FirstOrDefault(ct => ct.MSP == newItem.MSP);
+                        if (existingNewItem != null)
+                        {
+                            // Nếu đã có -> Cộng dồn hoặc ghi đè (ở đây chọn cộng dồn số lượng, giá lấy mới nhất)
+                            existingNewItem.SL += newItem.SL;
+                            existingNewItem.TIENXUAT = newItem.TIENXUAT;
+                        }
+                        else
+                        {
+                            // Nếu chưa có -> Thêm mới
+                            danhSachChiTiet.Add(newItem);
+                        }
+                    }
                     LoadChiTietGrid();
                 }
             }
@@ -194,14 +232,7 @@ namespace src.GUI.NghiepVu
             }
 
             int msp = Convert.ToInt32(dgvChiTiet.SelectedRows[0].Cells["MSP"].Value);
-            DialogResult result = MessageBox.Show(
-                "Bạn có chắc chắn muốn xóa sản phẩm này?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (result == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa sản phẩm này khỏi phiếu?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 danhSachChiTiet.RemoveAll(ct => ct.MSP == msp);
                 LoadChiTietGrid();
@@ -212,38 +243,45 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                // Validation
+                // 1. Validate chọn Khách hàng
                 if (cboKhachHang.SelectedValue == null)
                 {
                     MessageBox.Show("Vui lòng chọn khách hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    cboKhachHang.Focus();
                     return;
                 }
 
+                // 2. Validate danh sách sản phẩm
                 if (danhSachChiTiet.Count == 0)
                 {
                     MessageBox.Show("Vui lòng thêm ít nhất một sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                decimal tongTien = danhSachChiTiet.Sum(ct => ct.SL * ct.TIENXUAT);
+                // Tính tổng tiền
+                long tongTien = (long)danhSachChiTiet.Sum(ct => (decimal)ct.SL * ct.TIENXUAT);
+
+                // Lấy ID Khách hàng và Nhân viên từ ComboBox
+                // .SelectedValue sẽ trả về object (do ValueMember="MKH"), cần ép kiểu về int
+                int maKhachHang = Convert.ToInt32(cboKhachHang.SelectedValue);
+                int maNhanVien = Convert.ToInt32(cboNhanVien.SelectedValue);
 
                 if (mode == DialogMode.Add)
                 {
-                    // Kiểm tra tồn kho trước khi thêm
+                    // Kiểm tra tồn kho (Optional: tùy logic nghiệp vụ có cho phép xuất âm hay không)
                     if (!phieuXuatBUS.CheckSLPx(danhSachChiTiet))
                     {
                         MessageBox.Show("Không đủ hàng trong kho! Vui lòng kiểm tra lại số lượng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
-                    // Create new phieu
                     PhieuXuatDTO phieu = new PhieuXuatDTO
                     {
-                        MKH = (int)cboKhachHang.SelectedValue,
-                        MNV = (int)cboNhanVien.SelectedValue,
+                        MKH = maKhachHang, // Lưu Mã KH
+                        MNV = maNhanVien,
                         TG = dtpThoiGian.Value,
                         TIEN = (int)tongTien,
-                        TT = 2 // Chờ duyệt
+                        TT = 2 // Mặc định Chờ duyệt
                     };
 
                     int newMPX = phieuXuatBUS.Insert(phieu, danhSachChiTiet);
@@ -260,22 +298,17 @@ namespace src.GUI.NghiepVu
                 }
                 else if (mode == DialogMode.Edit && maphieu.HasValue)
                 {
-                    // Kiểm tra tồn kho trước khi sửa
-                    if (!phieuXuatBUS.CheckSLPx(danhSachChiTiet))
-                    {
-                        MessageBox.Show("Không đủ hàng trong kho! Vui lòng kiểm tra lại số lượng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
+                    // Logic kiểm tra tồn kho khi sửa (nếu cần)
+                    // ...
 
-                    // Update existing phieu
                     PhieuXuatDTO phieu = new PhieuXuatDTO
                     {
                         MPX = maphieu.Value,
-                        MKH = (int)cboKhachHang.SelectedValue,
-                        MNV = (int)cboNhanVien.SelectedValue,
+                        MKH = maKhachHang, // Lưu Mã KH
+                        MNV = maNhanVien,
                         TG = dtpThoiGian.Value,
                         TIEN = (int)tongTien,
-                        TT = 2 // Keep status
+                        TT = 2 // Giữ trạng thái hoặc reset về chờ duyệt tùy nghiệp vụ
                     };
 
                     bool success = phieuXuatBUS.Update(phieu, danhSachChiTiet);

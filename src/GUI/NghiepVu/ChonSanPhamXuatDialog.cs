@@ -21,14 +21,80 @@ namespace src.GUI.NghiepVu
             this.editingItem = existingItem;
             InitializeComponent();
             
-            // Set dynamic form title based on mode
+            InitializeDataGridView(); 
+
             this.Text = editingItem == null ? "Chọn sản phẩm xuất" : "Sửa sản phẩm xuất";
             
             LoadData();
+
             if (existingItem != null)
             {
                 LoadExistingItem();
             }
+        }
+        private void InitializeDataGridView()
+        {
+            dgvSanPham.Columns.Clear();
+            dgvSanPham.AutoGenerateColumns = false;
+
+            // Cột Mã SP
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "MSP", 
+                DataPropertyName = "MSP", 
+                HeaderText = "Mã SP", 
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            // Cột Tên SP
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TEN", 
+                DataPropertyName = "TEN", 
+                HeaderText = "Tên sản phẩm", 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill 
+            });
+
+            // Cột Hình ảnh
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "HINHANH", 
+                DataPropertyName = "HINHANH", 
+                HeaderText = "Hình ảnh", 
+                Width = 100 
+            });
+
+            // Cột Tồn kho (SL) - QUAN TRỌNG: Phải có Name = "SL"
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "SL", 
+                DataPropertyName = "SL", 
+                HeaderText = "Tồn kho", 
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            // Cột Giá xuất (TIENX) - QUAN TRỌNG: Phải có Name = "TIENX"
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TIENX", 
+                DataPropertyName = "TIENX", 
+                HeaderText = "Giá xuất", 
+                Width = 120,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            // Cột Giá nhập (TIENN) - Có thể ẩn nếu không cần thiết
+            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TIENN", 
+                DataPropertyName = "TIENN", 
+                HeaderText = "Giá nhập", 
+                Width = 120,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight },
+                Visible = false // Thường ẩn giá nhập khi bán hàng
+            });
         }
 
         private void LoadData()
@@ -62,12 +128,6 @@ namespace src.GUI.NghiepVu
                     {
                         row.Selected = true;
                         dgvSanPham.FirstDisplayedScrollingRowIndex = row.Index;
-                        
-                        // Load stock level
-                        currentStockLevel = Convert.ToInt32(row.Cells["SL"].Value);
-                        txtTonKho.Text = currentStockLevel.ToString();
-                        nudSoLuong.Maximum = currentStockLevel;
-                        
                         break;
                     }
                 }
@@ -78,7 +138,6 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                // TÌM KIẾM CHỈ TRONG SẢN PHẨM CÓ TỒN KHO VÀ ĐANG HOẠT ĐỘNG
                 var list = sanPhamBUS.GetAll()
                     .Where(p => p.TT == 1 && p.SL > 0)
                     .ToList();
@@ -105,25 +164,28 @@ namespace src.GUI.NghiepVu
             if (e.RowIndex >= 0)
             {
                 // Lấy giá xuất (TIENX)
-                var gia = dgvSanPham.Rows[e.RowIndex].Cells["TIENX"].Value;
-                if (gia != null)
+                if (dgvSanPham.Columns.Contains("TIENX") && dgvSanPham.Rows[e.RowIndex].Cells["TIENX"].Value != null)
                 {
-                    txtGia.Text = gia.ToString();
+                    txtGia.Text = dgvSanPham.Rows[e.RowIndex].Cells["TIENX"].Value.ToString();
                 }
 
                 // Lấy tồn kho và giới hạn số lượng xuất
-                var tonKho = dgvSanPham.Rows[e.RowIndex].Cells["SL"].Value;
-                if (tonKho != null)
+                if (dgvSanPham.Columns.Contains("SL") && dgvSanPham.Rows[e.RowIndex].Cells["SL"].Value != null)
                 {
-                    currentStockLevel = Convert.ToInt32(tonKho);
+                    currentStockLevel = Convert.ToInt32(dgvSanPham.Rows[e.RowIndex].Cells["SL"].Value);
                     txtTonKho.Text = currentStockLevel.ToString();
                     
-                    // Giới hạn số lượng xuất không vượt quá tồn kho
-                    nudSoLuong.Maximum = currentStockLevel;
-                    
-                    if (nudSoLuong.Value > currentStockLevel)
+                    // Reset max và value khi chọn sản phẩm mới
+                    if (currentStockLevel > 0)
                     {
-                        nudSoLuong.Value = currentStockLevel;
+                        nudSoLuong.Maximum = currentStockLevel;
+                        if (nudSoLuong.Value > currentStockLevel) nudSoLuong.Value = currentStockLevel;
+                        else if (nudSoLuong.Value == 0) nudSoLuong.Value = 1;
+                    }
+                    else
+                    {
+                        nudSoLuong.Value = 0;
+                        nudSoLuong.Maximum = 0;
                     }
                 }
             }
@@ -144,10 +206,13 @@ namespace src.GUI.NghiepVu
             }
 
             // KIỂM TRA KHÔNG VƯỢT QUÁ TỒN KHO
-            if (nudSoLuong.Value > currentStockLevel)
+            // Lưu ý: Nếu đang sửa (editingItem != null), logic kiểm tra có thể cần linh hoạt hơn
+            // (Ví dụ: Tồn kho 5, đang có trong phiếu 2, muốn sửa thành 3 -> Tổng cần 3, kho có 5+2=7 -> OK)
+            // Code dưới đây kiểm tra đơn giản theo Tồn kho hiện tại hiển thị trên lưới.
+            if (nudSoLuong.Value > currentStockLevel + (editingItem?.SL ?? 0))
             {
                 MessageBox.Show(
-                    $"Số lượng xuất không được vượt quá tồn kho hiện tại ({currentStockLevel})!", 
+                    $"Số lượng xuất vượt quá tồn kho khả dụng!", 
                     "Thông báo", 
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Warning
@@ -155,7 +220,7 @@ namespace src.GUI.NghiepVu
                 return;
             }
 
-            if (!decimal.TryParse(txtGia.Text, out decimal gia) || gia <= 0)
+            if (!decimal.TryParse(txtGia.Text, out decimal gia) || gia < 0)
             {
                 MessageBox.Show("Đơn giá không hợp lệ!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -168,7 +233,7 @@ namespace src.GUI.NghiepVu
                 MSP = msp,
                 SL = (int)nudSoLuong.Value,
                 TIENXUAT = (int)gia,
-                MKM = 0  // Không có khuyến mãi mặc định
+                MKM = 0
             };
 
             this.DialogResult = DialogResult.OK;
@@ -183,7 +248,6 @@ namespace src.GUI.NghiepVu
 
         private void DgvSanPham_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
-            // Chỉ hiển thị ảnh khi di chuột vào cột HINHANH
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && 
                 dgvSanPham.Columns[e.ColumnIndex].Name == "HINHANH")
             {
@@ -192,46 +256,34 @@ namespace src.GUI.NghiepVu
                 {
                     try
                     {
-                        // Lấy đường dẫn tương đối từ thư mục gốc project
-                        string projectPath = Directory.GetParent(Application.StartupPath).Parent.Parent.Parent.FullName;
-                        string imagePath = Path.Combine(projectPath, "img_product", hinhAnh);
+                        string projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
+                        string imagePath = Path.Combine(projectRoot, "img_product", hinhAnh);
 
                         if (File.Exists(imagePath))
                         {
                             pictureBoxPreview.Image = Image.FromFile(imagePath);
                             
-                            // Tính toán vị trí hiển thị ảnh bên cạnh cell
                             var cellRect = dgvSanPham.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true);
                             int x = dgvSanPham.Location.X + cellRect.Right + 10;
                             int y = dgvSanPham.Location.Y + cellRect.Top;
                             
-                            // Đảm bảo ảnh không vượt quá form
                             if (x + pictureBoxPreview.Width > this.ClientSize.Width)
-                            {
                                 x = dgvSanPham.Location.X + cellRect.Left - pictureBoxPreview.Width - 10;
-                            }
                             if (y + pictureBoxPreview.Height > this.ClientSize.Height)
-                            {
                                 y = this.ClientSize.Height - pictureBoxPreview.Height - 10;
-                            }
                             
                             pictureBoxPreview.Location = new Point(x, y);
                             pictureBoxPreview.Visible = true;
                             pictureBoxPreview.BringToFront();
                         }
                     }
-                    catch
-                    {
-                        // Nếu không load được ảnh thì không hiển thị
-                        pictureBoxPreview.Visible = false;
-                    }
+                    catch { pictureBoxPreview.Visible = false; }
                 }
             }
         }
 
         private void DgvSanPham_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
-            // Ẩn ảnh khi chuột rời khỏi cell
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && 
                 dgvSanPham.Columns[e.ColumnIndex].Name == "HINHANH")
             {
