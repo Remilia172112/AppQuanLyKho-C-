@@ -17,9 +17,9 @@ namespace src.GUI.ThongKe
         private List<ThongKeTungNgayTrongThangDTO> dataset;
 
         // UI Components
-        private System.Windows.Forms.Panel pnlTop;
-        private System.Windows.Forms.Panel pnlCenter;
-        private System.Windows.Forms.Panel pnlChartContainer;
+        private Panel pnlTop;
+        private Panel pnlCenter;
+        private Panel pnlChartContainer;
         private DataGridView tableThongKe;
         private Chart chartDoanhThu;
 
@@ -58,7 +58,7 @@ namespace src.GUI.ThongKe
             this.Padding = new Padding(10);
 
             // --- 1. Panel Top (Các thẻ thống kê) ---
-            pnlTop = new System.Windows.Forms.Panel();
+            pnlTop = new Panel();
             pnlTop.Height = 130;
             pnlTop.Dock = DockStyle.Top;
             pnlTop.Padding = new Padding(0, 0, 0, 10); 
@@ -74,14 +74,14 @@ namespace src.GUI.ThongKe
 
             for (int i = 0; i < summaryData.GetLength(0); i++)
             {
-                System.Windows.Forms.Panel card = CreateSummaryCard(summaryData[i, 0], summaryData[i, 1], summaryData[i, 2]);
+                Panel card = CreateSummaryCard(summaryData[i, 0], summaryData[i, 1], summaryData[i, 2]);
                 tableTop.Controls.Add(card, i, 0);
             }
             pnlTop.Controls.Add(tableTop);
             this.Controls.Add(pnlTop);
 
             // --- 2. Panel Center (Biểu đồ) ---
-            pnlCenter = new System.Windows.Forms.Panel();
+            pnlCenter = new Panel();
             pnlCenter.Dock = DockStyle.Fill;
             pnlCenter.BackColor = Color.White;
             pnlCenter.Padding = new Padding(10);
@@ -94,7 +94,7 @@ namespace src.GUI.ThongKe
             lblChartName.TextAlign = ContentAlignment.MiddleLeft;
             pnlCenter.Controls.Add(lblChartName);
 
-            pnlChartContainer = new System.Windows.Forms.Panel();
+            pnlChartContainer = new Panel();
             pnlChartContainer.Dock = DockStyle.Fill;
             InitChart();
             pnlChartContainer.Controls.Add(chartDoanhThu);
@@ -129,10 +129,10 @@ namespace src.GUI.ThongKe
         }
 
         // --- HÀM TẠO THẺ THỐNG KÊ (SỬ DỤNG TABLE LAYOUT ĐỂ KHÔNG BỊ MẤT CHỮ) ---
-        private System.Windows.Forms.Panel CreateSummaryCard(string title, string iconName, string value)
+        private Panel CreateSummaryCard(string title, string iconName, string value)
         {
             // Panel bao ngoài (Card)
-            System.Windows.Forms.Panel pnlCard = new System.Windows.Forms.Panel();
+            Panel pnlCard = new Panel();
             pnlCard.Dock = DockStyle.Fill;
             pnlCard.Margin = new Padding(10); // Khoảng cách giữa các thẻ
             pnlCard.BackColor = Color.White;
@@ -174,7 +174,7 @@ namespace src.GUI.ThongKe
             layout.Controls.Add(pbIcon, 0, 0); // Thêm vào cột 0
 
             // 2. Text Panel (Bên phải)
-            System.Windows.Forms.Panel pnlText = new System.Windows.Forms.Panel();
+            Panel pnlText = new Panel();
             pnlText.Dock = DockStyle.Fill;
             pnlText.Padding = new Padding(0, 15, 10, 0); // Padding trên để chữ canh giữa dọc
 

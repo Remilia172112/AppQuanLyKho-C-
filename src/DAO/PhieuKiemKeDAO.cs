@@ -193,18 +193,14 @@ namespace src.DAO
                         var chiTiet = ChiTietPhieuKiemKeDAO.Instance.selectAll(maphieu.ToString());
                         foreach (var item in chiTiet)
                         {
-                            // ⚠️ IMPORTANT: TRANGTHAISP is a MISLEADING column name!
-                            // - Column name suggests "Product Status" but actually stores QUANTITY
-                            // - See ChiTietPhieuKiemKeDTO.cs for detailed explanation
-                            // - Current fix: Use clear variable names (tonThucTe, soLuongThucTe)
                             
                             // Lấy số lượng tồn hiện tại trong hệ thống
                             var sanpham = SanPhamDAO.Instance.selectById(item.MSP.ToString());
                             if (sanpham != null)
                             {
-                                int tonHienTai = sanpham.SL;  // Current inventory in system
-                                int tonThucTe = item.TRANGTHAISP;  // ⚠️ Actual quantity found (NOT status!)
-                                int chenhLech = tonThucTe - tonHienTai;  // Difference to adjust
+                                int tonHienTai = sanpham.SL;  
+                                int tonThucTe = item.TRANGTHAISP;
+                                int chenhLech = tonThucTe - tonHienTai; 
                                 
                                 if (chenhLech != 0)
                                 {

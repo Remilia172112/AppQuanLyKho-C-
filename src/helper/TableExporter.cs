@@ -29,7 +29,7 @@ namespace src.Helper
                 
                 try
                 {
-                    // Thiết lập LicenseContext cho EPPlus (Bắt buộc với bản mới)
+
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
 
                     using (ExcelPackage package = new ExcelPackage())
