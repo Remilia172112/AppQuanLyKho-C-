@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -11,62 +13,92 @@ namespace src.BUS
 
         public LoaiSanPhamBUS()
         {
-            listLSP = lspDAO.selectAll();
+            LoadData();
+        }
+
+        public void LoadData()
+        {
+            try
+            {
+                listLSP = lspDAO.selectAll() ?? new List<LoaiSanPhamDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi LoadData LoaiSanPhamBUS: {ex.Message}");
+                listLSP = new List<LoaiSanPhamDTO>();
+            }
         }
 
         public List<LoaiSanPhamDTO> GetAll()
         {
-            // Luôn lấy dữ liệu mới nhất khi gọi GetAll để đảm bảo đồng bộ
-            listLSP = lspDAO.selectAll();
+            LoadData(); // Luôn lấy dữ liệu mới nhất
             return listLSP;
         }
 
-        public bool Add(LoaiSanPhamDTO lsp)
+        // LINQ: Lấy loại sản phẩm theo mã
+        public LoaiSanPhamDTO? GetById(int mlsp)
+            => listLSP.FirstOrDefault(x => x.MLSP == mlsp);
+
+        // LINQ: Tìm index theo mã loại sản phẩm
+        public int GetIndexByMaLSP(int maloaisp)
+            => listLSP.FindIndex(lsp => lsp.MLSP == maloaisp);
+
+        // LINQ: Lấy tên loại sản phẩm theo mã
+        public string GetTenLoaiSP(int maloaisp)
+            => listLSP.FirstOrDefault(lsp => lsp.MLSP == maloaisp)?.TEN ?? "";
+
+        // LINQ: Lấy mảng tên loại sản phẩm
+        public string[] GetArrTenLoaiSP()
+            => listLSP.Select(lsp => lsp.TEN).ToArray();
+
+        // Rút gọn với expression body
+        public bool Add(LoaiSanPhamDTO lsp) => lspDAO.Insert(lsp) > 0;
+
+        public bool Update(LoaiSanPhamDTO lsp) => lspDAO.Update(lsp) > 0;
+
+        public bool Delete(int mlsp) => lspDAO.Delete(mlsp) > 0;
+
+        // LINQ: Thêm nhiều với Count
+        public int AddMany(List<LoaiSanPhamDTO> list)
+            => list.Count(lsp => Add(lsp));
+
+        // LINQ: Tìm kiếm theo tên
+        public List<LoaiSanPhamDTO> Search(string text, string type)
         {
-            if (lspDAO.Insert(lsp) > 0)
+            text = text.ToLower();
+            IEnumerable<LoaiSanPhamDTO> query = listLSP;
+
+            switch (type)
             {
-                return true;
+                case "Mã loại SP":
+                    query = query.Where(lsp => lsp.MLSP.ToString().Contains(text));
+                    break;
+                case "Tên loại SP":
+                    query = query.Where(lsp => lsp.TEN.ToLower().Contains(text));
+                    break;
+                default: // Tất cả
+                    query = query.Where(lsp =>
+                        lsp.MLSP.ToString().Contains(text) ||
+                        lsp.TEN.ToLower().Contains(text));
+                    break;
             }
-            return false;
+            return query.ToList();
         }
 
-        public bool Update(LoaiSanPhamDTO lsp)
-        {
-            if (lspDAO.Update(lsp) > 0)
-            {
-                return true;
-            }
-            return false;
-        }
+        // LINQ: Tìm loại sản phẩm theo tên (exact match)
+        public LoaiSanPhamDTO? FindByTen(string ten)
+            => listLSP.FirstOrDefault(lsp =>
+                lsp.TEN.Equals(ten, StringComparison.OrdinalIgnoreCase));
 
-        public bool Delete(int mlsp)
-        {
-            if (lspDAO.Delete(mlsp) > 0)
-            {
-                return true;
-            }
-            return false;
-        }
-        
-        public LoaiSanPhamDTO GetById(int mlsp)
-        {
-            return listLSP.Find(x => x.MLSP == mlsp);
-        }
-        // Thêm đoạn này vào trong class LoaiSanPhamBUS
-        public int AddMany(List<LoaiSanPhamDTO> listLSP)
-        {
-            int successCount = 0;
-            foreach (var lsp in listLSP)
-            {
-                // Kiểm tra trùng tên (nếu cần) trước khi add
-                // var exists = listLSP.Find(x => x.TEN.Equals(lsp.TEN, StringComparison.OrdinalIgnoreCase));
-                
-                if (Add(lsp))
-                {
-                    successCount++;
-                }
-            }
-            return successCount;
-        }
+        // LINQ: Kiểm tra tên đã tồn tại
+        public bool IsTenExists(string ten)
+            => listLSP.Any(lsp =>
+                lsp.TEN.Equals(ten, StringComparison.OrdinalIgnoreCase));
+
+        // LINQ: Kiểm tra tên đã tồn tại (ngoại trừ ID hiện tại - dùng khi update)
+        public bool IsTenExists(string ten, int excludeId)
+            => listLSP.Any(lsp =>
+                lsp.MLSP != excludeId &&
+                lsp.TEN.Equals(ten, StringComparison.OrdinalIgnoreCase));
     }
 }

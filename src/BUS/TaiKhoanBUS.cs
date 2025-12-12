@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -7,59 +8,52 @@ namespace src.BUS
 {
     public class TaiKhoanBUS
     {
-        private List<TaiKhoanDTO> listTaiKhoan;
-        
+        private List<TaiKhoanDTO> listTaiKhoan = new List<TaiKhoanDTO>();
+
         // Gọi DAO theo Singleton
         private readonly NhomQuyenDAO nhomQuyenDAO = NhomQuyenDAO.Instance;
         private readonly TaiKhoanDAO taiKhoanDAO = TaiKhoanDAO.Instance;
 
         public TaiKhoanBUS()
         {
-            this.listTaiKhoan = taiKhoanDAO.selectAll();
+            LoadData();
+        }
+
+        public void LoadData()
+        {
+            try
+            {
+                listTaiKhoan = taiKhoanDAO.selectAll() ?? new List<TaiKhoanDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khởi tạo TaiKhoanBUS: {ex.Message}");
+                listTaiKhoan = new List<TaiKhoanDTO>();
+            }
         }
 
         // Lấy danh sách tài khoản (có cập nhật từ DB)
         public List<TaiKhoanDTO> GetTaiKhoanAll()
         {
-            this.listTaiKhoan = taiKhoanDAO.selectAll();
+            LoadData();
             return listTaiKhoan;
         }
 
-        public TaiKhoanDTO GetTaiKhoan(int index)
-        {
-            return listTaiKhoan[index];
-        }
+        public TaiKhoanDTO GetTaiKhoan(int index) => listTaiKhoan[index];
 
-        // Lấy vị trí (index) của tài khoản trong list dựa vào Mã Nhân Viên
+        // LINQ: Lấy vị trí (index) của tài khoản trong list dựa vào Mã Nhân Viên
         public int GetTaiKhoanByMaNV(int manv)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listTaiKhoan.Count && vitri == -1)
-            {
-                if (listTaiKhoan[i].MNV == manv)
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
+            => listTaiKhoan.FindIndex(tk => tk.MNV == manv);
 
-        // Lấy thông tin nhóm quyền (để hiển thị tên quyền)
+        // Lấy thông tin nhóm quyền (để hiển thị tên quyền) - giữ nguyên vì gọi DAO
         public NhomQuyenDTO GetNhomQuyenDTO(int manhom)
-        {
-            return nhomQuyenDAO.selectById(manhom.ToString());
-        }
+            => nhomQuyenDAO.selectById(manhom.ToString());
 
         public void AddAcc(TaiKhoanDTO tk)
         {
             // Mã hóa mật khẩu bằng BCrypt trước khi lưu vào DB
             tk.MK = BCrypt.Net.BCrypt.HashPassword(tk.MK);
-            
+
             taiKhoanDAO.insert(tk);
             // Sau khi thêm vào DB, nên thêm vào list cache để đồng bộ
             listTaiKhoan.Add(tk);
@@ -73,7 +67,7 @@ namespace src.BUS
             {
                 tk.MK = BCrypt.Net.BCrypt.HashPassword(tk.MK);
             }
-            
+
             taiKhoanDAO.update(tk);
             // Cập nhật lại list cache
             int index = GetTaiKhoanByMaNV(tk.MNV);
@@ -86,62 +80,41 @@ namespace src.BUS
         public void DeleteAcc(int manv)
         {
             taiKhoanDAO.delete(manv.ToString());
-            // Xóa khỏi list cache
-            int index = GetTaiKhoanByMaNV(manv);
-            if (index != -1)
-            {
-                listTaiKhoan.RemoveAt(index);
-            }
+            // LINQ: Xóa khỏi list cache
+            listTaiKhoan.RemoveAll(tk => tk.MNV == manv);
         }
 
-        // Kiểm tra Tên đăng nhập đã tồn tại chưa
+        // Kiểm tra Tên đăng nhập đã tồn tại chưa - giữ nguyên vì gọi DAO
         public bool CheckTDN(string TDN)
         {
             TaiKhoanDTO tk = taiKhoanDAO.selectByUser(TDN);
-            if (tk != null) return false; // Đã tồn tại
-            return true; // Chưa tồn tại -> OK
+            return tk == null; // null = Chưa tồn tại -> OK
         }
 
-        // Tìm kiếm tài khoản
+        // LINQ: Tìm kiếm tài khoản
         public List<TaiKhoanDTO> Search(string txt, string type)
         {
-            List<TaiKhoanDTO> result = new List<TaiKhoanDTO>();
             txt = txt.ToLower();
+            IEnumerable<TaiKhoanDTO> query = listTaiKhoan;
 
             switch (type)
             {
-                case "Tất cả":
-                    foreach (TaiKhoanDTO i in listTaiKhoan)
-                    {
-                        if (i.MNV.ToString().Contains(txt) || i.TDN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Mã nhân viên":
-                    foreach (TaiKhoanDTO i in listTaiKhoan)
-                    {
-                        if (i.MNV.ToString().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(tk => tk.MNV.ToString().Contains(txt));
                     break;
                 case "Username": // Tên đăng nhập
-                    foreach (TaiKhoanDTO i in listTaiKhoan)
-                    {
-                        if (i.TDN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(tk => tk.TDN.ToLower().Contains(txt));
+                    break;
+                default: // Tất cả
+                    query = query.Where(tk =>
+                        tk.MNV.ToString().Contains(txt) ||
+                        tk.TDN.ToLower().Contains(txt));
                     break;
             }
-            return result;
+            return query.ToList();
         }
-    
-        // �ang nh?p - x�c th?c t�i kho?n
+
+        // Đăng nhập - xác thực tài khoản - giữ nguyên vì gọi DAO
         public TaiKhoanDTO? DangNhap(string tenDangNhap, string matKhau)
         {
             try

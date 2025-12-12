@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -14,44 +15,42 @@ namespace src.BUS
 
         public NhomQuyenBUS()
         {
-            this.listNhomQuyen = nhomquyenDAO.selectAll();
+            LoadData();
         }
 
-        public List<NhomQuyenDTO> GetAll()
+        public void LoadData()
         {
-            return this.listNhomQuyen;
+            try
+            {
+                listNhomQuyen = nhomquyenDAO.selectAll() ?? new List<NhomQuyenDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi LoadData NhomQuyenBUS: {ex.Message}");
+                listNhomQuyen = new List<NhomQuyenDTO>();
+            }
         }
 
-        public NhomQuyenDTO GetByIndex(int index)
-        {
-            return this.listNhomQuyen[index];
-        }
+        public List<NhomQuyenDTO> GetAll() => listNhomQuyen;
+
+        public NhomQuyenDTO GetByIndex(int index) => listNhomQuyen[index];
 
         // Thêm nhóm quyền mới và các chi tiết quyền kèm theo
         public bool Add(string tenNhomQuyen, List<ChiTietQuyenDTO> ctquyen)
         {
-            // Lấy ID tự tăng tiếp theo từ DB
             int newId = nhomquyenDAO.getAutoIncrement();
-            
-            // Tạo đối tượng DTO
             NhomQuyenDTO nq = new NhomQuyenDTO(newId, tenNhomQuyen);
-            
-            // Insert nhóm quyền
+
             bool check = nhomquyenDAO.insert(nq) != 0;
-            
+
             if (check)
             {
-                // Thêm vào list cache
-                this.listNhomQuyen.Add(nq);
-                
-                // Cập nhật lại Mã nhóm quyền cho các chi tiết quyền (để khớp với ID vừa tạo)
-                foreach(var item in ctquyen)
-                {
-                    item.Manhomquyen = newId;
-                }
+                listNhomQuyen.Add(nq);
 
-                // Insert danh sách chi tiết quyền
-                this.AddChiTietQuyen(ctquyen);
+                // LINQ: Cập nhật Mã nhóm quyền cho các chi tiết quyền
+                ctquyen.ForEach(item => item.Manhomquyen = newId);
+
+                AddChiTietQuyen(ctquyen);
             }
             return check;
         }
@@ -59,36 +58,28 @@ namespace src.BUS
         // Cập nhật nhóm quyền và danh sách chi tiết quyền
         public bool Update(NhomQuyenDTO nhomquyen, List<ChiTietQuyenDTO> chitietquyen, int index)
         {
-            // Update tên nhóm quyền
             bool check = nhomquyenDAO.update(nhomquyen) != 0;
-            
+
             if (check)
             {
-                // Xóa hết quyền cũ
-                this.RemoveChiTietQuyen(nhomquyen.Manhomquyen.ToString());
-                
-                // Thêm lại quyền mới
-                // Đảm bảo mã nhóm quyền khớp
-                foreach (var item in chitietquyen)
-                {
-                    item.Manhomquyen = nhomquyen.Manhomquyen;
-                }
-                this.AddChiTietQuyen(chitietquyen);
-                
-                // Cập nhật cache
-                this.listNhomQuyen[index] = nhomquyen;
+                RemoveChiTietQuyen(nhomquyen.Manhomquyen.ToString());
+
+                // LINQ: Đảm bảo mã nhóm quyền khớp
+                chitietquyen.ForEach(item => item.Manhomquyen = nhomquyen.Manhomquyen);
+                AddChiTietQuyen(chitietquyen);
+
+                listNhomQuyen[index] = nhomquyen;
             }
             return check;
         }
 
         public bool Delete(NhomQuyenDTO nqdto)
         {
-            // Xóa nhóm quyền (Xóa mềm trong DAO)
             bool check = nhomquyenDAO.delete(nqdto.Manhomquyen.ToString()) != 0;
-            
+
             if (check)
             {
-                this.listNhomQuyen.Remove(nqdto);
+                listNhomQuyen.Remove(nqdto);
             }
             return check;
         }
@@ -96,67 +87,40 @@ namespace src.BUS
         // --- Xử lý Chi tiết quyền ---
 
         public List<ChiTietQuyenDTO> GetChiTietQuyen(string manhomquyen)
-        {
-            return chitietquyenDAO.selectAll(manhomquyen);
-        }
+            => chitietquyenDAO.selectAll(manhomquyen);
 
-        // Lấy danh sách tất cả các chức năng trong hệ thống
         public List<DanhMucChucNangDTO> GetAllChucNang()
-        {
-            return danhMucChucNangDAO.SelectAll();
-        }
+            => danhMucChucNangDAO.SelectAll();
 
-        // Lấy nhóm quyền theo ID
         public NhomQuyenDTO? GetById(int id)
-        {
-            return nhomquyenDAO.selectById(id.ToString());
-        }
+            => nhomquyenDAO.selectById(id.ToString());
 
-        // Lấy chi tiết quyền theo mã nhóm quyền (int)
         public List<ChiTietQuyenDTO> GetChiTietQuyen(int manhomquyen)
-        {
-            return chitietquyenDAO.selectAll(manhomquyen.ToString());
-        }
+            => chitietquyenDAO.selectAll(manhomquyen.ToString());
 
         public bool AddChiTietQuyen(List<ChiTietQuyenDTO> listctquyen)
-        {
-            return chitietquyenDAO.insert(listctquyen) != 0;
-        }
+            => chitietquyenDAO.insert(listctquyen) != 0;
 
         public bool RemoveChiTietQuyen(string manhomquyen)
-        {
-            return chitietquyenDAO.delete(manhomquyen) != 0;
-        }
+            => chitietquyenDAO.delete(manhomquyen) != 0;
 
-        // Kiểm tra xem 1 nhóm quyền (ID) có được phép làm hành động (Action) trên chức năng (MCN) không
+        // LINQ: Kiểm tra quyền
         public bool CheckPermission(int maquyen, string chucnang, string hanhdong)
         {
-            List<ChiTietQuyenDTO> ctquyen = this.GetChiTietQuyen(maquyen.ToString());
-            
-            foreach (var item in ctquyen)
-            {
-                if (item.Machucnang.Equals(chucnang) && item.Hanhdong.Equals(hanhdong))
-                {
-                    return true;
-                }
-            }
-            return false;
+            var ctquyen = GetChiTietQuyen(maquyen.ToString());
+            return ctquyen.Any(item =>
+                item.Machucnang.Equals(chucnang) &&
+                item.Hanhdong.Equals(hanhdong));
         }
 
+        // LINQ: Tìm kiếm
         public List<NhomQuyenDTO> Search(string text)
         {
-            List<NhomQuyenDTO> result = new List<NhomQuyenDTO>();
             text = text.ToLower();
-
-            foreach (NhomQuyenDTO i in this.listNhomQuyen)
-            {
-                if (i.Manhomquyen.ToString().Contains(text) || 
-                    i.Tennhomquyen.ToLower().Contains(text))
-                {
-                    result.Add(i);
-                }
-            }
-            return result;
+            return listNhomQuyen
+                .Where(i => i.Manhomquyen.ToString().Contains(text) ||
+                           i.Tennhomquyen.ToLower().Contains(text))
+                .ToList();
         }
     }
 }

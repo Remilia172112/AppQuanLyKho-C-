@@ -12,8 +12,22 @@ namespace src.BUS
 
         public KhuVucKhoBUS()
         {
-            listKVK = kvkDAO.selectAll();
+            LoadData();
         }
+
+        public void LoadData()
+        {
+            try
+            {
+                listKVK = kvkDAO.selectAll();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                listKVK = new List<KhuVucKhoDTO>();
+            }
+        }
+
 
         // Phương thức getInstance (nếu cần dùng kiểu Singleton, nhưng class này có public constructor)
         public static KhuVucKhoBUS GetInstance()
@@ -35,38 +49,25 @@ namespace src.BUS
         // Trong Java: getIndexByMaLH (chắc copy paste chưa sửa tên)
         public int GetIndexByMaKhuVuc(int makhuvuc)
         {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listKVK.Count && vitri == -1)
-            {
-                if (listKVK[i].MKVK == makhuvuc) // DTO C# dùng MKVK
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
+            return listKVK.FindIndex(kvk => kvk.MKVK == makhuvuc);
         }
 
         public bool Add(KhuVucKhoDTO kvk)
         {
-            bool check = kvkDAO.insert(kvk) != 0;
-            if (check)
+            if (kvkDAO.insert(kvk) != 0)
             {
-                this.listKVK.Add(kvk);
+                LoadData(); // Reload để đồng bộ với DB
+                return true;
             }
-            return check;
+            return false;
         }
 
-        public bool Delete(KhuVucKhoDTO kvk, int index)
+        public bool Delete(KhuVucKhoDTO kvk)
         {
             bool check = kvkDAO.delete(kvk.MKVK.ToString()) != 0;
             if (check)
             {
-                this.listKVK.RemoveAt(index);
+                listKVK.Remove(kvk);
             }
             return check;
         }
@@ -87,61 +88,34 @@ namespace src.BUS
 
         public List<KhuVucKhoDTO> Search(string txt, string type)
         {
-            List<KhuVucKhoDTO> result = new List<KhuVucKhoDTO>();
             txt = txt.ToLower();
-            
+            IEnumerable<KhuVucKhoDTO> query = listKVK;
+
             switch (type)
             {
-                case "Tất cả":
-                    foreach (KhuVucKhoDTO i in listKVK)
-                    {
-                        if (i.MKVK.ToString().Contains(txt) || i.TEN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
-                case "Mã khu vực kho": // Sửa tên cho khớp ngữ cảnh
-                    foreach (KhuVucKhoDTO i in listKVK)
-                    {
-                        if (i.MKVK.ToString().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                case "Mã khu vực kho":
+                    query = query.Where(kvk => kvk.MKVK.ToString().Contains(txt));
                     break;
                 case "Tên khu vực kho":
-                    foreach (KhuVucKhoDTO i in listKVK)
-                    {
-                        if (i.TEN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(kvk => kvk.TEN.ToLower().Contains(txt));
+                    break;
+                default: // Tất cả
+                    query = query.Where(kvk =>
+                        kvk.MKVK.ToString().Contains(txt) ||
+                        kvk.TEN.ToLower().Contains(txt));
                     break;
             }
-            return result;
+            return query.ToList();
         }
 
         public string[] GetArrTenKhuVuc()
         {
-            int size = listKVK.Count;
-            string[] result = new string[size];
-            for (int i = 0; i < size; i++)
-            {
-                result[i] = listKVK[i].TEN;
-            }
-            return result;
+            return listKVK.Select(kvk => kvk.TEN).ToArray();
         }
 
         public string GetTenKhuVuc(int makhuvuc)
         {
-            int index = GetIndexByMaKhuVuc(makhuvuc);
-            if (index != -1)
-            {
-                return this.listKVK[index].TEN;
-            }
-            return "";
+            return listKVK.FirstOrDefault(kvk => kvk.MKVK == makhuvuc)?.TEN ?? "";
         }
     }
 }
