@@ -37,7 +37,7 @@ namespace src.GUI.DanhMuc
         {
             dgvSanPham.Columns.Clear();
             // Ngăn tự động tạo cột để tránh lặp
-            dgvSanPham.AutoGenerateColumns = false; 
+            dgvSanPham.AutoGenerateColumns = false;
 
             // 1. Mã Sản Phẩm
             dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn
@@ -107,6 +107,41 @@ namespace src.GUI.DanhMuc
                     Visible = false
                 });
             }
+            dgvSanPham.CellFormatting += DgvSanPham_CellFormatting;
+        }
+
+        private void DgvSanPham_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvSanPham.Columns[e.ColumnIndex].Name == "SL" && e.RowIndex >= 0)
+            {
+                var cellValue = dgvSanPham.Rows[e.RowIndex].Cells["SL"].Value;
+
+                if (cellValue != null && int.TryParse(cellValue.ToString(), out int soLuong))
+                {
+                    if (soLuong <= 5)
+                    {
+                        e.CellStyle.BackColor = Color.Red;
+                        e.CellStyle.ForeColor = Color.White;
+                        e.CellStyle.Font = new Font(dgvSanPham.Font, FontStyle.Bold);
+                    }
+                    else if (soLuong <= 10)
+                    {
+                        e.CellStyle.BackColor = Color.OrangeRed;
+                        e.CellStyle.ForeColor = Color.White;
+                        e.CellStyle.Font = new Font(dgvSanPham.Font, FontStyle.Bold);
+                    }
+                    else if (soLuong <= 20)
+                    {
+                        e.CellStyle.BackColor = Color.Yellow;
+                        e.CellStyle.ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        e.CellStyle.BackColor = Color.LightGreen;
+                        e.CellStyle.ForeColor = Color.Black;
+                    }
+                }
+            }
         }
 
         private void LoadData()
@@ -125,7 +160,7 @@ namespace src.GUI.DanhMuc
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}",
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -179,7 +214,7 @@ namespace src.GUI.DanhMuc
             btnXoa.Enabled = !editing && SessionManager.CanDelete("sanpham");
             btnLuu.Enabled = editing;
             btnHuy.Enabled = editing;
-            
+
             txtTenSP.ReadOnly = !editing;
             cboDanhMuc.Enabled = editing;
             cboLoaiSP.Enabled = editing;
@@ -243,7 +278,7 @@ namespace src.GUI.DanhMuc
                     // Đường dẫn tương đối từ thư mục gốc project
                     string projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
                     string fullPath = Path.Combine(projectRoot, "img_product", imagePath);
-                    
+
                     if (File.Exists(fullPath))
                     {
                         // Giải phóng ảnh cũ nếu có
@@ -253,7 +288,7 @@ namespace src.GUI.DanhMuc
                             picHinhAnh.Image = null;
                             oldImage.Dispose();
                         }
-                        
+
                         // Load ảnh mới từ memory stream để không lock file
                         using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
                         {
@@ -268,7 +303,7 @@ namespace src.GUI.DanhMuc
             {
                 // Không hiển thị lỗi, chỉ set ảnh mặc định
             }
-            
+
             // Nếu không load được ảnh, set null
             if (picHinhAnh.Image != null)
             {
@@ -312,7 +347,7 @@ namespace src.GUI.DanhMuc
                 {
                     int maSP = Convert.ToInt32(txtMaSP.Text);
                     SanPhamDTO? sp = sanPhamBUS.GetByMaSP(maSP);
-                    
+
                     if (sp != null && sanPhamBUS.Delete(sp))
                     {
                         MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -380,7 +415,7 @@ namespace src.GUI.DanhMuc
             {
                 ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
                 ofd.Title = "Chọn ảnh sản phẩm";
-                
+
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     try
@@ -388,17 +423,17 @@ namespace src.GUI.DanhMuc
                         // Lấy đường dẫn thư mục img_product
                         string projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", ".."));
                         string imgFolder = Path.Combine(projectRoot, "img_product");
-                        
+
                         // Tạo thư mục nếu chưa tồn tại
                         if (!Directory.Exists(imgFolder))
                         {
                             Directory.CreateDirectory(imgFolder);
                         }
-                        
+
                         // Lấy tên file gốc
                         string fileName = Path.GetFileName(ofd.FileName);
                         string destPath = Path.Combine(imgFolder, fileName);
-                        
+
                         // Nếu file đã tồn tại, thêm timestamp vào tên
                         if (File.Exists(destPath))
                         {
@@ -407,17 +442,17 @@ namespace src.GUI.DanhMuc
                             fileName = $"{fileNameWithoutExt}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
                             destPath = Path.Combine(imgFolder, fileName);
                         }
-                        
+
                         // Copy file vào thư mục img_product
                         File.Copy(ofd.FileName, destPath, true);
-                        
+
                         // Load ảnh và lưu đường dẫn (chỉ tên file)
                         LoadProductImage(fileName);
                         selectedImagePath = fileName;
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Lỗi khi chọn ảnh: {ex.Message}", "Lỗi", 
+                        MessageBox.Show($"Lỗi khi chọn ảnh: {ex.Message}", "Lỗi",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -426,7 +461,7 @@ namespace src.GUI.DanhMuc
 
         private void BtnTimKiem_Click(object? sender, EventArgs e)
         {
-            try 
+            try
             {
                 string keyword = txtTimKiem.Text.Trim();
                 string type = cboTimKiem.SelectedItem?.ToString() ?? "Tất cả";
@@ -439,7 +474,7 @@ namespace src.GUI.DanhMuc
                 dgvSanPham.DataSource = new System.ComponentModel.BindingList<SanPhamDTO>(filteredList);
 
                 // --- QUAN TRỌNG: Gọi hàm định dạng lại cột ---
-                FormatDataGridView(); 
+                FormatDataGridView();
             }
             catch (Exception ex)
             {
@@ -472,7 +507,7 @@ namespace src.GUI.DanhMuc
                     MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-                
+
                 // Gọi Helper xuất Excel (Prefix "SP")
                 TableExporter.ExportTableToExcel(dgvSanPham, "SP");
             }
