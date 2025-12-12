@@ -20,364 +20,231 @@ namespace src.GUI.DanhMuc
 
         private void InitializeComponent()
         {
-            SuspendLayout();
-
             this.Text = "Quản lý Nhà cung cấp";
-            this.Size = new Size(1400, 800);
+            this.Size = new Size(1300, 750);
+            this.MinimumSize = new Size(1100, 600);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.WindowState = FormWindowState.Maximized;
             this.BackColor = Color.FromArgb(236, 240, 241);
-            this.Padding = new Padding(0);
 
-            // Initialize controls
+            // --- 1. SETUP LAYOUT CHÍNH ---
+
+            // Panel Header (Tiêu đề + Search)
+            Panel pnlHeader = new Panel();
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Height = 110;
+            pnlHeader.BackColor = Color.WhiteSmoke;
+            pnlHeader.Padding = new Padding(10);
+
+            // Panel Form nhập liệu (Bên phải)
+            Panel pnlForm = CreateFormPanel();
+            pnlForm.Dock = DockStyle.Right;
+            pnlForm.Width = 360;
+
+            // Panel Nút chức năng (Dưới cùng)
+            Panel pnlButtons = new Panel();
+            pnlButtons.Dock = DockStyle.Bottom;
+            pnlButtons.Height = 70;
+            pnlButtons.BackColor = Color.White;
+
+            // DataGridView (Ở giữa - Fill)
             dgvNhaCungCap = new DataGridView();
-            txtMaNCC = new TextBox();
-            txtTenNCC = new TextBox();
-            txtDiaChi = new TextBox();
-            txtSDT = new TextBox();
-            txtEmail = new TextBox();
-            txtTimKiem = new TextBox();
-            cboTimKiem = new ComboBox();
-            btnThem = new Button();
-            btnSua = new Button();
-            btnXoa = new Button();
-            btnLuu = new Button();
-            btnHuy = new Button();
-            btnTimKiem = new Button();
-            btnRefresh = new Button();
-            btnExport = new Button();
+            dgvNhaCungCap.Dock = DockStyle.Fill;
+            dgvNhaCungCap.BackgroundColor = Color.White;
+            dgvNhaCungCap.AllowUserToAddRows = false;
+            dgvNhaCungCap.ReadOnly = true;
+            dgvNhaCungCap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvNhaCungCap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvNhaCungCap.SelectionChanged += DgvNhaCungCap_SelectionChanged;
+
+            // --- 2. XỬ LÝ HEADER (TITLE + SEARCH CENTER) ---
 
             Label lblTitle = new Label();
-
-            ((ISupportInitialize)(dgvNhaCungCap)).BeginInit();
-
-            // 
-            // lblTitle
-            // 
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(41, 128, 185);
-            lblTitle.Location = new Point(30, 20);
+            lblTitle.Location = new Point(20, 10);
             lblTitle.Text = "QUẢN LÝ NHÀ CUNG CẤP";
+            pnlHeader.Controls.Add(lblTitle);
 
-            // 
-            // dgvNhaCungCap
-            // 
-            dgvNhaCungCap.AllowUserToAddRows = false;
-            dgvNhaCungCap.AutoGenerateColumns = false;
-            dgvNhaCungCap.BackgroundColor = Color.White;
-            dgvNhaCungCap.BorderStyle = BorderStyle.None;
-            dgvNhaCungCap.ColumnHeadersHeight = 40;
-            dgvNhaCungCap.EnableHeadersVisualStyles = false;
-            dgvNhaCungCap.Location = new Point(30, 140);
-            dgvNhaCungCap.ReadOnly = true;
-            dgvNhaCungCap.RowHeadersVisible = false;
-            dgvNhaCungCap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvNhaCungCap.Size = new Size(850, 500);
-            dgvNhaCungCap.SelectionChanged += DgvNhaCungCap_SelectionChanged;
+            // TẠO CONTAINER RIÊNG CHO CỤM TÌM KIẾM
+            Panel pnlSearchBox = new Panel();
+            pnlSearchBox.Size = new Size(820, 40);
+            pnlSearchBox.BackColor = Color.Transparent;
 
-            // Create panels
-            Panel searchPanel = CreateSearchPanel();
-            searchPanel.Location = new Point(30, 70);
-
-            Panel formPanel = CreateFormPanel();
-            formPanel.Location = new Point(900, 140);
-
-            Panel buttonPanel = CreateButtonPanel();
-            buttonPanel.Location = new Point(30, 660);
-
-            // 
-            // QuanLyNhaCungCapForm
-            // 
-            Controls.Add(lblTitle);
-            Controls.Add(searchPanel);
-            Controls.Add(dgvNhaCungCap);
-            Controls.Add(formPanel);
-            Controls.Add(buttonPanel);
-
-            ((ISupportInitialize)(dgvNhaCungCap)).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
-        }
-
-        private Panel CreateSearchPanel()
-        {
-            Panel panel = new Panel
-            {
-                Size = new System.Drawing.Size(1320, 50),
-                BackColor = System.Drawing.Color.White,
-                Padding = new Padding(10)
-            };
-
-            // ComboBox
-            cboTimKiem = new ComboBox
-            {
-                Location = new System.Drawing.Point(10, 12),
-                Size = new System.Drawing.Size(150, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cboTimKiem.Items.AddRange(new object[] { "Tất cả", "Mã NCC", "Tên NCC", "Địa chỉ", "Số điện thoại", "Email" });
+            // Các control tìm kiếm
+            cboTimKiem = new ComboBox();
+            cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboTimKiem.Location = new Point(0, 8);
+            cboTimKiem.Size = new Size(130, 25);
+            cboTimKiem.Items.AddRange(new string[] { "Tất cả", "Mã NCC", "Tên NCC", "Địa chỉ", "Số điện thoại", "Email" });
             cboTimKiem.SelectedIndex = 0;
 
-            // TextBox Tìm kiếm
-            txtTimKiem = new TextBox
-            {
-                Location = new System.Drawing.Point(170, 12),
-                Size = new System.Drawing.Size(250, 25), // Chỉnh lại size cho gọn
-                Font = new System.Drawing.Font("Segoe UI", 10F)
+            txtTimKiem = new TextBox();
+            txtTimKiem.Location = new Point(140, 8);
+            txtTimKiem.Size = new Size(250, 25);
+            txtTimKiem.PlaceholderText = "Nhập từ khóa...";
+
+            btnTimKiem = CreateButtonSmall("🔍 Tìm", 400, Color.FromArgb(41, 128, 185), BtnTimKiem_Click);
+            btnRefresh = CreateButtonSmall("⟳ Load", 500, Color.FromArgb(52, 152, 219), BtnRefresh_Click);
+            btnImport = CreateButtonSmall("📥 Import", 600, Color.FromArgb(46, 204, 113), BtnImport_Click);
+            btnExport = CreateButtonSmall("📤 Export", 700, Color.FromArgb(39, 174, 96), BtnExport_Click);
+
+            pnlSearchBox.Controls.AddRange(new Control[] { 
+                cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport 
+            });
+
+            pnlHeader.Controls.Add(pnlSearchBox);
+
+            // --- 3. XỬ LÝ BUTTONS DƯỚI (CANH GIỮA) ---
+
+            Panel pnlActionBox = new Panel();
+            pnlActionBox.Size = new Size(580, 50);
+            pnlActionBox.BackColor = Color.Transparent;
+
+            // Tạo các nút chức năng
+            btnThem = CreateBtnAction("➕ Thêm", 0, Color.FromArgb(46, 204, 113), BtnThem_Click);
+            btnSua = CreateBtnAction("✏️ Sửa", 1, Color.FromArgb(52, 152, 219), BtnSua_Click);
+            btnXoa = CreateBtnAction("🗑️ Xóa", 2, Color.FromArgb(231, 76, 60), BtnXoa_Click);
+            btnLuu = CreateBtnAction("💾 Lưu", 3, Color.FromArgb(41, 128, 185), BtnLuu_Click);
+            btnHuy = CreateBtnAction("❌ Hủy", 4, Color.FromArgb(149, 165, 166), BtnHuy_Click);
+
+            pnlActionBox.Controls.AddRange(new Control[] { btnThem, btnSua, btnXoa, btnLuu, btnHuy });
+            pnlButtons.Controls.Add(pnlActionBox);
+
+            // --- 4. SỰ KIỆN RESIZE ---
+
+            // Canh giữa thanh tìm kiếm
+            pnlHeader.Resize += (s, e) => {
+                pnlSearchBox.Location = new Point(
+                    (pnlHeader.Width - pnlSearchBox.Width) / 2,
+                    60 
+                );
             };
 
-            // Button Tìm kiếm
-            btnTimKiem = new Button
-            {
-                Text = "Tìm kiếm",
-                Location = new System.Drawing.Point(430, 10),
-                Size = new System.Drawing.Size(90, 30),
-                BackColor = System.Drawing.Color.FromArgb(41, 128, 185),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
+            // Canh giữa thanh nút bấm
+            pnlButtons.Resize += (s, e) => {
+                pnlActionBox.Location = new Point(
+                    (pnlButtons.Width - pnlActionBox.Width) / 2,
+                    10 
+                );
             };
-            btnTimKiem.FlatAppearance.BorderSize = 0;
-            btnTimKiem.Click += BtnTimKiem_Click;
 
-            // Button Làm mới
-            btnRefresh = new Button
-            {
-                Text = "Làm mới",
-                Location = new System.Drawing.Point(530, 10),
-                Size = new System.Drawing.Size(90, 30),
-                BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnRefresh.FlatAppearance.BorderSize = 0;
-            btnRefresh.Click += BtnRefresh_Click;
+            // --- 5. ADD CONTROLS ---
+            Controls.Add(dgvNhaCungCap);
+            Controls.Add(pnlForm);
+            Controls.Add(pnlHeader);
+            Controls.Add(pnlButtons);
 
-            // --- Button Import (MỚI) ---
-            btnImport = new Button
-            {
-                Text = "📥 Nhập Excel",
-                Location = new System.Drawing.Point(630, 10),
-                Size = new System.Drawing.Size(100, 30),
-                BackColor = System.Drawing.Color.FromArgb(46, 204, 113), // Xanh lá
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnImport.FlatAppearance.BorderSize = 0;
-            btnImport.Click += BtnImport_Click;
+            ((ISupportInitialize)(dgvNhaCungCap)).EndInit();
+            this.ResumeLayout(false);
+        }
 
-            // --- Button Export (Cập nhật vị trí) ---
-            btnExport = new Button
-            {
-                Text = "📤 Xuất Excel",
-                Location = new System.Drawing.Point(740, 10),
-                Size = new System.Drawing.Size(100, 30),
-                BackColor = System.Drawing.Color.FromArgb(39, 174, 96), // Xanh đậm
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnExport.FlatAppearance.BorderSize = 0;
-            btnExport.Click += BtnExport_Click;
+        // --- HELPER METHODS ---
 
-            panel.Controls.AddRange(new Control[] { cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport });
+        private Button CreateButtonSmall(string text, int x, Color color, EventHandler click)
+        {
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Location = new Point(x, 5);
+            btn.Size = new Size(90, 30);
+            btn.BackColor = color;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += click;
+            return btn;
+        }
 
-            return panel;
+        private Button CreateBtnAction(string text, int index, Color color, EventHandler click)
+        {
+            int btnW = 100, gap = 20;
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Location = new Point((btnW + gap) * index, 10);
+            btn.Size = new Size(btnW, 35);
+            btn.BackColor = color;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += click;
+            return btn;
         }
 
         private Panel CreateFormPanel()
         {
             Panel panel = new Panel
             {
-                Size = new Size(450, 500),
                 BackColor = Color.White,
-                Padding = new Padding(20)
+                Padding = new Padding(10),
+                BorderStyle = BorderStyle.FixedSingle
             };
 
-            Label lblFormTitle = new Label
-            {
-                Text = "THÔNG TIN NHÀ CUNG CẤP",
+            int y = 40;
+            int labelW = 90;
+            int inputW = 230;
+            int startX = 15;
+
+            // Tiêu đề nhỏ
+            Label lblInfo = new Label { 
+                Text = "Thông tin Nhà cung cấp", 
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(41, 128, 185),
-                Location = new Point(20, 15),
+                ForeColor = Color.FromArgb(52, 152, 219),
+                Location = new Point(startX, 10),
                 AutoSize = true
             };
-            panel.Controls.Add(lblFormTitle);
+            panel.Controls.Add(lblInfo);
 
-            int yPos = 60;
-
-            // Mã NCC
-            Label lblMaNCC = new Label
+            void AddInput(string labelText, Control control)
             {
-                Text = "Mã NCC:",
-                Location = new Point(20, yPos),
-                Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-            txtMaNCC.BackColor = Color.FromArgb(236, 240, 241);
-            txtMaNCC.Location = new Point(140, yPos);
-            txtMaNCC.ReadOnly = true;
-            txtMaNCC.Size = new Size(280, 25);
-            panel.Controls.Add(lblMaNCC);
-            panel.Controls.Add(txtMaNCC);
-            yPos += 40;
+                Label lbl = new Label { Text = labelText, Location = new Point(startX, y + 3), Size = new Size(labelW, 25) };
+                control.Location = new Point(startX + labelW, y);
+                control.Size = new Size(inputW, 25);
+                panel.Controls.Add(lbl);
+                panel.Controls.Add(control);
+                y += 40;
+            }
 
-            // Tên NCC
-            Label lblTenNCC = new Label
-            {
-                Text = "Tên NCC: *",
-                Location = new Point(20, yPos),
-                Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-            txtTenNCC.Font = new Font("Segoe UI", 10F);
-            txtTenNCC.Location = new Point(140, yPos);
-            txtTenNCC.Size = new Size(280, 25);
-            panel.Controls.Add(lblTenNCC);
-            panel.Controls.Add(txtTenNCC);
-            yPos += 40;
+            // 1. Mã NCC
+            txtMaNCC = new TextBox { ReadOnly = true, BackColor = SystemColors.Control };
+            AddInput("Mã NCC:", txtMaNCC);
 
-            // Địa chỉ
-            Label lblDiaChi = new Label
-            {
-                Text = "Địa chỉ: *",
-                Location = new Point(20, yPos),
-                Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-            txtDiaChi.Font = new Font("Segoe UI", 10F);
-            txtDiaChi.Location = new Point(140, yPos);
-            txtDiaChi.Size = new Size(280, 25);
-            panel.Controls.Add(lblDiaChi);
-            panel.Controls.Add(txtDiaChi);
-            yPos += 40;
+            // 2. Tên NCC
+            txtTenNCC = new TextBox();
+            AddInput("Tên NCC: *", txtTenNCC);
 
-            // Số điện thoại
-            Label lblSDT = new Label
-            {
-                Text = "Số ĐT: *",
-                Location = new Point(20, yPos),
-                Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-            txtSDT.Font = new Font("Segoe UI", 10F);
-            txtSDT.Location = new Point(140, yPos);
-            txtSDT.Size = new Size(280, 25);
-            panel.Controls.Add(lblSDT);
-            panel.Controls.Add(txtSDT);
-            yPos += 40;
+            // 3. Địa chỉ
+            txtDiaChi = new TextBox();
+            AddInput("Địa chỉ: *", txtDiaChi);
 
-            // Email
-            Label lblEmail = new Label
-            {
-                Text = "Email: *",
-                Location = new Point(20, yPos),
-                Size = new Size(120, 25),
-                Font = new Font("Segoe UI", 10F)
-            };
-            txtEmail.Font = new Font("Segoe UI", 10F);
-            txtEmail.Location = new Point(140, yPos);
-            txtEmail.Size = new Size(280, 25);
-            panel.Controls.Add(lblEmail);
-            panel.Controls.Add(txtEmail);
+            // 4. SĐT
+            txtSDT = new TextBox();
+            AddInput("SĐT: *", txtSDT);
+
+            // 5. Email
+            txtEmail = new TextBox();
+            AddInput("Email: *", txtEmail);
 
             return panel;
         }
 
-        private Panel CreateButtonPanel()
-        {
-            Panel panel = new Panel
-            {
-                Size = new Size(1320, 60),
-                BackColor = Color.White,
-                Padding = new Padding(10)
-            };
-
-            // 
-            // btnThem
-            // 
-            btnThem.BackColor = Color.FromArgb(46, 204, 113);
-            btnThem.FlatStyle = FlatStyle.Flat;
-            btnThem.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnThem.ForeColor = Color.White;
-            btnThem.Location = new Point(20, 15);
-            btnThem.Size = new Size(100, 35);
-            btnThem.Text = "➕ Thêm";
-            btnThem.FlatAppearance.BorderSize = 0;
-            btnThem.Click += BtnThem_Click;
-
-            // 
-            // btnSua
-            // 
-            btnSua.BackColor = Color.FromArgb(52, 152, 219);
-            btnSua.FlatStyle = FlatStyle.Flat;
-            btnSua.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnSua.ForeColor = Color.White;
-            btnSua.Location = new Point(130, 15);
-            btnSua.Size = new Size(100, 35);
-            btnSua.Text = "✏️ Sửa";
-            btnSua.FlatAppearance.BorderSize = 0;
-            btnSua.Click += BtnSua_Click;
-
-            // 
-            // btnXoa
-            // 
-            btnXoa.BackColor = Color.FromArgb(231, 76, 60);
-            btnXoa.FlatStyle = FlatStyle.Flat;
-            btnXoa.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnXoa.ForeColor = Color.White;
-            btnXoa.Location = new Point(240, 15);
-            btnXoa.Size = new Size(100, 35);
-            btnXoa.Text = "🗑️ Xóa";
-            btnXoa.FlatAppearance.BorderSize = 0;
-            btnXoa.Click += BtnXoa_Click;
-
-            // 
-            // btnLuu
-            // 
-            btnLuu.BackColor = Color.FromArgb(52, 152, 219);
-            btnLuu.FlatStyle = FlatStyle.Flat;
-            btnLuu.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnLuu.ForeColor = Color.White;
-            btnLuu.Location = new Point(350, 15);
-            btnLuu.Size = new Size(100, 35);
-            btnLuu.Text = "💾 Lưu";
-            btnLuu.FlatAppearance.BorderSize = 0;
-            btnLuu.Click += BtnLuu_Click;
-
-            // 
-            // btnHuy
-            // 
-            btnHuy.BackColor = Color.FromArgb(149, 165, 166);
-            btnHuy.FlatStyle = FlatStyle.Flat;
-            btnHuy.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            btnHuy.ForeColor = Color.White;
-            btnHuy.Location = new Point(460, 15);
-            btnHuy.Size = new Size(100, 35);
-            btnHuy.Text = "❌ Hủy";
-            btnHuy.FlatAppearance.BorderSize = 0;
-            btnHuy.Click += BtnHuy_Click;
-
-            panel.Controls.Add(btnThem);
-            panel.Controls.Add(btnSua);
-            panel.Controls.Add(btnXoa);
-            panel.Controls.Add(btnLuu);
-            panel.Controls.Add(btnHuy);
-
-            return panel;
-        }
-
-        #region Windows Form Designer generated code
-
+        #region Components
         private DataGridView dgvNhaCungCap;
+
+        // Input Fields
         private TextBox txtMaNCC;
         private TextBox txtTenNCC;
         private TextBox txtDiaChi;
         private TextBox txtSDT;
         private TextBox txtEmail;
+
+        // Search Fields
         private TextBox txtTimKiem;
         private ComboBox cboTimKiem;
+
+        // Buttons
+        private Button btnImport;
+        private Button btnExport;
         private Button btnThem;
         private Button btnSua;
         private Button btnXoa;
@@ -385,9 +252,6 @@ namespace src.GUI.DanhMuc
         private Button btnHuy;
         private Button btnTimKiem;
         private Button btnRefresh;
-        private Button btnExport;
-        private Button btnImport;
-
         #endregion
     }
 }

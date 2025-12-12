@@ -20,392 +20,256 @@ namespace src.GUI.DanhMuc
 
         private void InitializeComponent()
         {
-            SuspendLayout();
-
             this.Text = "Quản lý Sản phẩm";
-            this.Size = new Size(1400, 750);
+            this.Size = new Size(1400, 800);
+            this.MinimumSize = new Size(1200, 700);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.WindowState = FormWindowState.Maximized; 
             this.BackColor = Color.FromArgb(236, 240, 241);
-            this.Padding = new Padding(0);
 
-            // Initialize controls
+            // --- 1. SETUP LAYOUT CHÍNH ---
+            
+            // Panel Header (Tiêu đề + Search)
+            Panel pnlHeader = new Panel();
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Height = 110; 
+            pnlHeader.BackColor = Color.WhiteSmoke;
+            pnlHeader.Padding = new Padding(10);
+
+            // Panel Form nhập liệu (Bên phải)
+            Panel pnlForm = CreateFormPanel();
+            pnlForm.Dock = DockStyle.Right;
+            pnlForm.Width = 360; 
+
+            // Panel Nút chức năng (Dưới cùng)
+            Panel pnlButtons = new Panel();
+            pnlButtons.Dock = DockStyle.Bottom;
+            pnlButtons.Height = 70;
+            pnlButtons.BackColor = Color.White;
+
+            // DataGridView (Ở giữa - Fill)
             dgvSanPham = new DataGridView();
-            txtMaSP = new TextBox();
-            txtTenSP = new TextBox();
-            txtGiaNhap = new TextBox();
-            txtGiaXuat = new TextBox();
-            txtSoLuong = new TextBox();
-            txtTimKiem = new TextBox();
-            cboNhaSX = new ComboBox();
-            cboKhuVuc = new ComboBox();
-            cboTimKiem = new ComboBox();
-            cboDanhMuc = new ComboBox();
-            cboLoaiSP = new ComboBox();
-            picHinhAnh = new PictureBox();
-            btnThem = new Button();
-            btnSua = new Button();
-            btnXoa = new Button();
-            btnLuu = new Button();
-            btnHuy = new Button();
-            btnChonAnh = new Button();
-            btnTimKiem = new Button();
-            btnRefresh = new Button();
+            dgvSanPham.Dock = DockStyle.Fill;
+            dgvSanPham.BackgroundColor = Color.White;
+            dgvSanPham.AllowUserToAddRows = false;
+            dgvSanPham.ReadOnly = true;
+            dgvSanPham.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSanPham.SelectionChanged += DgvSanPham_SelectionChanged;
 
+            // --- 2. XỬ LÝ HEADER (TITLE + SEARCH CENTER) ---
+            
             Label lblTitle = new Label();
-
-            ((ISupportInitialize)(dgvSanPham)).BeginInit();
-            ((ISupportInitialize)(picHinhAnh)).BeginInit();
-
-            // 
-            // lblTitle
-            // 
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(41, 128, 185);
-            lblTitle.Location = new Point(30, 20);
+            lblTitle.Location = new Point(20, 10);
             lblTitle.Text = "QUẢN LÝ SẢN PHẨM";
+            pnlHeader.Controls.Add(lblTitle);
 
-            // 
-            // dgvSanPham
-            // 
-            dgvSanPham.AllowUserToAddRows = false;
-            dgvSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvSanPham.BackgroundColor = Color.White;
-            dgvSanPham.Location = new Point(30, 140);
-            dgvSanPham.ReadOnly = true;
-            dgvSanPham.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvSanPham.Size = new Size(750, 550);
-            dgvSanPham.SelectionChanged += DgvSanPham_SelectionChanged;
+            // TẠO CONTAINER RIÊNG CHO CỤM TÌM KIẾM ĐỂ DỄ CANH GIỮA
+            Panel pnlSearchBox = new Panel();
+            pnlSearchBox.Size = new Size(820, 40); // Chiều rộng đủ chứa các nút
+            pnlSearchBox.BackColor = Color.Transparent;
+            // Tạm thời để location 0,0, lát nữa sự kiện Resize sẽ chỉnh lại
+            
+            // 2.1 Các control tìm kiếm (Add vào pnlSearchBox)
+            cboTimKiem = new ComboBox();
+            cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboTimKiem.Location = new Point(0, 8);
+            cboTimKiem.Size = new Size(130, 25);
+            cboTimKiem.Items.AddRange(new string[] { "Tất cả", "Mã SP", "Tên SP", "Danh mục" });
+            cboTimKiem.SelectedIndex = 0;
 
-            // Create panels
-            Panel searchPanel = CreateSearchPanel();
-            searchPanel.Location = new Point(30, 70);
+            txtTimKiem = new TextBox();
+            txtTimKiem.Location = new Point(140, 8);
+            txtTimKiem.Size = new Size(250, 25);
+            txtTimKiem.PlaceholderText = "Nhập từ khóa...";
 
-            Panel formPanel = CreateFormPanel();
-            formPanel.Location = new Point(800, 140);
+            btnTimKiem = CreateButtonSmall("🔍 Tìm", 400, Color.FromArgb(41, 128, 185), BtnTimKiem_Click);
+            btnRefresh = CreateButtonSmall("⟳ Load", 500, Color.FromArgb(52, 152, 219), (s,e)=>LoadData());
+            btnImport = CreateButtonSmall("📥 Import", 600, Color.FromArgb(46, 204, 113), BtnImport_Click);
+            btnExport = CreateButtonSmall("📤 Export", 700, Color.FromArgb(39, 174, 96), BtnExport_Click);
 
-            Panel buttonPanel = CreateButtonPanel();
-            buttonPanel.Location = new Point(30, 710);
+            pnlSearchBox.Controls.AddRange(new Control[] { 
+                cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport 
+            });
 
-            // 
-            // QuanLySanPhamForm
-            // 
-            Controls.Add(lblTitle);
-            Controls.Add(searchPanel);
+            pnlHeader.Controls.Add(pnlSearchBox);
+
+            // --- 3. XỬ LÝ BUTTONS DƯỚI (CANH GIỮA LUÔN) ---
+            
+            Panel pnlActionBox = new Panel();
+            pnlActionBox.Size = new Size(580, 50); // Đủ chứa 5 nút
+            pnlActionBox.BackColor = Color.Transparent;
+            
+            // Tạo các nút chức năng
+            int btnW = 100, gap = 20;
+            btnThem = CreateBtnAction("➕ Thêm", 0, Color.FromArgb(46, 204, 113), BtnThem_Click);
+            btnSua = CreateBtnAction("✏️ Sửa", 1, Color.FromArgb(52, 152, 219), BtnSua_Click);
+            btnXoa = CreateBtnAction("🗑️ Xóa", 2, Color.FromArgb(231, 76, 60), BtnXoa_Click);
+            btnLuu = CreateBtnAction("💾 Lưu", 3, Color.FromArgb(41, 128, 185), BtnLuu_Click);
+            btnHuy = CreateBtnAction("❌ Hủy", 4, Color.FromArgb(149, 165, 166), BtnHuy_Click);
+            
+            pnlActionBox.Controls.AddRange(new Control[]{ btnThem, btnSua, btnXoa, btnLuu, btnHuy });
+            pnlButtons.Controls.Add(pnlActionBox);
+
+            // --- 4. SỰ KIỆN RESIZE ĐỂ CANH GIỮA (QUAN TRỌNG) ---
+            
+            // Khi pnlHeader thay đổi kích thước -> Tính lại vị trí pnlSearchBox
+            pnlHeader.Resize += (s, e) => {
+                pnlSearchBox.Location = new Point(
+                    (pnlHeader.Width - pnlSearchBox.Width) / 2, // Canh giữa theo chiều ngang
+                    60 // Y cố định
+                );
+            };
+
+            // Khi pnlButtons thay đổi kích thước -> Tính lại vị trí pnlActionBox
+            pnlButtons.Resize += (s, e) => {
+                pnlActionBox.Location = new Point(
+                    (pnlButtons.Width - pnlActionBox.Width) / 2, // Canh giữa theo chiều ngang
+                    10 // Y cố định
+                );
+            };
+
+            // --- 5. ADD CONTROLS VÀO FORM ---
             Controls.Add(dgvSanPham);
-            Controls.Add(formPanel);
-            Controls.Add(buttonPanel);
+            Controls.Add(pnlForm);
+            Controls.Add(pnlHeader);
+            Controls.Add(pnlButtons);
 
             ((ISupportInitialize)(dgvSanPham)).EndInit();
             ((ISupportInitialize)(picHinhAnh)).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
-        private Panel CreateSearchPanel()
+        // --- CÁC HÀM HELPER GIÚP CODE GỌN HƠN ---
+
+        private Button CreateButtonSmall(string text, int x, Color color, EventHandler click)
         {
-            Panel panel = new Panel
-            {
-                Size = new Size(1150, 50),
-                BackColor = Color.White,
-                Padding = new Padding(10)
-            };
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Location = new Point(x, 5);
+            btn.Size = new Size(90, 30);
+            btn.BackColor = color;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += click;
+            return btn;
+        }
 
-            // 
-            // cboTimKiem
-            // 
-            cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboTimKiem.Location = new Point(10, 12);
-            cboTimKiem.Size = new Size(130, 25);
-            cboTimKiem.Items.AddRange(new string[] { 
-                "Tất cả", 
-                "Mã sản phẩm", 
-                "Tên sản phẩm", 
-                "Danh mục", 
-                "Giá xuất", 
-                "Số lượng" 
-            });
-            cboTimKiem.SelectedIndex = 0;
-
-            // 
-            // txtTimKiem
-            // 
-            txtTimKiem.Location = new Point(140, 12);
-            txtTimKiem.Size = new Size(250, 25);
-
-            // 
-            // btnTimKiem
-            // 
-            btnTimKiem.BackColor = Color.FromArgb(41, 128, 185);
-            btnTimKiem.FlatStyle = FlatStyle.Flat;
-            btnTimKiem.ForeColor = Color.White;
-            btnTimKiem.Location = new Point(400, 10);
-            btnTimKiem.Size = new Size(90, 30);
-            btnTimKiem.Text = "Tìm kiếm";
-            btnTimKiem.FlatAppearance.BorderSize = 0;
-            btnTimKiem.Click += BtnTimKiem_Click;
-
-            // 
-            // btnRefresh
-            // 
-            btnRefresh.BackColor = Color.FromArgb(52, 152, 219);
-            btnRefresh.FlatStyle = FlatStyle.Flat;
-            btnRefresh.ForeColor = Color.White;
-            btnRefresh.Location = new Point(500, 10);
-            btnRefresh.Size = new Size(90, 30);
-            btnRefresh.Text = "Làm mới";
-            btnRefresh.FlatAppearance.BorderSize = 0;
-            btnRefresh.Click += (s, e) => LoadData();
-
-            // Chỉnh lại vị trí nút TimKiem và Refresh để nhường chỗ
-            btnTimKiem.Location = new Point(400, 10);
-            btnRefresh.Location = new Point(500, 10);
-
-            // --- THÊM MỚI ---
-            
-            // Nút Nhập Excel
-            btnImport = new Button();
-            btnImport.BackColor = Color.FromArgb(46, 204, 113); // Xanh lá
-            btnImport.FlatStyle = FlatStyle.Flat;
-            btnImport.ForeColor = Color.White;
-            btnImport.Location = new Point(600, 10);
-            btnImport.Size = new Size(100, 30);
-            btnImport.Text = "📥 Nhập Excel";
-            btnImport.FlatAppearance.BorderSize = 0;
-            btnImport.Click += BtnImport_Click;
-
-            // Nút Xuất Excel
-            btnExport = new Button();
-            btnExport.BackColor = Color.FromArgb(39, 174, 96); // Xanh đậm
-            btnExport.FlatStyle = FlatStyle.Flat;
-            btnExport.ForeColor = Color.White;
-            btnExport.Location = new Point(710, 10);
-            btnExport.Size = new Size(100, 30);
-            btnExport.Text = "📤 Xuất Excel";
-            btnExport.FlatAppearance.BorderSize = 0;
-            btnExport.Click += BtnExport_Click;
-
-            panel.Controls.Add(cboTimKiem);
-            panel.Controls.Add(txtTimKiem);
-            panel.Controls.Add(btnTimKiem);
-            panel.Controls.Add(btnRefresh);
-            panel.Controls.Add(btnImport); // Add
-            panel.Controls.Add(btnExport); // Add
-
-            return panel;
+        private Button CreateBtnAction(string text, int index, Color color, EventHandler click)
+        {
+            int btnW = 100, gap = 20;
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Location = new Point((btnW + gap) * index, 10);
+            btn.Size = new Size(btnW, 35);
+            btn.BackColor = color;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Click += click;
+            return btn;
         }
 
         private Panel CreateFormPanel()
         {
             Panel panel = new Panel
             {
-                Size = new Size(380, 550),
                 BackColor = Color.White,
-                Padding = new Padding(15)
+                Padding = new Padding(10),
+                BorderStyle = BorderStyle.FixedSingle
             };
 
-            int y = 15;
-
-            // Mã SP
-            Label lblMaSP = new Label { Text = "Mã SP:", Location = new Point(15, y), Size = new Size(100, 25) };
-            txtMaSP.Location = new Point(120, y);
-            txtMaSP.Size = new Size(240, 25);
-            txtMaSP.ReadOnly = true;
-            txtMaSP.BackColor = SystemColors.Control;
-            panel.Controls.Add(lblMaSP);
-            panel.Controls.Add(txtMaSP);
-            y += 35;
-
-            // Tên SP
-            Label lblTenSP = new Label { Text = "Tên SP: *", Location = new Point(15, y), Size = new Size(100, 25) };
-            txtTenSP.Location = new Point(120, y);
-            txtTenSP.Size = new Size(240, 25);
-            panel.Controls.Add(lblTenSP);
-            panel.Controls.Add(txtTenSP);
-            y += 35;
-
-            // Danh mục
-            Label lblDanhMuc = new Label { Text = "Danh mục:", Location = new Point(15, y), Size = new Size(100, 25) };
-            cboDanhMuc.DropDownStyle = ComboBoxStyle.DropDown;
-            cboDanhMuc.Location = new Point(120, y);
-            cboDanhMuc.Size = new Size(240, 25);
-            cboDanhMuc.Items.AddRange(new string[] { "Laptop", "Màn hình", "Bàn phím", "Chuột", "Tai nghe",
-                "Phụ kiện", "Linh kiện", "Điện thoại", "Thiết bị mạng", "Máy in" });
-            panel.Controls.Add(lblDanhMuc);
-            panel.Controls.Add(cboDanhMuc);
-            y += 35;
-
-            // Loại sản phẩm
-            Label lblLoaiSP = new Label { Text = "Loại SP: *", Location = new Point(15, y), Size = new Size(100, 25) };
-            cboLoaiSP.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboLoaiSP.Location = new Point(120, y);
-            cboLoaiSP.Size = new Size(240, 25);
-            panel.Controls.Add(lblLoaiSP);
-            panel.Controls.Add(cboLoaiSP);
-            y += 35;
-
-            // Nhà SX
-            Label lblNhaSX = new Label { Text = "Nhà SX: *", Location = new Point(15, y), Size = new Size(100, 25) };
-            cboNhaSX.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboNhaSX.Location = new Point(120, y);
-            cboNhaSX.Size = new Size(240, 25);
-            panel.Controls.Add(lblNhaSX);
-            panel.Controls.Add(cboNhaSX);
-            y += 35;
-
-            // Khu vực
-            Label lblKhuVuc = new Label { Text = "Khu vực: *", Location = new Point(15, y), Size = new Size(100, 25) };
-            cboKhuVuc.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboKhuVuc.Location = new Point(120, y);
-            cboKhuVuc.Size = new Size(240, 25);
-            panel.Controls.Add(lblKhuVuc);
-            panel.Controls.Add(cboKhuVuc);
-            y += 35;
-
-            // Giá nhập
-            Label lblGiaNhap = new Label { Text = "Giá nhập:", Location = new Point(15, y), Size = new Size(100, 25) };
-            txtGiaNhap.Location = new Point(120, y);
-            txtGiaNhap.Size = new Size(240, 25);
-            txtGiaNhap.Text = "0";
-            panel.Controls.Add(lblGiaNhap);
-            panel.Controls.Add(txtGiaNhap);
-            y += 35;
-
-            // Giá xuất
-            Label lblGiaXuat = new Label { Text = "Giá xuất:", Location = new Point(15, y), Size = new Size(100, 25) };
-            txtGiaXuat.Location = new Point(120, y);
-            txtGiaXuat.Size = new Size(240, 25);
-            txtGiaXuat.Text = "0";
-            panel.Controls.Add(lblGiaXuat);
-            panel.Controls.Add(txtGiaXuat);
-            y += 35;
-
-            // Số lượng
-            Label lblSoLuong = new Label { Text = "Số lượng:", Location = new Point(15, y), Size = new Size(100, 25) };
-            txtSoLuong.Location = new Point(120, y);
-            txtSoLuong.Size = new Size(240, 25);
-            txtSoLuong.Text = "0";
-            panel.Controls.Add(lblSoLuong);
-            panel.Controls.Add(txtSoLuong);
-            y += 35;
+            int y = 20;
+            int labelW = 90;
+            int inputW = 230;
+            int startX = 15;
 
             // Hình ảnh
+            picHinhAnh = new PictureBox();
             picHinhAnh.BorderStyle = BorderStyle.FixedSingle;
-            picHinhAnh.Location = new Point(15, y);
-            picHinhAnh.Size = new Size(230, 220);
+            picHinhAnh.Location = new Point(startX + 40, y);
+            picHinhAnh.Size = new Size(200, 150);
             picHinhAnh.SizeMode = PictureBoxSizeMode.Zoom;
             panel.Controls.Add(picHinhAnh);
-
-            // 
-            // btnChonAnh
-            // 
+            
+            y += 160;
+            btnChonAnh = new Button();
             btnChonAnh.BackColor = Color.FromArgb(52, 152, 219);
             btnChonAnh.FlatStyle = FlatStyle.Flat;
             btnChonAnh.ForeColor = Color.White;
-            btnChonAnh.Location = new Point(275, y);
-            btnChonAnh.Size = new Size(85, 35);
+            btnChonAnh.Location = new Point(startX + 95, y);
+            btnChonAnh.Size = new Size(90, 30);
             btnChonAnh.Text = "Chọn ảnh";
-            btnChonAnh.FlatAppearance.BorderSize = 0;
             btnChonAnh.Click += BtnChonAnh_Click;
             panel.Controls.Add(btnChonAnh);
 
-            return panel;
-        }
-
-        private Panel CreateButtonPanel()
-        {
-            Panel panel = new Panel
+            y += 50;
+            
+            void AddInput(string label, Control control)
             {
-                Size = new Size(1150, 50),
-                BackColor = Color.White,
-                Padding = new Padding(10)
-            };
+                Label lbl = new Label { Text = label, Location = new Point(startX, y + 3), Size = new Size(labelW, 25) };
+                control.Location = new Point(startX + labelW, y);
+                control.Size = new Size(inputW, 25);
+                panel.Controls.Add(lbl);
+                panel.Controls.Add(control);
+                y += 40;
+            }
 
-            int x = 10;
+            txtMaSP = new TextBox { ReadOnly = true, BackColor = SystemColors.Control };
+            AddInput("Mã SP:", txtMaSP);
 
-            // 
-            // btnThem
-            // 
-            btnThem = CreateButton("➕ Thêm", x, Color.FromArgb(46, 204, 113), BtnThem_Click);
-            panel.Controls.Add(btnThem);
-            x += 110;
+            txtTenSP = new TextBox();
+            AddInput("Tên SP: *", txtTenSP);
 
-            // 
-            // btnSua
-            // 
-            btnSua = CreateButton("✏️ Sửa", x, Color.FromArgb(52, 152, 219), BtnSua_Click);
-            panel.Controls.Add(btnSua);
-            x += 110;
+            cboDanhMuc = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            cboDanhMuc.Items.AddRange(new string[] { "Laptop", "Màn hình", "Bàn phím", "Chuột", "Tai nghe", "Phụ kiện", "Linh kiện", "Điện thoại" });
+            AddInput("Danh mục:", cboDanhMuc);
 
-            // 
-            // btnXoa
-            // 
-            btnXoa = CreateButton("🗑️ Xóa", x, Color.FromArgb(231, 76, 60), BtnXoa_Click);
-            panel.Controls.Add(btnXoa);
-            x += 110;
+            cboLoaiSP = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            AddInput("Loại SP: *", cboLoaiSP);
 
-            // 
-            // btnLuu
-            // 
-            btnLuu = CreateButton("💾 Lưu", x, Color.FromArgb(41, 128, 185), BtnLuu_Click);
-            panel.Controls.Add(btnLuu);
-            x += 110;
+            cboNhaSX = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            AddInput("Nhà SX: *", cboNhaSX);
 
-            // 
-            // btnHuy
-            // 
-            btnHuy = CreateButton("❌ Hủy", x, Color.FromArgb(149, 165, 166), BtnHuy_Click);
-            panel.Controls.Add(btnHuy);
+            cboKhuVuc = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            AddInput("Khu vực: *", cboKhuVuc);
+
+            txtGiaNhap = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Right };
+            AddInput("Giá nhập:", txtGiaNhap);
+
+            txtGiaXuat = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Right };
+            AddInput("Giá xuất:", txtGiaXuat);
+
+            txtSoLuong = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Center };
+            AddInput("Số lượng:", txtSoLuong);
 
             return panel;
-        }
-
-        private Button CreateButton(string text, int x, Color color, EventHandler clickHandler)
-        {
-            Button btn = new Button
-            {
-                Text = text,
-                Location = new Point(x, 10),
-                Size = new Size(100, 30),
-                BackColor = color,
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btn.FlatAppearance.BorderSize = 0;
-            btn.Click += clickHandler;
-            return btn;
         }
 
         private void FormatDataGridView()
         {
-            // Nếu chưa có cột nào thì không làm gì cả
             if (dgvSanPham.Columns.Count == 0) return;
 
-            // --- A. CẤU HÌNH CÁC CỘT HIỂN THỊ ---
-            
-            // Mã SP
             if (dgvSanPham.Columns.Contains("MSP")) 
             {
                 dgvSanPham.Columns["MSP"].HeaderText = "Mã SP";
                 dgvSanPham.Columns["MSP"].Width = 80;
                 dgvSanPham.Columns["MSP"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
-            
-            // Tên SP
             if (dgvSanPham.Columns.Contains("TEN")) 
             {
                 dgvSanPham.Columns["TEN"].HeaderText = "Tên sản phẩm";
-                dgvSanPham.Columns["TEN"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // Tự động giãn
+                dgvSanPham.Columns["TEN"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
-            
-            // Danh mục
             if (dgvSanPham.Columns.Contains("DANHMUC")) 
             {
                 dgvSanPham.Columns["DANHMUC"].HeaderText = "Danh mục";
-                dgvSanPham.Columns["DANHMUC"].Width = 150;
+                dgvSanPham.Columns["DANHMUC"].Width = 120;
             }
-            
-            // Giá xuất (Format số tiền có dấu phẩy)
             if (dgvSanPham.Columns.Contains("TIENX")) 
             {
                 dgvSanPham.Columns["TIENX"].HeaderText = "Giá xuất";
@@ -413,8 +277,6 @@ namespace src.GUI.DanhMuc
                 dgvSanPham.Columns["TIENX"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 dgvSanPham.Columns["TIENX"].Width = 120;
             }
-
-            // Số lượng
             if (dgvSanPham.Columns.Contains("SL")) 
             {
                 dgvSanPham.Columns["SL"].HeaderText = "Số lượng";
@@ -422,19 +284,14 @@ namespace src.GUI.DanhMuc
                 dgvSanPham.Columns["SL"].Width = 80;
             }
 
-            // --- B. ẨN CÁC CỘT KHÔNG CẦN THIẾT ---
             string[] hiddenColumns = { "TIENN", "HINHANH", "MNSX", "MKVK", "MLSP", "TT" };
             foreach (string colName in hiddenColumns)
             {
-                if (dgvSanPham.Columns.Contains(colName))
-                {
-                    dgvSanPham.Columns[colName].Visible = false;
-                }
+                if (dgvSanPham.Columns.Contains(colName)) dgvSanPham.Columns[colName].Visible = false;
             }
         }
 
         #region Windows Form Designer generated code
-
         private DataGridView dgvSanPham;
         private TextBox txtMaSP;
         private TextBox txtTenSP;
@@ -458,7 +315,6 @@ namespace src.GUI.DanhMuc
         private Button btnChonAnh;
         private Button btnTimKiem;
         private Button btnRefresh;
-
         #endregion
     }
 }
