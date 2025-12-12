@@ -9,15 +9,18 @@ namespace src.BUS
     public class KhachHangBUS
     {
         private readonly KhachHangDAO khDAO = KhachHangDAO.Instance;
-        public List<KhachHangDTO> listKhachHang = new List<KhachHangDTO>();
+        private List<KhachHangDTO> listKhachHang = new List<KhachHangDTO>();
 
         public KhachHangBUS()
         {
+            LoadData();
+        }
+
+        public void LoadData()
+        {
             try
             {
-                // Lấy danh sách khách hàng đang hoạt động (TT=1)
-                var data = khDAO.selectAll();
-                listKhachHang = data ?? new List<KhachHangDTO>();
+                listKhachHang = khDAO.selectAll() ?? new List<KhachHangDTO>();
             }
             catch (Exception ex)
             {
@@ -26,81 +29,43 @@ namespace src.BUS
             }
         }
 
-        public List<KhachHangDTO> GetAll()
-        {
-            return this.listKhachHang;
-        }
+        public List<KhachHangDTO> GetAll() => listKhachHang;
 
-        public KhachHangDTO GetByIndex(int index)
-        {
-            return this.listKhachHang[index];
-        }
+        public KhachHangDTO GetByIndex(int index) => listKhachHang[index];
 
+        // LINQ: Tìm index theo tên
         public int GetByTen(string ten)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listKhachHang.Count && vitri == -1)
-            {
-                if (listKhachHang[i].HOTEN.Equals(ten))
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
+            => listKhachHang.FindIndex(kh => kh.HOTEN.Equals(ten));
 
+        // LINQ: Tìm index theo mã khách hàng
         public int GetIndexByMaKH(int makhachhang)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listKhachHang.Count && vitri == -1)
-            {
-                if (listKhachHang[i].MKH == makhachhang)
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
+            => listKhachHang.FindIndex(kh => kh.MKH == makhachhang);
+
+        // LINQ: Lấy khách hàng theo mã
+        public KhachHangDTO? GetById(int makh)
+            => listKhachHang.FirstOrDefault(kh => kh.MKH == makh);
 
         public bool Add(KhachHangDTO kh)
         {
-            bool check = khDAO.insert(kh) != 0;
+            if (khDAO.insert(kh) != 0)
+            {
+                LoadData(); // Reload để đồng bộ với DB (lấy đúng ID auto increment)
+                return true;
+            }
+            return false;
+        }
+
+        public bool Delete(KhachHangDTO kh)
+        {
+            bool check = khDAO.delete(kh.MKH.ToString()) != 0;
             if (check)
             {
-                this.listKhachHang.Add(kh);
+                listKhachHang.RemoveAll(x => x.MKH == kh.MKH);
             }
             return check;
         }
 
-    public bool Delete(KhachHangDTO kh)
-    {
-        bool check = khDAO.delete(kh.MKH.ToString()) != 0;
-        if (check)
-        {
-            int index = GetIndexByMaKH(kh.MKH);
-            if (index != -1)
-            {
-                this.listKhachHang.RemoveAt(index);
-            }
-        }
-        return check;
-    }
-
-    public KhachHangDTO GetById(int makh)
-    {
-        int index = GetIndexByMaKH(makh);
-        return index >= 0 ? listKhachHang[index] : null;
-    }        public bool Update(KhachHangDTO kh)
+        public bool Update(KhachHangDTO kh)
         {
             bool check = khDAO.update(kh) != 0;
             if (check)
@@ -108,113 +73,68 @@ namespace src.BUS
                 int index = GetIndexByMaKH(kh.MKH);
                 if (index != -1)
                 {
-                    this.listKhachHang[index] = kh;
+                    listKhachHang[index] = kh;
                 }
             }
             return check;
         }
 
+        // LINQ: Search với nhiều tiêu chí
         public List<KhachHangDTO> Search(string text, string type)
         {
-            List<KhachHangDTO> result = new List<KhachHangDTO>();
             text = text.ToLower();
+            IEnumerable<KhachHangDTO> query = listKhachHang;
 
             switch (type)
             {
-                case "Tất cả":
-                    foreach (KhachHangDTO i in this.listKhachHang)
-                    {
-                        if (i.MKH.ToString().ToLower().Contains(text) || 
-                            i.HOTEN.ToLower().Contains(text) || 
-                            i.DIACHI.ToLower().Contains(text) || 
-                            i.SDT.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Mã khách hàng":
-                    foreach (KhachHangDTO i in this.listKhachHang)
-                    {
-                        if (i.MKH.ToString().ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(kh => kh.MKH.ToString().Contains(text));
                     break;
                 case "Tên khách hàng":
-                    foreach (KhachHangDTO i in this.listKhachHang)
-                    {
-                        if (i.HOTEN.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(kh => kh.HOTEN.ToLower().Contains(text));
                     break;
                 case "Địa chỉ":
-                    foreach (KhachHangDTO i in this.listKhachHang)
-                    {
-                        if (i.DIACHI.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(kh => kh.DIACHI.ToLower().Contains(text));
                     break;
                 case "Số điện thoại":
-                    foreach (KhachHangDTO i in this.listKhachHang)
-                    {
-                        if (i.SDT.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(kh => kh.SDT.ToLower().Contains(text));
+                    break;
+                default: // Tất cả
+                    query = query.Where(kh =>
+                        kh.MKH.ToString().Contains(text) ||
+                        kh.HOTEN.ToLower().Contains(text) ||
+                        kh.DIACHI.ToLower().Contains(text) ||
+                        kh.SDT.ToLower().Contains(text));
                     break;
             }
-
-            return result;
+            return query.ToList();
         }
 
+        // LINQ: Lấy tên khách hàng theo mã
         public string GetTenKhachHang(int makh)
-        {
-            string name = "";
-            foreach (KhachHangDTO kh in listKhachHang)
-            {
-                if (kh.MKH == makh)
-                {
-                    name = kh.HOTEN;
-                    break; // Tìm thấy thì thoát vòng lặp
-                }
-            }
-            return name;
-        }
+            => listKhachHang.FirstOrDefault(kh => kh.MKH == makh)?.HOTEN ?? "";
 
+        // LINQ: Lấy mảng tên khách hàng
         public string[] GetArrTenKhachHang()
-        {
-            int size = listKhachHang.Count;
-            string[] result = new string[size];
-            for (int i = 0; i < size; i++)
-            {
-                result[i] = listKhachHang[i].HOTEN;
-            }
-            return result;
-        }
+            => listKhachHang.Select(kh => kh.HOTEN).ToArray();
 
-        public KhachHangDTO SelectKh(int makh)
-        {
-            return khDAO.selectById(makh.ToString());
-        }
+        public KhachHangDTO? SelectKh(int makh)
+            => khDAO.selectById(makh.ToString());
 
-        // Lấy mã khách hàng lớn nhất (Có thể dùng để tự tăng ID nếu cần)
+        // LINQ: Lấy mã khách hàng lớn nhất
         public int GetMKHMAX()
         {
-            int s = 1;
-            // Lấy danh sách full (kể cả đã xóa) để đảm bảo ID không trùng
-            List<KhachHangDTO> allList = khDAO.SelectAllFull(); 
-            foreach (KhachHangDTO i in allList)
-            {
-                if (i.MKH > s) s = i.MKH;
-            }
-            return s;
+            var allList = khDAO.SelectAllFull();
+            return allList.Any() ? allList.Max(kh => kh.MKH) : 1;
         }
+
+        // LINQ: Tìm khách hàng theo số điện thoại
+        public KhachHangDTO? FindByPhone(string phone)
+            => listKhachHang.FirstOrDefault(kh => kh.SDT == phone);
+
+        // LINQ: Tìm khách hàng theo email
+        public KhachHangDTO? FindByEmail(string email)
+            => listKhachHang.FirstOrDefault(kh =>
+                kh.EMAIL.Equals(email, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -14,65 +14,42 @@ namespace src.BUS
 
         public SanPhamBUS()
         {
-            // Load dữ liệu ban đầu
+            LoadData();
+        }
+
+        public void LoadData()
+        {
             try
             {
-                listSP = spDAO.selectAll();
+                listSP = spDAO.selectAll() ?? new List<SanPhamDTO>();
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Lỗi khởi tạo SanPhamBUS: {ex.Message}");
                 listSP = new List<SanPhamDTO>();
             }
         }
 
-        public List<SanPhamDTO> GetAll()
-        {
-            return this.listSP;
-        }
+        public List<SanPhamDTO> GetAll() => listSP;
 
-        public SanPhamDTO GetByIndex(int index)
-        {
-            return this.listSP[index];
-        }
+        public SanPhamDTO GetByIndex(int index) => listSP[index];
 
-        public SanPhamDTO GetByMaSP(int masp)
-        {
-            foreach (var sp in listSP)
-            {
-                if (sp.MSP == masp)
-                {
-                    return sp;
-                }
-            }
-            return null;
-        }
+        // LINQ: Lấy sản phẩm theo mã
+        public SanPhamDTO? GetByMaSP(int masp)
+            => listSP.FirstOrDefault(sp => sp.MSP == masp);
 
+        // LINQ: Tìm index theo mã sản phẩm
         public int GetIndexByMaSP(int masanpham)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listSP.Count && vitri == -1)
-            {
-                if (listSP[i].MSP == masanpham)
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
+            => listSP.FindIndex(sp => sp.MSP == masanpham);
 
         public bool Add(SanPhamDTO sp)
         {
-            bool check = spDAO.insert(sp) != 0;
-            if (check)
+            if (spDAO.insert(sp) != 0)
             {
-                this.listSP.Add(sp);
+                LoadData();
+                return true;
             }
-            return check;
+            return false;
         }
 
         public bool Delete(SanPhamDTO sp)
@@ -81,7 +58,7 @@ namespace src.BUS
             bool check = spDAO.delete(sp.MSP.ToString()) != 0;
             if (check)
             {
-                this.listSP.Remove(sp);
+                listSP.RemoveAll(x => x.MSP == sp.MSP);
             }
             return check;
         }
@@ -94,149 +71,82 @@ namespace src.BUS
                 int index = GetIndexByMaSP(sp.MSP);
                 if (index != -1)
                 {
-                    this.listSP[index] = sp;
+                    listSP[index] = sp;
                 }
             }
             return check;
         }
 
-        // Lấy sản phẩm theo Mã khu vực kho (MKVK)
+        // LINQ: Lấy sản phẩm theo Mã khu vực kho (MKVK)
         public List<SanPhamDTO> GetByMaKhuVuc(int makvk)
-        {
-            List<SanPhamDTO> result = new List<SanPhamDTO>();
-            foreach (SanPhamDTO i in this.listSP)
-            {
-                // Sử dụng MKVK (theo SQL mới) thay vì MKVS (sách cũ)
-                if (i.MKVK == makvk)
-                {
-                    result.Add(i);
-                }
-            }
-            return result;
-        }
+            => listSP.Where(sp => sp.MKVK == makvk).ToList();
 
+        // LINQ: Search với nhiều tiêu chí
         public List<SanPhamDTO> Search(string text, string type)
         {
             text = text.ToLower();
-            List<SanPhamDTO> result = new List<SanPhamDTO>();
-            
+            IEnumerable<SanPhamDTO> query = listSP;
+
             switch (type)
             {
-                case "Tất cả":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        if (i.MSP.ToString().Contains(text) || 
-                            i.TEN.ToLower().Contains(text) ||
-                            i.DANHMUC.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Mã sản phẩm":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        if (i.MSP.ToString().Contains(text)) result.Add(i);
-                    }
+                    query = query.Where(sp => sp.MSP.ToString().Contains(text));
                     break;
                 case "Tên sản phẩm":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        if (i.TEN.ToLower().Contains(text)) result.Add(i);
-                    }
+                    query = query.Where(sp => sp.TEN.ToLower().Contains(text));
                     break;
                 case "Danh mục":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        if (i.DANHMUC.ToLower().Contains(text)) result.Add(i);
-                    }
+                    query = query.Where(sp => sp.DANHMUC.ToLower().Contains(text));
                     break;
                 case "Giá xuất":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        // Tìm kiếm tương đối: nhập "50" sẽ ra giá 500, 50000...
-                        if (i.TIENX.ToString().Contains(text)) result.Add(i);
-                    }
+                    query = query.Where(sp => sp.TIENX.ToString().Contains(text));
                     break;
                 case "Số lượng":
-                    foreach (SanPhamDTO i in this.listSP)
-                    {
-                        if (i.SL.ToString().Contains(text)) result.Add(i);
-                    }
+                    query = query.Where(sp => sp.SL.ToString().Contains(text));
                     break;
-                // ---------------------
+                default: // Tất cả
+                    query = query.Where(sp =>
+                        sp.MSP.ToString().Contains(text) ||
+                        sp.TEN.ToLower().Contains(text) ||
+                        sp.DANHMUC.ToLower().Contains(text));
+                    break;
             }
-            return result;
+            return query.ToList();
         }
-        // Overload hàm Search cho List tùy chỉnh
+
+        // LINQ: Overload hàm Search cho List tùy chỉnh
         public List<SanPhamDTO> Search(List<SanPhamDTO> listSource, string text, string type)
         {
             text = text.ToLower();
-            List<SanPhamDTO> result = new List<SanPhamDTO>();
-            
+            IEnumerable<SanPhamDTO> query = listSource;
+
             switch (type)
             {
-                case "Tất cả":
-                    foreach (SanPhamDTO i in listSource)
-                    {
-                        if (i.MSP.ToString().Contains(text) || i.TEN.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Mã sản phẩm":
-                    foreach (SanPhamDTO i in listSource)
-                    {
-                        if (i.MSP.ToString().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(sp => sp.MSP.ToString().Contains(text));
                     break;
                 case "Tên sản phẩm":
-                    foreach (SanPhamDTO i in listSource)
-                    {
-                        if (i.TEN.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(sp => sp.TEN.ToLower().Contains(text));
+                    break;
+                default: // Tất cả
+                    query = query.Where(sp =>
+                        sp.MSP.ToString().Contains(text) ||
+                        sp.TEN.ToLower().Contains(text));
                     break;
             }
-            return result;
+            return query.ToList();
         }
 
-        // Lấy sản phẩm theo danh mục (String)
+        // Lấy sản phẩm theo danh mục (String) - giữ nguyên vì gọi DAO
         public List<SanPhamDTO> GetSpByDanhMuc(string danhmuc)
-        {
-            return spDAO.selectByDanhMuc(danhmuc);
-        }
+            => spDAO.selectByDanhMuc(danhmuc);
 
+        // LINQ: Tính tổng số lượng sản phẩm
         public int GetQuantity()
-        {
-            int n = 0;
-            foreach(SanPhamDTO i in this.listSP)
-            {
-                if (i.SL != 0)
-                {
-                    n += i.SL;
-                }
-            }
-            return n;
-        }
+            => listSP.Where(sp => sp.SL != 0).Sum(sp => sp.SL);
+
+        // LINQ: Thêm nhiều sản phẩm
         public int AddMany(List<SanPhamDTO> listSP)
-        {
-            int successCount = 0;
-            foreach (var sp in listSP)
-            {
-                // Có thể thêm logic kiểm tra trùng tên ở đây nếu muốn
-                if (Add(sp))
-                {
-                    successCount++;
-                }
-            }
-            return successCount;
-        }
+            => listSP.Count(sp => Add(sp));
     }
 }

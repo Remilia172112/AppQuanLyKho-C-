@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -8,42 +9,65 @@ namespace src.BUS
     public class NhaCungCapBUS
     {
         private readonly NhaCungCapDAO NccDAO = NhaCungCapDAO.Instance;
-        public List<NhaCungCapDTO> listNcc = new List<NhaCungCapDTO>();
+        private List<NhaCungCapDTO> listNcc = new List<NhaCungCapDTO>();
 
         public NhaCungCapBUS()
         {
-            this.listNcc = NccDAO.selectAll();
+            LoadData();
         }
 
-        public List<NhaCungCapDTO> GetAll()
+        public void LoadData()
         {
-            return this.listNcc;
+            try
+            {
+                listNcc = NccDAO.selectAll() ?? new List<NhaCungCapDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi LoadData NhaCungCapBUS: {ex.Message}");
+                listNcc = new List<NhaCungCapDTO>();
+            }
         }
 
-        public NhaCungCapDTO GetByIndex(int index)
-        {
-            return this.listNcc[index];
-        }
+        public List<NhaCungCapDTO> GetAll() => listNcc;
+
+        public NhaCungCapDTO GetByIndex(int index) => listNcc[index];
+
+        // LINQ: Tìm index theo mã nhà cung cấp
+        public int GetIndexByMaNCC(int mancc)
+            => listNcc.FindIndex(ncc => ncc.MNCC == mancc);
+
+        // LINQ: Lấy nhà cung cấp theo mã
+        public NhaCungCapDTO? GetById(int mancc)
+            => listNcc.FirstOrDefault(ncc => ncc.MNCC == mancc);
 
         public bool Add(NhaCungCapDTO ncc)
         {
-            // Kiểm tra trùng lặp nếu cần
-            bool check = NccDAO.insert(ncc) != 0;
+            if (NccDAO.insert(ncc) != 0)
+            {
+                LoadData(); // Reload để đồng bộ với DB
+                return true;
+            }
+            return false;
+        }
+
+        public bool Delete(NhaCungCapDTO ncc)
+        {
+            bool check = NccDAO.delete(ncc.MNCC.ToString()) != 0;
             if (check)
             {
-                this.listNcc.Add(ncc);
+                listNcc.Remove(ncc);
             }
             return check;
         }
 
+        // Overload Delete với index (tương thích ngược)
         public bool Delete(NhaCungCapDTO ncc, int index)
         {
-            // Xóa mềm trong CSDL
             bool check = NccDAO.delete(ncc.MNCC.ToString()) != 0;
             if (check)
             {
-                // Xóa khỏi danh sách bộ nhớ
-                this.listNcc.RemoveAt(index);
+                listNcc.RemoveAt(index);
             }
             return check;
         }
@@ -56,140 +80,61 @@ namespace src.BUS
                 int index = GetIndexByMaNCC(ncc.MNCC);
                 if (index != -1)
                 {
-                    this.listNcc[index] = ncc;
+                    listNcc[index] = ncc;
                 }
             }
             return check;
         }
 
-        public int GetIndexByMaNCC(int mancc)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listNcc.Count && vitri == -1)
-            {
-                if (listNcc[i].MNCC == mancc) // Sử dụng Property MNCC
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
-
-        public NhaCungCapDTO GetById(int mancc)
-        {
-            int index = GetIndexByMaNCC(mancc);
-            if (index != -1)
-            {
-                return this.listNcc[index];
-            }
-            return null;
-        }
-
+        // LINQ: Search với nhiều tiêu chí
         public List<NhaCungCapDTO> Search(string txt, string type)
         {
-            List<NhaCungCapDTO> result = new List<NhaCungCapDTO>();
             txt = txt.ToLower();
+            IEnumerable<NhaCungCapDTO> query = listNcc;
 
             switch (type)
             {
-                case "Tất cả":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.MNCC.ToString().Contains(txt) || 
-                            i.TEN.ToLower().Contains(txt) || 
-                            i.DIACHI.ToLower().Contains(txt) || 
-                            i.EMAIL.ToLower().Contains(txt) || 
-                            i.SDT.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Mã nhà cung cấp":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.MNCC.ToString().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(ncc => ncc.MNCC.ToString().Contains(txt));
                     break;
                 case "Tên nhà cung cấp":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.TEN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(ncc => ncc.TEN.ToLower().Contains(txt));
                     break;
                 case "Địa chỉ":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.DIACHI.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(ncc => ncc.DIACHI.ToLower().Contains(txt));
                     break;
                 case "Số điện thoại":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.SDT.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(ncc => ncc.SDT.ToLower().Contains(txt));
                     break;
                 case "Email":
-                    foreach (NhaCungCapDTO i in listNcc)
-                    {
-                        if (i.EMAIL.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(ncc => ncc.EMAIL.ToLower().Contains(txt));
+                    break;
+                default: // Tất cả
+                    query = query.Where(ncc =>
+                        ncc.MNCC.ToString().Contains(txt) ||
+                        ncc.TEN.ToLower().Contains(txt) ||
+                        ncc.DIACHI.ToLower().Contains(txt) ||
+                        ncc.EMAIL.ToLower().Contains(txt) ||
+                        ncc.SDT.ToLower().Contains(txt));
                     break;
             }
-            return result;
+            return query.ToList();
         }
 
+        // LINQ: Lấy mảng tên nhà cung cấp
         public string[] GetArrTenNhaCungCap()
-        {
-            int size = listNcc.Count;
-            string[] result = new string[size];
-            for (int i = 0; i < size; i++)
-            {
-                result[i] = listNcc[i].TEN;
-            }
-            return result;
-        }
+            => listNcc.Select(ncc => ncc.TEN).ToArray();
 
+        // LINQ: Lấy tên nhà cung cấp theo mã
         public string GetTenNhaCungCap(int mancc)
-        {
-            int index = GetIndexByMaNCC(mancc);
-            if (index != -1)
-            {
-                return this.listNcc[index].TEN;
-            }
-            return "";
-        }
+            => listNcc.FirstOrDefault(ncc => ncc.MNCC == mancc)?.TEN ?? "";
 
-        public NhaCungCapDTO FindCT(List<NhaCungCapDTO> nccList, string tenncc)
-        {
-            foreach (var ncc in nccList)
-            {
-                if (ncc.TEN.Equals(tenncc, StringComparison.OrdinalIgnoreCase))
-                {
-                    return ncc;
-                }
-            }
-            return null;
-        }
+        // LINQ: Tìm nhà cung cấp theo tên trong list
+        public NhaCungCapDTO? FindCT(List<NhaCungCapDTO> nccList, string tenncc)
+            => nccList.FirstOrDefault(ncc => ncc.TEN.Equals(tenncc, StringComparison.OrdinalIgnoreCase));
+
+        // LINQ: Tìm nhà cung cấp theo tên trong list hiện tại
+        public NhaCungCapDTO? FindByTen(string tenncc)
+            => listNcc.FirstOrDefault(ncc => ncc.TEN.Equals(tenncc, StringComparison.OrdinalIgnoreCase));
     }
 }

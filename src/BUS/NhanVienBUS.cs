@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OfficeOpenXml; // Thư viện EPPlus cho Excel
+using OfficeOpenXml;
 using src.DAO;
 using src.DTO;
 using src.Helper;
@@ -13,74 +13,56 @@ namespace src.BUS
     {
         private readonly NhanVienDAO nhanVienDAO = NhanVienDAO.Instance;
         private readonly TaiKhoanDAO taiKhoanDAO = TaiKhoanDAO.Instance;
-        public List<NhanVienDTO> listNv = new List<NhanVienDTO>();
+        private List<NhanVienDTO> listNv = new List<NhanVienDTO>();
 
         public NhanVienBUS()
         {
-            // Lấy danh sách nhân viên đang hoạt động (TT=1)
-            listNv = nhanVienDAO.selectAll();
+            LoadData();
         }
 
-        public List<NhanVienDTO> GetAll()
+        public void LoadData()
         {
-            return this.listNv;
+            try
+            {
+                listNv = nhanVienDAO.selectAll() ?? new List<NhanVienDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi LoadData NhanVienBUS: {ex.Message}");
+                listNv = new List<NhanVienDTO>();
+            }
         }
 
-        public NhanVienDTO GetByIndex(int index)
-        {
-            return this.listNv[index];
-        }
+        public List<NhanVienDTO> GetAll() => listNv;
 
+        public NhanVienDTO GetByIndex(int index) => listNv[index];
+
+        // LINQ: Tìm index theo mã nhân viên
         public int GetIndexById(int manv)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listNv.Count && vitri == -1)
-            {
-                if (listNv[i].MNV == manv)
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
+            => listNv.FindIndex(nv => nv.MNV == manv);
 
+        // LINQ: Lấy tên theo mã (từ cache)
         public string GetNameById(int manv)
-        {
-            var nv = nhanVienDAO.selectById(manv.ToString());
-            return nv != null ? nv.HOTEN : "";
-        }
+            => listNv.FirstOrDefault(nv => nv.MNV == manv)?.HOTEN ?? "";
 
-        // Lấy thông tin nhân viên theo ID
+        // Lấy thông tin nhân viên theo ID từ DB
         public NhanVienDTO? GetById(int manv)
-        {
-            return nhanVienDAO.selectById(manv.ToString());
-        }
+            => nhanVienDAO.selectById(manv.ToString());
 
+        // LINQ: Lấy nhân viên từ cache theo mã
+        public NhanVienDTO? GetFromCacheById(int manv)
+            => listNv.FirstOrDefault(nv => nv.MNV == manv);
+
+        // LINQ: Lấy mảng tên nhân viên
         public string[] GetArrTenNhanVien()
-        {
-            int size = listNv.Count;
-            string[] result = new string[size];
-            for (int i = 0; i < size; i++)
-            {
-                result[i] = listNv[i].HOTEN;
-            }
-            return result;
-        }
-
-        // --- Các hàm xử lý logic (Thay thế cho actionPerformed) ---
+            => listNv.Select(nv => nv.HOTEN).ToArray();
 
         // Thêm nhân viên mới
         public bool Add(NhanVienDTO nv)
         {
-            int result = nhanVienDAO.insert(nv);
-            if (result > 0)
+            if (nhanVienDAO.insert(nv) > 0)
             {
-                listNv.Add(nv);
+                LoadData(); // Reload để lấy đúng ID auto increment
                 return true;
             }
             return false;
@@ -89,8 +71,7 @@ namespace src.BUS
         // Cập nhật thông tin nhân viên
         public bool Update(NhanVienDTO nv)
         {
-            int result = nhanVienDAO.update(nv);
-            if (result > 0)
+            if (nhanVienDAO.update(nv) > 0)
             {
                 int index = GetIndexById(nv.MNV);
                 if (index != -1)
@@ -103,90 +84,65 @@ namespace src.BUS
         }
 
         // [Deprecated] Chỉ cập nhật cache - sử dụng Add() thay thế
-        public void InsertNv(NhanVienDTO nv)
-        {
-            listNv.Add(nv);
-        }
+        [Obsolete("Use Add() instead")]
+        public void InsertNv(NhanVienDTO nv) => listNv.Add(nv);
 
         // [Deprecated] Chỉ cập nhật cache - sử dụng Update() thay thế
-        public void UpdateNv(int index, NhanVienDTO nv)
-        {
-            listNv[index] = nv;
-        }
+        [Obsolete("Use Update() instead")]
+        public void UpdateNv(int index, NhanVienDTO nv) => listNv[index] = nv;
 
+        // Xóa nhân viên
         public bool DeleteNv(NhanVienDTO nv)
         {
-            // Xóa nhân viên và tài khoản liên quan
-            var nvDAO = NhanVienDAO.Instance;
-            var tkDAO = TaiKhoanDAO.Instance;
-
             // Xóa tài khoản trước (nếu có khóa ngoại)
-            tkDAO.delete(nv.MNV.ToString());
-            
-            // Xóa nhân viên
-            nvDAO.delete(nv.MNV.ToString());
+            taiKhoanDAO.delete(nv.MNV.ToString());
 
-            // Xóa khỏi danh sách bộ nhớ
+            // Xóa nhân viên
+            nhanVienDAO.delete(nv.MNV.ToString());
+
+            // LINQ: Xóa khỏi danh sách bộ nhớ
             listNv.RemoveAll(n => n.MNV == nv.MNV);
             return true;
         }
 
-        // --- Tìm kiếm ---
-
-        // Tìm kiếm theo text và tiêu chí (ComboBox)
+        // LINQ: Search với nhiều tiêu chí
         public List<NhanVienDTO> Search(string text, string type)
         {
-            List<NhanVienDTO> result = new List<NhanVienDTO>();
             text = text.ToLower();
+            IEnumerable<NhanVienDTO> query = listNv;
 
             switch (type)
             {
-                case "Tất cả":
-                    foreach (NhanVienDTO i in this.listNv)
-                    {
-                        if (i.HOTEN.ToLower().Contains(text) || 
-                            i.EMAIL.ToLower().Contains(text) || 
-                            i.SDT.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
                 case "Họ tên":
-                    foreach (NhanVienDTO i in this.listNv)
-                    {
-                        if (i.HOTEN.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nv => nv.HOTEN.ToLower().Contains(text));
                     break;
                 case "Email":
-                    foreach (NhanVienDTO i in this.listNv)
-                    {
-                        if (i.EMAIL.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nv => nv.EMAIL.ToLower().Contains(text));
                     break;
-                case "Số điện thoại": // Thêm case này cho đủ bộ nếu cần
-                     foreach (NhanVienDTO i in this.listNv)
-                    {
-                        if (i.SDT.ToLower().Contains(text))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                case "Số điện thoại":
+                    query = query.Where(nv => nv.SDT.ToLower().Contains(text));
+                    break;
+                default: // Tất cả
+                    query = query.Where(nv =>
+                        nv.HOTEN.ToLower().Contains(text) ||
+                        nv.EMAIL.ToLower().Contains(text) ||
+                        nv.SDT.ToLower().Contains(text));
                     break;
             }
-            return result;
+            return query.ToList();
         }
+
+        // LINQ: Tìm nhân viên theo email
+        public NhanVienDTO? FindByEmail(string email)
+            => listNv.FirstOrDefault(nv => nv.EMAIL.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+        // LINQ: Tìm nhân viên theo số điện thoại
+        public NhanVienDTO? FindByPhone(string phone)
+            => listNv.FirstOrDefault(nv => nv.SDT == phone);
 
         // --- Xử lý Excel ---
 
         // Xuất danh sách nhân viên ra file Excel
-        // Trả về true nếu thành công, throw exception nếu lỗi
         public void ExportToExcelFile(List<NhanVienDTO> list, string filePath)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -203,9 +159,9 @@ namespace src.BUS
                     sheet.Cells[1, i + 1].Style.Font.Bold = true;
                 }
 
-                // Data
+                // LINQ: Ghi data với index
                 int rowIndex = 2;
-                foreach (NhanVienDTO nv in list)
+                foreach (var nv in list)
                 {
                     sheet.Cells[rowIndex, 1].Value = nv.MNV;
                     sheet.Cells[rowIndex, 2].Value = nv.HOTEN;
@@ -213,7 +169,6 @@ namespace src.BUS
                     sheet.Cells[rowIndex, 4].Value = nv.SDT;
                     sheet.Cells[rowIndex, 5].Value = nv.GIOITINH == 1 ? "Nam" : "Nữ";
                     sheet.Cells[rowIndex, 6].Value = nv.NGAYSINH.ToString("dd/MM/yyyy");
-                    
                     rowIndex++;
                 }
 
@@ -223,49 +178,42 @@ namespace src.BUS
         }
 
         // Nhập danh sách nhân viên từ file Excel
-        // Trả về số dòng lỗi, throw exception nếu lỗi nghiêm trọng
         public int ImportFromExcelFile(string filePath)
         {
             int errorCount = 0;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            
+
             using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
             {
                 ExcelWorksheet sheet = package.Workbook.Worksheets[0];
                 int rowCount = sheet.Dimension.Rows;
 
-                // Bắt đầu từ dòng 2 (bỏ header)
                 for (int row = 2; row <= rowCount; row++)
                 {
-                    try 
+                    try
                     {
                         int id = NhanVienDAO.Instance.getAutoIncrement();
                         string tennv = sheet.Cells[row, 1].Text;
                         string gioitinhStr = sheet.Cells[row, 2].Text;
-                        int gt = (gioitinhStr.Equals("Nam", StringComparison.OrdinalIgnoreCase)) ? 1 : 0;
-                        
-                        // Xử lý ngày sinh (Excel lưu ngày là số hoặc chuỗi)
+                        int gt = gioitinhStr.Equals("Nam", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+
                         DateTime ngaysinh;
                         var cellDate = sheet.Cells[row, 3].Value;
                         if (cellDate is DateTime dt)
                         {
                             ngaysinh = dt;
                         }
-                        else
+                        else if (!DateTime.TryParse(sheet.Cells[row, 3].Text, out ngaysinh))
                         {
-                            // Thử parse chuỗi
-                            if (!DateTime.TryParse(sheet.Cells[row, 3].Text, out ngaysinh))
-                            {
-                                errorCount++;
-                                continue; // Lỗi ngày
-                            }
+                            errorCount++;
+                            continue;
                         }
 
                         string sdt = sheet.Cells[row, 4].Text;
                         string email = sheet.Cells[row, 5].Text;
 
                         // Validate dữ liệu
-                        if (Validation.IsEmpty(tennv) || 
+                        if (Validation.IsEmpty(tennv) ||
                             Validation.IsEmpty(email) || !Validation.IsEmail(email) ||
                             Validation.IsEmpty(sdt) || !Validation.IsPhoneNumber(sdt))
                         {
@@ -273,20 +221,17 @@ namespace src.BUS
                             continue;
                         }
 
-                        // Tạo DTO và Insert
                         NhanVienDTO nvdto = new NhanVienDTO(id, tennv, gt, ngaysinh, sdt, 1, email);
                         NhanVienDAO.Instance.insert(nvdto);
-                        
-                        // Thêm vào list hiện tại để cập nhật GUI
                         listNv.Add(nvdto);
                     }
-                    catch 
+                    catch
                     {
-                        errorCount++; // Lỗi dòng này thì bỏ qua, đếm lỗi
+                        errorCount++;
                     }
                 }
             }
-            
+
             return errorCount;
         }
     }

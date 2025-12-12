@@ -31,7 +31,7 @@ namespace src.GUI.DanhMuc
             khuVucKhoBUS = new KhuVucKhoBUS();
             sanPhamBUS = new SanPhamBUS();
             loaiSanPhamBUS = new LoaiSanPhamBUS();
-            
+
             InitializeDataGridView();
             LoadData();
             SetButtonStates(false);
@@ -50,7 +50,7 @@ namespace src.GUI.DanhMuc
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            
+
             // Lưu ý: Grid Sản Phẩm đã được cấu hình trong Designer.cs
         }
 
@@ -89,7 +89,7 @@ namespace src.GUI.DanhMuc
 
                     // Gọi BUS lấy sản phẩm theo khu vực
                     var listSP = sanPhamBUS.GetByMaKhuVuc(mkvk);
-                    
+
                     // Chuyển đổi sang ViewModel với tên loại sản phẩm
                     var viewModelList = new BindingList<SanPhamKhoViewModel>();
                     foreach (var sp in listSP)
@@ -103,7 +103,7 @@ namespace src.GUI.DanhMuc
                             SoLuong = sp.SL
                         });
                     }
-                    
+
                     dgvSanPham.DataSource = viewModelList;
                     grpSanPham.Text = $"Sản phẩm tại: {tenKhuVuc} ({listSP.Count} sản phẩm)";
                 }
@@ -148,7 +148,7 @@ namespace src.GUI.DanhMuc
             btnLuu.Enabled = editing;
             btnHuy.Enabled = editing;
             dgvKhuVucKho.Enabled = !editing;
-            
+
             txtTenKV.ReadOnly = !editing;
             txtGhiChu.ReadOnly = !editing;
         }
@@ -171,7 +171,7 @@ namespace src.GUI.DanhMuc
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn khu vực kho cần sửa!", "Thông báo", 
+                MessageBox.Show("Vui lòng chọn khu vực kho cần sửa!", "Thông báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -185,43 +185,43 @@ namespace src.GUI.DanhMuc
                 var listSP = sanPhamBUS.GetByMaKhuVuc(mkvk);
                 if (listSP.Count > 0)
                 {
-                    MessageBox.Show($"Khu vực này đang chứa {listSP.Count} sản phẩm. Vui lòng chuyển sản phẩm sang kho khác trước khi xóa!", 
+                    MessageBox.Show($"Khu vực này đang chứa {listSP.Count} sản phẩm. Vui lòng chuyển sản phẩm sang kho khác trước khi xóa!",
                         "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa khu vực kho này?", 
+                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa khu vực kho này?",
                     "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                
+
                 if (result == DialogResult.Yes)
                 {
                     try
                     {
-                        int index = dgvKhuVucKho.CurrentRow.Index;
+                        // int index = dgvKhuVucKho.CurrentRow.Index;
                         var khuVucKho = khuVucKhoBUS.GetAll().Find(x => x.MKVK == mkvk);
-                        if (khuVucKho != null && khuVucKhoBUS.Delete(khuVucKho, index))
+                        if (khuVucKho != null && khuVucKhoBUS.Delete(khuVucKho))
                         {
-                            MessageBox.Show("Xóa khu vực kho thành công!", "Thành công", 
+                            MessageBox.Show("Xóa khu vực kho thành công!", "Thành công",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                             LoadData();
                             ClearForm();
                         }
                         else
                         {
-                            MessageBox.Show("Xóa khu vực kho thất bại!", "Lỗi", 
+                            MessageBox.Show("Xóa khu vực kho thất bại!", "Lỗi",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", 
+                        MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn khu vực kho cần xóa!", "Thông báo", 
+                MessageBox.Show("Vui lòng chọn khu vực kho cần xóa!", "Thông báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -230,7 +230,7 @@ namespace src.GUI.DanhMuc
         {
             if (string.IsNullOrWhiteSpace(txtTenKV.Text))
             {
-                MessageBox.Show("Vui lòng nhập tên khu vực!", "Thông báo", 
+                MessageBox.Show("Vui lòng nhập tên khu vực!", "Thông báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtTenKV.Focus();
                 return;
@@ -249,7 +249,7 @@ namespace src.GUI.DanhMuc
                 {
                     if (khuVucKhoBUS.Add(khuVucKho))
                     {
-                        MessageBox.Show("Thêm khu vực kho thành công!", "Thành công", 
+                        MessageBox.Show("Thêm khu vực kho thành công!", "Thành công",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                         ClearForm();
@@ -257,7 +257,7 @@ namespace src.GUI.DanhMuc
                     }
                     else
                     {
-                        MessageBox.Show("Thêm khu vực kho thất bại!", "Lỗi", 
+                        MessageBox.Show("Thêm khu vực kho thất bại!", "Lỗi",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -266,7 +266,7 @@ namespace src.GUI.DanhMuc
                     khuVucKho.MKVK = currentMaKV;
                     if (khuVucKhoBUS.Update(khuVucKho))
                     {
-                        MessageBox.Show("Cập nhật khu vực kho thành công!", "Thành công", 
+                        MessageBox.Show("Cập nhật khu vực kho thành công!", "Thành công",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                         ClearForm();
@@ -274,14 +274,14 @@ namespace src.GUI.DanhMuc
                     }
                     else
                     {
-                        MessageBox.Show("Cập nhật khu vực kho thất bại!", "Lỗi", 
+                        MessageBox.Show("Cập nhật khu vực kho thất bại!", "Lỗi",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", 
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -312,7 +312,7 @@ namespace src.GUI.DanhMuc
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi", 
+                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

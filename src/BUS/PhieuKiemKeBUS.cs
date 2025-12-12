@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -9,36 +10,34 @@ namespace src.BUS
     {
         private readonly PhieuKiemKeDAO phieuKiemKeDAO = PhieuKiemKeDAO.Instance;
         private readonly ChiTietPhieuKiemKeDAO chiTietKiemKeDAO = ChiTietPhieuKiemKeDAO.Instance;
+        private List<PhieuKiemKeDTO> listPhieuKiemKe = new List<PhieuKiemKeDTO>();
 
-        public List<PhieuKiemKeDTO> SelectAll()
+        public PhieuKiemKeBUS()
         {
-            var result = phieuKiemKeDAO.selectAll();
-            return result ?? new List<PhieuKiemKeDTO>();
+            LoadData();
         }
+
+        public void LoadData()
+        {
+            try
+            {
+                listPhieuKiemKe = phieuKiemKeDAO.selectAll() ?? new List<PhieuKiemKeDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi LoadData PhieuKiemKeBUS: {ex.Message}");
+                listPhieuKiemKe = new List<PhieuKiemKeDTO>();
+            }
+        }
+
+        public List<PhieuKiemKeDTO> SelectAll() => listPhieuKiemKe;
 
         // Alias for SelectAll - for consistency with other BUS classes
-        public List<PhieuKiemKeDTO> GetAll()
-        {
-            return SelectAll();
-        }
+        public List<PhieuKiemKeDTO> GetAll() => listPhieuKiemKe;
 
-        // Get phieu by ID
-        public PhieuKiemKeDTO GetById(int mpkk)
-        {
-            var list = phieuKiemKeDAO.selectAll();
-            if (list == null) return null;
-            
-            foreach (var phieu in list)
-            {
-                if (phieu.MPKK == mpkk)
-                {
-                    return phieu;
-                }
-            }
-            return null;
-        }
-
-
+        // LINQ: Get phieu by ID từ cache
+        public PhieuKiemKeDTO? GetById(int mpkk)
+            => listPhieuKiemKe.FirstOrDefault(phieu => phieu.MPKK == mpkk);
 
         // Thêm phiếu kiểm kê và chi tiết
         public bool Add(PhieuKiemKeDTO phieu, List<ChiTietPhieuKiemKeDTO> dsPhieu)
@@ -46,15 +45,12 @@ namespace src.BUS
             bool check = phieuKiemKeDAO.insert(phieu) != 0;
             if (check)
             {
-                // Cập nhật Mã phiếu kiểm kê cho danh sách chi tiết (để khớp khóa ngoại)
-                // Lưu ý: Nếu ID tự tăng, bạn cần lấy ID vừa insert. 
-                // Nhưng trong code Java cũ bạn truyền ID từ ngoài vào (getAutoIncrement trước đó).
-                foreach (var item in dsPhieu)
-                {
-                    item.MPKK = phieu.MPKK;
-                }
+                // LINQ: Cập nhật Mã phiếu kiểm kê cho danh sách chi tiết
+                dsPhieu.ForEach(item => item.MPKK = phieu.MPKK);
 
                 check = chiTietKiemKeDAO.insert(dsPhieu) != 0;
+
+                if (check) LoadData(); // Reload để đồng bộ
             }
             return check;
         }
@@ -69,7 +65,6 @@ namespace src.BUS
         // Cập nhật phiếu kiểm kê và chi tiết (chỉ cho phép sửa phiếu chờ duyệt TT=2)
         public bool Update(PhieuKiemKeDTO phieu, List<ChiTietPhieuKiemKeDTO> dsPhieu)
         {
-            // Kiểm tra chỉ sửa khi TT=2
             if (!CanUpdate(phieu.MPKK))
             {
                 return false;
@@ -77,17 +72,12 @@ namespace src.BUS
 
             // Xóa chi tiết cũ
             chiTietKiemKeDAO.delete(phieu.MPKK.ToString());
-            
-            // Cập nhật MPKK cho các chi tiết mới
-            foreach (var item in dsPhieu)
-            {
-                item.MPKK = phieu.MPKK;
-            }
-            
+
+            // LINQ: Cập nhật MPKK cho các chi tiết mới
+            dsPhieu.ForEach(item => item.MPKK = phieu.MPKK);
+
             // Thêm chi tiết mới
-            bool check = chiTietKiemKeDAO.insert(dsPhieu) != 0;
-            
-            return check;
+            return chiTietKiemKeDAO.insert(dsPhieu) != 0;
         }
 
         // Hủy phiếu kiểm kê (xóa mềm - UPDATE TT=0)
@@ -95,31 +85,36 @@ namespace src.BUS
         {
             // Xóa chi tiết trước
             chiTietKiemKeDAO.delete(mpkk.ToString());
-            
+
             // Xóa phiếu (soft delete: UPDATE TT=0)
-            int result = phieuKiemKeDAO.delete(mpkk.ToString());
-            
-            return result > 0;
+            bool result = phieuKiemKeDAO.delete(mpkk.ToString()) > 0;
+
+            if (result) LoadData(); // Reload để đồng bộ
+
+            return result;
         }
 
-        // DUYỆT PHIẾU KIỂM KÊ - Chuyển TT từ 2 (chờ duyệt) -> 1 (đã duyệt) và điều chỉnh tồn kho
+        // DUYỆT PHIẾU KIỂM KÊ
         public bool DuyetPhieuKiemKe(int mpkk)
         {
-            int result = phieuKiemKeDAO.DuyetPhieuKiemKe(mpkk);
-            return result > 0;
+            bool result = phieuKiemKeDAO.DuyetPhieuKiemKe(mpkk) > 0;
+
+            if (result) LoadData(); // Reload để đồng bộ
+
+            return result;
         }
 
-        // Kiểm tra có thể sửa phiếu không (chỉ sửa được khi TT=2 - chờ duyệt)
+        // LINQ: Kiểm tra có thể sửa phiếu không (chỉ sửa được khi TT=2 - chờ duyệt)
         public bool CanUpdate(int mpkk)
         {
-            var phieu = phieuKiemKeDAO.selectById(mpkk.ToString());
+            var phieu = listPhieuKiemKe.FirstOrDefault(p => p.MPKK == mpkk);
             return phieu != null && phieu.TT == 2;
         }
 
-        // Kiểm tra có thể xóa phiếu không (chỉ xóa được khi TT=2 - chờ duyệt)
+        // LINQ: Kiểm tra có thể xóa phiếu không (chỉ xóa được khi TT=2 - chờ duyệt)
         public bool CanDelete(int mpkk)
         {
-            var phieu = phieuKiemKeDAO.selectById(mpkk.ToString());
+            var phieu = listPhieuKiemKe.FirstOrDefault(p => p.MPKK == mpkk);
             return phieu != null && phieu.TT == 2;
         }
     }

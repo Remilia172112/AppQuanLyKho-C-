@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using src.DAO;
 using src.DTO;
 
@@ -8,190 +9,135 @@ namespace src.BUS
     public class NhaSanXuatBUS
     {
         private readonly NhaSanXuatDAO nsxDAO = NhaSanXuatDAO.Instance;
-        public List<NhaSanXuatDTO> listNSX = new List<NhaSanXuatDTO>();
+        private List<NhaSanXuatDTO> listNSX = new List<NhaSanXuatDTO>();
 
         public NhaSanXuatBUS()
         {
+            LoadData();
+        }
+
+        public void LoadData()
+        {
             try
             {
-                // Load danh sách nhà sản xuất từ DAO khi khởi tạo
-                var data = nsxDAO.selectAll();
-                this.listNSX = data ?? new List<NhaSanXuatDTO>();
+                listNSX = nsxDAO.selectAll() ?? new List<NhaSanXuatDTO>();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Lỗi khởi tạo NhaSanXuatBUS: {ex.Message}");
-                this.listNSX = new List<NhaSanXuatDTO>();
+                Console.WriteLine($"Lỗi LoadData NhaSanXuatBUS: {ex.Message}");
+                listNSX = new List<NhaSanXuatDTO>();
             }
         }
 
-        public List<NhaSanXuatDTO> GetAll()
-        {
-            return this.listNSX;
-        }
+        public List<NhaSanXuatDTO> GetAll() => listNSX;
 
-        public NhaSanXuatDTO GetByIndex(int index)
-        {
-            return this.listNSX[index];
-        }
+        public NhaSanXuatDTO GetByIndex(int index) => listNSX[index];
+
+        // LINQ: Tìm index theo mã nhà sản xuất
+        public int GetIndexByMaNSX(int mansx)
+            => listNSX.FindIndex(nsx => nsx.MNSX == mansx);
+
+        // LINQ: Lấy nhà sản xuất theo mã
+        public NhaSanXuatDTO? GetById(int mansx)
+            => listNSX.FirstOrDefault(nsx => nsx.MNSX == mansx);
 
         public bool Add(NhaSanXuatDTO nsx)
         {
-            // Gọi DAO để insert vào DB
-            bool check = nsxDAO.insert(nsx) != 0;
+            if (nsxDAO.insert(nsx) != 0)
+            {
+                LoadData(); // Reload để đồng bộ với DB
+                return true;
+            }
+            return false;
+        }
+
+        public bool Delete(NhaSanXuatDTO nsx)
+        {
+            bool check = nsxDAO.delete(nsx.MNSX.ToString()) != 0;
             if (check)
             {
-                // Nếu thành công thì thêm vào list bộ nhớ
-                this.listNSX.Add(nsx);
+                listNSX.RemoveAll(x => x.MNSX == nsx.MNSX);
             }
             return check;
         }
 
+        // Overload Delete với index (tương thích ngược)
         public bool Delete(NhaSanXuatDTO nsx, int index)
         {
-            // Gọi DAO xóa (xóa mềm)
             bool check = nsxDAO.delete(nsx.MNSX.ToString()) != 0;
             if (check)
             {
-                this.listNSX.RemoveAt(index);
+                listNSX.RemoveAt(index);
             }
             return check;
         }
 
         public bool Update(NhaSanXuatDTO nsx)
         {
-            // Gọi DAO update
             bool check = nsxDAO.update(nsx) != 0;
             if (check)
             {
-                // Cập nhật lại đối tượng trong list
                 int index = GetIndexByMaNSX(nsx.MNSX);
                 if (index != -1)
                 {
-                    this.listNSX[index] = nsx;
+                    listNSX[index] = nsx;
                 }
             }
             return check;
         }
 
-        public int GetIndexByMaNSX(int mansx)
-        {
-            int i = 0;
-            int vitri = -1;
-            while (i < this.listNSX.Count && vitri == -1)
-            {
-                if (listNSX[i].MNSX == mansx) // DTO C# dùng MNSX
-                {
-                    vitri = i;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            return vitri;
-        }
-
+        // LINQ: Search với nhiều tiêu chí
         public List<NhaSanXuatDTO> Search(string txt, string type)
         {
-            List<NhaSanXuatDTO> result = new List<NhaSanXuatDTO>();
             txt = txt.ToLower();
+            IEnumerable<NhaSanXuatDTO> query = listNSX;
 
             switch (type)
             {
-                case "Tất cả":
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.MNSX.ToString().Contains(txt) || 
-                            i.TEN.ToLower().Contains(txt) || 
-                            i.DIACHI.ToLower().Contains(txt) || 
-                            i.EMAIL.ToLower().Contains(txt) || 
-                            i.SDT.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
-                    break;
-                case "Mã nhà sản xuất": // Đổi tên cho khớp ngữ cảnh
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.MNSX.ToString().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                case "Mã nhà sản xuất":
+                    query = query.Where(nsx => nsx.MNSX.ToString().Contains(txt));
                     break;
                 case "Tên nhà sản xuất":
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.TEN.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nsx => nsx.TEN.ToLower().Contains(txt));
                     break;
                 case "Địa chỉ":
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.DIACHI.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nsx => nsx.DIACHI.ToLower().Contains(txt));
                     break;
                 case "Số điện thoại":
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.SDT.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nsx => nsx.SDT.ToLower().Contains(txt));
                     break;
                 case "Email":
-                    foreach (NhaSanXuatDTO i in listNSX)
-                    {
-                        if (i.EMAIL.ToLower().Contains(txt))
-                        {
-                            result.Add(i);
-                        }
-                    }
+                    query = query.Where(nsx => nsx.EMAIL.ToLower().Contains(txt));
+                    break;
+                default: // Tất cả
+                    query = query.Where(nsx =>
+                        nsx.MNSX.ToString().Contains(txt) ||
+                        nsx.TEN.ToLower().Contains(txt) ||
+                        nsx.DIACHI.ToLower().Contains(txt) ||
+                        nsx.EMAIL.ToLower().Contains(txt) ||
+                        nsx.SDT.ToLower().Contains(txt));
                     break;
             }
-            return result;
+            return query.ToList();
         }
 
+        // LINQ: Lấy mảng tên nhà sản xuất
         public string[] GetArrTenNhaSanXuat()
-        {
-            int size = listNSX.Count;
-            string[] result = new string[size];
-            for (int i = 0; i < size; i++)
-            {
-                result[i] = listNSX[i].TEN;
-            }
-            return result;
-        }
+            => listNSX.Select(nsx => nsx.TEN).ToArray();
 
+        // LINQ: Lấy tên nhà sản xuất theo mã
         public string GetTenNhaSanXuat(int mansx)
-        {
-            int index = GetIndexByMaNSX(mansx);
-            if (index != -1)
-            {
-                return this.listNSX[index].TEN;
-            }
-            return "";
-        }
+            => listNSX.FirstOrDefault(nsx => nsx.MNSX == mansx)?.TEN ?? "";
 
-        public NhaSanXuatDTO FindCT(List<NhaSanXuatDTO> nsxList, string tennsx)
-        {
-            foreach (var nsx in nsxList)
-            {
-                if (nsx.TEN.Equals(tennsx, StringComparison.OrdinalIgnoreCase))
-                {
-                    return nsx;
-                }
-            }
-            return null;
-        }
+        // LINQ: Tìm nhà sản xuất theo tên trong list
+        public NhaSanXuatDTO? FindCT(List<NhaSanXuatDTO> nsxList, string tennsx)
+            => nsxList.FirstOrDefault(nsx =>
+                nsx.TEN.Equals(tennsx, StringComparison.OrdinalIgnoreCase));
+
+        // LINQ: Tìm nhà sản xuất theo tên trong list hiện tại
+        public NhaSanXuatDTO? FindByTen(string tennsx)
+            => listNSX.FirstOrDefault(nsx =>
+                nsx.TEN.Equals(tennsx, StringComparison.OrdinalIgnoreCase));
+
     }
 }
