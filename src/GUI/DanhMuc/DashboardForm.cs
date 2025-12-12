@@ -536,15 +536,7 @@ namespace src.GUI
             pnlChartContainer?.Invalidate();
         }
 
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            UpdateDateTime();
-
-            // Apply rounded corners to cards
-            ApplyRoundedCorners();
-        }
-
+    
         private void ApplyRoundedCorners()
         {
             int radius = 10;

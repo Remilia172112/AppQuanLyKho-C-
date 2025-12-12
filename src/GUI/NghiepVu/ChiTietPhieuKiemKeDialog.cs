@@ -10,7 +10,7 @@ using src.Helper;
 
 namespace src.GUI.NghiepVu
 {
-    // ViewModel for editable grid binding
+    // ViewModel để hiển thị trên lưới
     public class ChiTietKiemKeViewModel
     {
         public int MSP { get; set; }
@@ -29,93 +29,193 @@ namespace src.GUI.NghiepVu
         private PhieuKiemKeBUS phieuKiemKeBUS = new PhieuKiemKeBUS();
         private NhanVienBUS nhanVienBUS = new NhanVienBUS();
         private SanPhamBUS sanPhamBUS = new SanPhamBUS();
+        
         private List<ChiTietPhieuKiemKeDTO> danhSachChiTiet = new List<ChiTietPhieuKiemKeDTO>();
 
         public ChiTietPhieuKiemKeDialog(DialogMode mode, int? maphieu = null)
         {
             this.mode = mode;
             this.maphieu = maphieu;
-            InitializeComponent();
-            LoadData();
-            SetupUIByMode();
+            try
+            {
+                InitializeComponent();
+                
+                // 1. Tạo cột thủ công (Quan trọng để tránh lỗi cột không tồn tại)
+                InitializeDataGridView(); 
+                
+                // 2. Load dữ liệu
+                LoadData();
+                
+                // 3. Setup giao diện (Ẩn/Hiện nút)
+                SetupUIByMode();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khởi tạo: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void InitializeDataGridView()
+        {
+            dgvChiTiet.Columns.Clear();
+            dgvChiTiet.AutoGenerateColumns = false; // Tắt tự động tạo cột
+
+            // Cột Mã SP
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "MSP",
+                DataPropertyName = "MSP",
+                HeaderText = "Mã SP",
+                Width = 70,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            // Cột Tên SP
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TenSP",
+                DataPropertyName = "TenSP",
+                HeaderText = "Tên sản phẩm",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                ReadOnly = true
+            });
+
+            // Cột Tồn hiện tại
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TonHienTai",
+                DataPropertyName = "TonHienTai",
+                HeaderText = "Tồn hệ thống",
+                Width = 110,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight, BackColor = Color.FromArgb(240, 240, 240) }
+            });
+
+            // Cột SL Thực tế (Cho phép sửa)
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "SoLuongThucTe",
+                DataPropertyName = "SoLuongThucTe",
+                HeaderText = "SL Thực tế ✎",
+                Width = 110,
+                ReadOnly = (mode == DialogMode.View), // Chỉ cho sửa khi không phải chế độ Xem
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    ForeColor = Color.Blue,
+                    Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                }
+            });
+
+            // Cột Chênh lệch
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "ChenhLech",
+                DataPropertyName = "ChenhLech",
+                HeaderText = "Chênh lệch",
+                Width = 100,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            // Cột Giá trị chênh lệch
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "GiaTriChenhLech",
+                DataPropertyName = "GiaTriChenhLech",
+                HeaderText = "Giá trị CL",
+                Width = 120,
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            // Cột Ghi chú (Cho phép sửa)
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "GhiChu",
+                DataPropertyName = "GhiChu",
+                HeaderText = "Ghi chú ✎",
+                Width = 150,
+                ReadOnly = (mode == DialogMode.View)
+            });
         }
 
         private void SetupUIByMode()
         {
-            switch (mode)
+            try
             {
-                case DialogMode.View:
-                    lblTitle.Text = "XEM CHI TIẾT PHIẾU KIỂM KÊ";
-                    cboNhanVien.Enabled = false;
-                    dtpThoiGian.Enabled = false;
-                    dgvChiTiet.ReadOnly = true;
-                    btnThemSP.Visible = false;
-                    btnXoaSP.Visible = false;
-                    btnLuu.Visible = false;
-                    btnHuy.Text = "Đóng";
-                    break;
+                // Cấu hình chung
+                cboNhanVien.Enabled = false;
+                dtpThoiGian.Enabled = (mode == DialogMode.Add);
+                
+                switch (mode)
+                {
+                    case DialogMode.View:
+                        lblTitle.Text = "XEM CHI TIẾT PHIẾU KIỂM KÊ";
+                        dgvChiTiet.ReadOnly = true;
+                        
+                        btnThemSP.Visible = false;
+                        btnXoaSP.Visible = false;
+                        btnLuu.Visible = false;
+                        
+                        btnXuatPDF.Visible = true; // Hiện nút PDF
+                        btnHuy.Text = "Đóng";
+                        break;
 
-                case DialogMode.Add:
-                    lblTitle.Text = "THÊM PHIẾU KIỂM KÊ MỚI";
-                    txtMaPhieu.Text = "(Tự động)";
-                    txtTrangThai.Text = "Chờ duyệt";
-                    dtpThoiGian.Value = DateTime.Now;
-                    // Set current user as default - check if user is logged in
-                    if (SessionManager.CurrentUser != null && SessionManager.CurrentUser.MNV > 0)
-                    {
-                        cboNhanVien.SelectedValue = SessionManager.CurrentUser.MNV;
-                    }
-                    cboNhanVien.Enabled = false;
-                    break;
+                    case DialogMode.Add:
+                        lblTitle.Text = "THÊM PHIẾU KIỂM KÊ MỚI";
+                        txtMaPhieu.Text = "(Tự động)";
+                        txtTrangThai.Text = "Chờ duyệt";
+                        dtpThoiGian.Value = DateTime.Now;
+                        
+                        if (SessionManager.CurrentEmployee != null)
+                            cboNhanVien.SelectedValue = SessionManager.CurrentEmployee.MNV;
+                        
+                        btnLuu.Visible = true;
+                        btnLuu.Text = "Tạo";
+                        btnXuatPDF.Visible = false; // Ẩn nút PDF
+                        break;
 
-                case DialogMode.Edit:
-                    lblTitle.Text = "SỬA PHIẾU KIỂM KÊ";
-                    cboNhanVien.Enabled = false;
-                    break;
+                    case DialogMode.Edit:
+                        lblTitle.Text = "SỬA PHIẾU KIỂM KÊ";
+                        
+                        btnLuu.Visible = true;
+                        btnLuu.Text = "Lưu";
+                        btnXuatPDF.Visible = false; // Ẩn nút PDF
+                        break;
+                }
             }
+            catch { }
         }
 
         private void LoadData()
         {
             try
             {
-                // Load NV
+                // Load Nhân viên
                 var nvList = nhanVienBUS.GetAll();
-                if (nvList == null || nvList.Count == 0)
+                if (cboNhanVien != null)
                 {
-                    MessageBox.Show("Không tải được danh sách nhân viên!", "Lỗi", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    cboNhanVien.DataSource = nvList ?? new List<NhanVienDTO>();
+                    cboNhanVien.DisplayMember = "HOTEN";
+                    cboNhanVien.ValueMember = "MNV";
                 }
-                
-                cboNhanVien.DataSource = nvList;
-                cboNhanVien.DisplayMember = "HOTEN";
-                cboNhanVien.ValueMember = "MNV";
 
                 if (mode != DialogMode.Add && maphieu.HasValue)
                 {
-                    // Load phieu data
                     PhieuKiemKeDTO phieu = phieuKiemKeBUS.GetById(maphieu.Value);
-                    if (phieu == null)
+                    if (phieu != null)
                     {
-                        MessageBox.Show($"Không tìm thấy phiếu kiểm kê #{maphieu.Value}!", 
-                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Close();
-                        return;
-                    }
-                    
-                    txtMaPhieu.Text = phieu.MPKK.ToString();
-                    cboNhanVien.SelectedValue = phieu.MNV;
-                    dtpThoiGian.Value = phieu.TG;
-                    txtTrangThai.Text = phieu.TT == 1 ? "Đã duyệt" : (phieu.TT == 2 ? "Chờ duyệt" : "Đã xóa");
+                        txtMaPhieu.Text = phieu.MPKK.ToString();
+                        cboNhanVien.SelectedValue = phieu.MNV;
+                        dtpThoiGian.Value = phieu.TG;
+                        txtTrangThai.Text = phieu.TT == 1 ? "Đã duyệt" : (phieu.TT == 2 ? "Chờ duyệt" : "Đã xóa");
 
-                    // Load chi tiet
-                    danhSachChiTiet = phieuKiemKeBUS.GetChiTietPhieu(maphieu.Value);
-                    if (danhSachChiTiet == null)
-                    {
-                        danhSachChiTiet = new List<ChiTietPhieuKiemKeDTO>();
+                        // Load chi tiết
+                        danhSachChiTiet = phieuKiemKeBUS.GetChiTietPhieu(maphieu.Value) ?? new List<ChiTietPhieuKiemKeDTO>();
+                        LoadChiTietGrid();
                     }
-                    LoadChiTietGrid();
                 }
                 else
                 {
@@ -124,8 +224,7 @@ namespace src.GUI.NghiepVu
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}\n\nStack trace: {ex.StackTrace}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -133,212 +232,90 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                // Use BindingList for editable binding
                 var displayList = new System.ComponentModel.BindingList<ChiTietKiemKeViewModel>();
                 
                 foreach (var ct in danhSachChiTiet)
                 {
                     var sp = sanPhamBUS.GetByMaSP(ct.MSP);
-                    if (sp == null)
-                    {
-                        Console.WriteLine($"Warning: Product MSP={ct.MSP} not found, skipping...");
-                        continue;
-                    }
-                    
-                    int soLuongThucTe = ct.TRANGTHAISP;  // Actual quantity found during audit
-                    int tonHienTai = sp.SL;              // Current inventory in system
+                    string tenSP = sp?.TEN ?? "Sản phẩm không tồn tại";
+                    int tonHienTai = sp?.SL ?? 0;
+                    decimal giaNhap = sp?.TIENN ?? 0;
+
+                    int soLuongThucTe = ct.TRANGTHAISP; 
                     int chenhLech = soLuongThucTe - tonHienTai;
-                    decimal giaTriChenhLech = chenhLech * sp.TIENN;
+                    decimal giaTriCL = chenhLech * giaNhap; 
 
                     displayList.Add(new ChiTietKiemKeViewModel
                     {
                         MSP = ct.MSP,
-                        TenSP = sp.TEN ?? "",
+                        TenSP = tenSP,
                         TonHienTai = tonHienTai,
                         SoLuongThucTe = soLuongThucTe,
-                        GiaTriChenhLech = giaTriChenhLech,
+                        GiaTriChenhLech = giaTriCL,
                         GhiChu = ct.GHICHU ?? ""
                     });
                 }
 
-                // Clear and rebind to avoid ReadOnly issues
-                dgvChiTiet.DataSource = null;
-                dgvChiTiet.Columns.Clear();
                 dgvChiTiet.DataSource = displayList;
                 
-                FormatDataGridView();
+                // Tô màu các dòng chênh lệch
+                foreach (DataGridViewRow row in dgvChiTiet.Rows)
+                {
+                    if (row.Cells["ChenhLech"].Value != null)
+                    {
+                        int cl = 0;
+                        int.TryParse(row.Cells["ChenhLech"].Value.ToString(), out cl);
+                        if (cl < 0) 
+                        {
+                            row.Cells["ChenhLech"].Style.ForeColor = Color.Red;
+                            row.Cells["GiaTriChenhLech"].Style.ForeColor = Color.Red;
+                        }
+                        else if (cl > 0) 
+                        {
+                            row.Cells["ChenhLech"].Style.ForeColor = Color.Green;
+                            row.Cells["GiaTriChenhLech"].Style.ForeColor = Color.Green;
+                        }
+                    }
+                }
+
                 CalculateStatistics();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi hiển thị chi tiết: {ex.Message}\n\nStack trace: {ex.StackTrace}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void FormatDataGridView()
-        {
-            try
-            {
-                if (dgvChiTiet.Columns.Count == 0) return;
-
-                // Use safe Contains check before accessing columns
-                if (dgvChiTiet.Columns.Contains("MSP"))
-                {
-                    dgvChiTiet.Columns["MSP"].HeaderText = "Mã SP";
-                    dgvChiTiet.Columns["MSP"].Width = 70;
-                    dgvChiTiet.Columns["MSP"].ReadOnly = true;
-                }
-
-                if (dgvChiTiet.Columns.Contains("TenSP"))
-                {
-                    dgvChiTiet.Columns["TenSP"].HeaderText = "Tên sản phẩm";
-                    dgvChiTiet.Columns["TenSP"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                    dgvChiTiet.Columns["TenSP"].ReadOnly = true;
-                }
-
-                if (dgvChiTiet.Columns.Contains("TonHienTai"))
-                {
-                    dgvChiTiet.Columns["TonHienTai"].HeaderText = "Tồn hiện tại";
-                    dgvChiTiet.Columns["TonHienTai"].Width = 100;
-                    dgvChiTiet.Columns["TonHienTai"].ReadOnly = true;
-                    dgvChiTiet.Columns["TonHienTai"].DefaultCellStyle.BackColor = Color.LightGray;
-                    dgvChiTiet.Columns["TonHienTai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-
-                if (dgvChiTiet.Columns.Contains("SoLuongThucTe"))
-                {
-                    dgvChiTiet.Columns["SoLuongThucTe"].HeaderText = "SL Thực tế ✎";
-                    dgvChiTiet.Columns["SoLuongThucTe"].Width = 100;
-                    dgvChiTiet.Columns["SoLuongThucTe"].ReadOnly = (mode == DialogMode.View);
-                    
-                    if (mode == DialogMode.View)
-                    {
-                        // View mode: Light gray background
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.BackColor = Color.LightGray;
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.SelectionBackColor = Color.Gray;
-                    }
-                    else
-                    {
-                        // Edit mode: White background with blue border effect
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.BackColor = Color.White;
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.ForeColor = Color.DarkBlue;
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.Font = new Font(dgvChiTiet.Font, FontStyle.Bold);
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.SelectionBackColor = Color.LightSkyBlue;
-                        dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.SelectionForeColor = Color.DarkBlue;
-                    }
-                    
-                    dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    dgvChiTiet.Columns["SoLuongThucTe"].DefaultCellStyle.Padding = new Padding(5);
-                }
-
-                if (dgvChiTiet.Columns.Contains("ChenhLech"))
-                {
-                    dgvChiTiet.Columns["ChenhLech"].HeaderText = "Chênh lệch";
-                    dgvChiTiet.Columns["ChenhLech"].Width = 100;
-                    dgvChiTiet.Columns["ChenhLech"].ReadOnly = true;
-                    dgvChiTiet.Columns["ChenhLech"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-
-                if (dgvChiTiet.Columns.Contains("GiaTriChenhLech"))
-                {
-                    dgvChiTiet.Columns["GiaTriChenhLech"].HeaderText = "Giá trị CL";
-                    dgvChiTiet.Columns["GiaTriChenhLech"].Width = 120;
-                    dgvChiTiet.Columns["GiaTriChenhLech"].ReadOnly = true;
-                    dgvChiTiet.Columns["GiaTriChenhLech"].DefaultCellStyle.Format = "N0";
-                    dgvChiTiet.Columns["GiaTriChenhLech"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-
-                if (dgvChiTiet.Columns.Contains("GhiChu"))
-                {
-                    dgvChiTiet.Columns["GhiChu"].HeaderText = "Ghi chú ✎";
-                    dgvChiTiet.Columns["GhiChu"].Width = 200;
-                    dgvChiTiet.Columns["GhiChu"].ReadOnly = (mode == DialogMode.View);
-                    
-                    if (mode == DialogMode.View)
-                    {
-                        // View mode: Light gray background
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.BackColor = Color.LightGray;
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.SelectionBackColor = Color.Gray;
-                    }
-                    else
-                    {
-                        // Edit mode: White background with green tint
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.BackColor = Color.White;
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.ForeColor = Color.DarkGreen;
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.Font = new Font(dgvChiTiet.Font, FontStyle.Italic);
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.SelectionBackColor = Color.LightGreen;
-                        dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.SelectionForeColor = Color.DarkGreen;
-                    }
-                    
-                    dgvChiTiet.Columns["GhiChu"].DefaultCellStyle.Padding = new Padding(5);
-                }
-
-                // Apply color coding for ChenhLech column
-                foreach (DataGridViewRow row in dgvChiTiet.Rows)
-                {
-                    if (row.Cells["ChenhLech"]?.Value != null)
-                    {
-                        int chenhLech = Convert.ToInt32(row.Cells["ChenhLech"].Value);
-                        if (chenhLech < 0)
-                        {
-                            row.Cells["ChenhLech"].Style.ForeColor = Color.Red;
-                            row.Cells["ChenhLech"].Style.Font = new Font(dgvChiTiet.Font, FontStyle.Bold);
-                            if (row.Cells["GiaTriChenhLech"] != null)
-                                row.Cells["GiaTriChenhLech"].Style.ForeColor = Color.Red;
-                        }
-                        else if (chenhLech > 0)
-                        {
-                            row.Cells["ChenhLech"].Style.ForeColor = Color.Green;
-                            row.Cells["ChenhLech"].Style.Font = new Font(dgvChiTiet.Font, FontStyle.Bold);
-                            if (row.Cells["GiaTriChenhLech"] != null)
-                                row.Cells["GiaTriChenhLech"].Style.ForeColor = Color.Green;
-                        }
-                        else
-                        {
-                            row.Cells["ChenhLech"].Style.ForeColor = Color.Gray;
-                            if (row.Cells["GiaTriChenhLech"] != null)
-                                row.Cells["GiaTriChenhLech"].Style.ForeColor = Color.Gray;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Warning: Cannot format grid: {ex.Message}");
+                MessageBox.Show($"Lỗi hiển thị lưới: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void CalculateStatistics()
         {
+            if (lblTongSP == null || lblThongKe == null) return;
+
             int tongSP = danhSachChiTiet.Count;
-            int tongThieu = 0;
-            int tongThua = 0;
+            int slThieu = 0;
+            int slThua = 0;
             decimal giaTriThieu = 0;
             decimal giaTriThua = 0;
 
-            foreach (var ct in danhSachChiTiet)
+            var bindingList = dgvChiTiet.DataSource as System.ComponentModel.BindingList<ChiTietKiemKeViewModel>;
+            if (bindingList != null)
             {
-                var sp = sanPhamBUS.GetByMaSP(ct.MSP);
-                int tonHienTai = sp?.SL ?? 0;
-                int soLuongThucTe = ct.TRANGTHAISP;  // Actual quantity
-                int chenhLech = soLuongThucTe - tonHienTai;
-                decimal giaSP = sp?.TIENN ?? 0;
-
-                if (chenhLech < 0)
+                foreach (var item in bindingList)
                 {
-                    tongThieu += Math.Abs(chenhLech);
-                    giaTriThieu += Math.Abs(chenhLech) * giaSP;
-                }
-                else if (chenhLech > 0)
-                {
-                    tongThua += chenhLech;
-                    giaTriThua += chenhLech * giaSP;
+                    if (item.ChenhLech < 0)
+                    {
+                        slThieu += Math.Abs(item.ChenhLech);
+                        giaTriThieu += Math.Abs(item.GiaTriChenhLech);
+                    }
+                    else if (item.ChenhLech > 0)
+                    {
+                        slThua += item.ChenhLech;
+                        giaTriThua += item.GiaTriChenhLech;
+                    }
                 }
             }
 
             lblTongSP.Text = $"Tổng SP: {tongSP}";
-            lblThongKe.Text = $"Thiếu: {tongThieu} SP ({giaTriThieu:N0} đ) | Thừa: {tongThua} SP ({giaTriThua:N0} đ)";
+            lblThongKe.Text = $"Thiếu: {slThieu} ({(giaTriThieu):N0}đ) | Thừa: {slThua} ({(giaTriThua):N0}đ)";
         }
 
         private void BtnThemSP_Click(object sender, EventArgs e)
@@ -348,125 +325,83 @@ namespace src.GUI.NghiepVu
             {
                 foreach (int msp in dialog.SelectedProductIds)
                 {
-                    // Check if already exists
-                    if (danhSachChiTiet.Any(ct => ct.MSP == msp))
-                    {
-                        continue;
-                    }
+                    if (danhSachChiTiet.Any(x => x.MSP == msp)) continue;
 
                     var sp = sanPhamBUS.GetByMaSP(msp);
                     if (sp != null)
                     {
-                        // Add new item with current quantity as default
-                        var newItem = new ChiTietPhieuKiemKeDTO
+                        danhSachChiTiet.Add(new ChiTietPhieuKiemKeDTO
                         {
-                            MPKK = maphieu ?? 0,
                             MSP = msp,
-                            TRANGTHAISP = sp.SL,  // Default: actual quantity = current inventory
+                            MPKK = maphieu ?? 0,
+                            TRANGTHAISP = sp.SL, 
                             GHICHU = ""
-                        };
-                        danhSachChiTiet.Add(newItem);
+                        });
                     }
                 }
-
                 LoadChiTietGrid();
             }
         }
 
         private void BtnXoaSP_Click(object sender, EventArgs e)
         {
-            if (dgvChiTiet.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Vui lòng chọn sản phẩm cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (dgvChiTiet.CurrentRow == null) return;
+            if (dgvChiTiet.CurrentRow.Cells["MSP"].Value == null) return;
 
-            if (MessageBox.Show("Bạn có chắc muốn xóa sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            int msp = Convert.ToInt32(dgvChiTiet.CurrentRow.Cells["MSP"].Value);
+            var item = danhSachChiTiet.FirstOrDefault(x => x.MSP == msp);
+            
+            if (item != null)
             {
-                int msp = Convert.ToInt32(dgvChiTiet.SelectedRows[0].Cells["MSP"].Value);
-                danhSachChiTiet.RemoveAll(ct => ct.MSP == msp);
+                danhSachChiTiet.Remove(item);
                 LoadChiTietGrid();
+            }
+        }
+
+        private void DgvChiTiet_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dgvChiTiet.Rows.Count) return;
+
+            if (dgvChiTiet.Rows[e.RowIndex].DataBoundItem is ChiTietKiemKeViewModel item)
+            {
+                if (item.SoLuongThucTe < 0)
+                {
+                    MessageBox.Show("Số lượng thực tế không được âm!", "Cảnh báo");
+                    item.SoLuongThucTe = item.TonHienTai;
+                }
+
+                var sp = sanPhamBUS.GetByMaSP(item.MSP);
+                decimal giaNhap = sp?.TIENN ?? 0;
+                item.GiaTriChenhLech = (item.SoLuongThucTe - item.TonHienTai) * giaNhap;
+
+                dgvChiTiet.Refresh();
+                CalculateStatistics();
             }
         }
 
         private void DgvChiTiet_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 || mode == DialogMode.View) return;
-
-            try
+            if (dgvChiTiet.Columns.Contains("SoLuongThucTe") && e.ColumnIndex == dgvChiTiet.Columns["SoLuongThucTe"].Index)
             {
-                string columnName = dgvChiTiet.Columns[e.ColumnIndex].Name;
-                
-                // Show tooltip for editable columns
-                if (columnName == "SoLuongThucTe")
-                {
-                    dgvChiTiet.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = 
-                        "📝 Click để nhập số lượng thực tế (phím Enter để xác nhận)";
-                }
-                else if (columnName == "GhiChu")
-                {
-                    dgvChiTiet.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = 
-                        "📝 Click để nhập ghi chú (ví dụ: hư hỏng, mất mát, sai sót...)";
-                }
+                dgvChiTiet.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = "Nhập số lượng kiểm đếm thực tế tại đây";
             }
-            catch { }
         }
 
-        private void DgvChiTiet_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void SyncDataFromGridToDTO()
         {
-            if (e.RowIndex < 0 || mode == DialogMode.View) return;
+            var bindingList = dgvChiTiet.DataSource as System.ComponentModel.BindingList<ChiTietKiemKeViewModel>;
+            if (bindingList == null) return;
 
-            try
+            danhSachChiTiet.Clear();
+            foreach (var viewItem in bindingList)
             {
-                // Get the current view model item
-                var bindingList = dgvChiTiet.DataSource as System.ComponentModel.BindingList<ChiTietKiemKeViewModel>;
-                if (bindingList == null || e.RowIndex >= bindingList.Count) return;
-                
-                var viewModel = bindingList[e.RowIndex];
-                
-                // Find corresponding DTO
-                var item = danhSachChiTiet.FirstOrDefault(ct => ct.MSP == viewModel.MSP);
-                if (item == null) return;
-
-                // Update SoLuongThucTe
-                if (dgvChiTiet.Columns[e.ColumnIndex].Name == "SoLuongThucTe")
+                danhSachChiTiet.Add(new ChiTietPhieuKiemKeDTO
                 {
-                    int soLuongThucTe = viewModel.SoLuongThucTe;
-                    
-                    // Validation: Số lượng không được âm
-                    if (soLuongThucTe < 0)
-                    {
-                        MessageBox.Show("Số lượng thực tế không được âm!\nVui lòng nhập lại.", 
-                            "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        
-                        // Reset to previous value (ton hien tai)
-                        viewModel.SoLuongThucTe = viewModel.TonHienTai;
-                        dgvChiTiet.Refresh();
-                        return;
-                    }
-
-                    // Update DTO
-                    item.TRANGTHAISP = soLuongThucTe;
-                    
-                    // Update calculated fields in view model
-                    var sp = sanPhamBUS.GetByMaSP(item.MSP);
-                    int chenhLech = soLuongThucTe - viewModel.TonHienTai;
-                    viewModel.GiaTriChenhLech = chenhLech * (sp?.TIENN ?? 0);
-                    
-                    // Refresh grid to update color coding
-                    dgvChiTiet.Refresh();
-                    CalculateStatistics();
-                }
-
-                // Update GhiChu
-                if (dgvChiTiet.Columns[e.ColumnIndex].Name == "GhiChu")
-                {
-                    item.GHICHU = viewModel.GhiChu ?? "";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MSP = viewItem.MSP,
+                    MPKK = maphieu ?? 0,
+                    TRANGTHAISP = viewItem.SoLuongThucTe,
+                    GHICHU = viewItem.GhiChu ?? ""
+                });
             }
         }
 
@@ -474,59 +409,47 @@ namespace src.GUI.NghiepVu
         {
             try
             {
+                SyncDataFromGridToDTO();
+
                 if (danhSachChiTiet.Count == 0)
                 {
-                    MessageBox.Show("Vui lòng thêm ít nhất một sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Danh sách kiểm kê đang trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
-                }
-
-                // Final validation: check all quantities >= 0
-                foreach (var item in danhSachChiTiet)
-                {
-                    if (item.TRANGTHAISP < 0)
-                    {
-                        MessageBox.Show("Có sản phẩm có số lượng âm!\nVui lòng kiểm tra lại.", 
-                            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
                 }
 
                 PhieuKiemKeDTO phieu = new PhieuKiemKeDTO
                 {
                     MNV = (int)cboNhanVien.SelectedValue,
                     TG = dtpThoiGian.Value,
-                    TT = 2  // Chờ duyệt
+                    TT = 2 
                 };
+
+                bool success = false;
 
                 if (mode == DialogMode.Add)
                 {
-                    if (phieuKiemKeBUS.Add(phieu, danhSachChiTiet))
-                    {
-                        MessageBox.Show("Thêm phiếu kiểm kê thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
+                    success = phieuKiemKeBUS.Add(phieu, danhSachChiTiet); 
                 }
                 else if (mode == DialogMode.Edit)
                 {
-                    // For edit: update phieu and details through BUS
                     phieu.MPKK = maphieu.Value;
-                    
-                    if (phieuKiemKeBUS.Update(phieu, danhSachChiTiet))
-                    {
-                        MessageBox.Show("Cập nhật phiếu kiểm kê thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Không thể cập nhật phiếu kiểm kê!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    success = phieuKiemKeBUS.Update(phieu, danhSachChiTiet);
+                }
+
+                if (success)
+                {
+                    MessageBox.Show("Thao tác thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Thao tác thất bại! Vui lòng kiểm tra lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lưu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -538,22 +461,21 @@ namespace src.GUI.NghiepVu
 
         private void BtnXuatPDF_Click(object sender, EventArgs e)
         {
-            try
+            if (maphieu.HasValue)
             {
-    
-                int MPKK = Convert.ToInt32(maphieu);
-
-                WritePDF pdfWriter = new WritePDF(); 
-                pdfWriter.WritePKK(MPKK); // Gọi hàm WritePN dành cho phiếu nhập
-
-                // Hàm WritePN đã tự động mở file sau khi lưu nên không cần thông báo thêm
+                try
+                {
+                    new WritePDF().WritePKK(maphieu.Value);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xuất PDF: " + ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Lỗi khi xuất PDF: {ex.Message}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Vui lòng lưu phiếu trước khi xuất PDF!", "Thông báo");
             }
         }
-
     }
 }

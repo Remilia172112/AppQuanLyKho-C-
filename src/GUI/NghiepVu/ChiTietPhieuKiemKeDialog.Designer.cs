@@ -240,7 +240,7 @@ namespace src.GUI.NghiepVu
             this.Name = "ChiTietPhieuKiemKeDialog";
             this.StartPosition = FormStartPosition.CenterParent;
             this.Text = "Chi tiết phiếu kiểm kê";
-            this.ClientSize = new Size(1100, 560);  // Adjusted height to fit all controls
+            this.ClientSize = new Size(1100, 600);  // Adjusted height to fit all controls
             ((System.ComponentModel.ISupportInitialize)(this.dgvChiTiet)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
