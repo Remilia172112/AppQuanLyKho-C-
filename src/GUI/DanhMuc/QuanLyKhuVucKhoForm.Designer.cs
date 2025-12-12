@@ -68,13 +68,61 @@ namespace src.GUI.DanhMuc
             dgvSanPham.ReadOnly = true;
             dgvSanPham.RowHeadersVisible = false;
             dgvSanPham.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSanPham.AutoGenerateColumns = false;
+            dgvSanPham.ColumnHeadersHeight = 35;
+            dgvSanPham.EnableHeadersVisualStyles = false;
             
-            // Style header cho bảng sản phẩm (Màu khác chút để phân biệt)
+            // Cấu hình 4 cột: Mã SP, Tên SP, Loại SP, Số lượng
+            var colMaSP = new DataGridViewTextBoxColumn
+            {
+                Name = "MaSP",
+                DataPropertyName = "MaSP",
+                HeaderText = "Mã SP",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleCenter
+                }
+            };
+            dgvSanPham.Columns.Add(colMaSP);
+
+            var colTenSP = new DataGridViewTextBoxColumn
+            {
+                Name = "TenSP",
+                DataPropertyName = "TenSP",
+                HeaderText = "Tên sản phẩm",
+                Width = 350
+            };
+            dgvSanPham.Columns.Add(colTenSP);
+
+            var colLoaiSP = new DataGridViewTextBoxColumn
+            {
+                Name = "LoaiSP",
+                DataPropertyName = "LoaiSP",
+                HeaderText = "Loại sản phẩm",
+                Width = 170
+            };
+            dgvSanPham.Columns.Add(colLoaiSP);
+
+            var colSoLuong = new DataGridViewTextBoxColumn
+            {
+                Name = "SoLuong",
+                DataPropertyName = "SoLuong",
+                HeaderText = "Số lượng",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Format = "N0"
+                }
+            };
+            dgvSanPham.Columns.Add(colSoLuong);
+            
+            // Style header cho bảng sản phẩm
             dgvSanPham.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(52, 152, 219);
             dgvSanPham.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvSanPham.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            dgvSanPham.EnableHeadersVisualStyles = false;
+            dgvSanPham.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            dgvSanPham.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             
             grpSanPham.Controls.Add(dgvSanPham);
             ((ISupportInitialize)(dgvSanPham)).BeginInit();

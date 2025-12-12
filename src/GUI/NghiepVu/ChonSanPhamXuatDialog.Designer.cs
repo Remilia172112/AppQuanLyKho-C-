@@ -32,7 +32,7 @@ namespace src.GUI.NghiepVu
             // Form Configuration
             // 
             this.Text = "Chọn sản phẩm xuất";
-            this.Size = new System.Drawing.Size(950, 650);
+            this.Size = new System.Drawing.Size(1200, 700);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -43,7 +43,7 @@ namespace src.GUI.NghiepVu
             // 
             pnlSearch = new System.Windows.Forms.Panel();
             pnlSearch.Location = new System.Drawing.Point(20, 20);
-            pnlSearch.Size = new System.Drawing.Size(910, 50);
+            pnlSearch.Size = new System.Drawing.Size(1160, 50);
 
             System.Windows.Forms.Label lblSearch = new System.Windows.Forms.Label();
             lblSearch.Text = "Tìm kiếm sản phẩm:";
@@ -52,14 +52,14 @@ namespace src.GUI.NghiepVu
 
             txtSearch = new System.Windows.Forms.TextBox();
             txtSearch.Location = new System.Drawing.Point(150, 12);
-            txtSearch.Size = new System.Drawing.Size(520, 25);
+            txtSearch.Size = new System.Drawing.Size(700, 25);
             txtSearch.PlaceholderText = "Nhập tên hoặc mã sản phẩm...";
 
             btnSearch = new System.Windows.Forms.Button();
             btnSearch.Text = "Tìm";
-            btnSearch.Location = new System.Drawing.Point(690, 10);
+            btnSearch.Location = new System.Drawing.Point(870, 10);
             btnSearch.Size = new System.Drawing.Size(80, 30);
-            btnSearch.BackColor = System.Drawing.Color.FromArgb(8, 133, 204);
+            btnSearch.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
             btnSearch.ForeColor = System.Drawing.Color.White;
             btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             btnSearch.Click += BtnSearch_Click;
@@ -72,8 +72,9 @@ namespace src.GUI.NghiepVu
             dgvSanPham = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(dgvSanPham)).BeginInit();
             dgvSanPham.Location = new System.Drawing.Point(20, 80);
-            dgvSanPham.Size = new System.Drawing.Size(910, 380);
+            dgvSanPham.Size = new System.Drawing.Size(1160, 450);
             dgvSanPham.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSanPham.AutoGenerateColumns = false;
             dgvSanPham.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             dgvSanPham.MultiSelect = false;
             dgvSanPham.AllowUserToAddRows = false;
@@ -83,27 +84,50 @@ namespace src.GUI.NghiepVu
             dgvSanPham.RowHeadersVisible = false;
             dgvSanPham.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
             dgvSanPham.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            dgvSanPham.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+            dgvSanPham.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold);
+            dgvSanPham.ColumnHeadersDefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dgvSanPham.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9);
+            dgvSanPham.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dgvSanPham.RowTemplate.Height = 30;
+            dgvSanPham.ColumnHeadersHeight = 35;
             dgvSanPham.EnableHeadersVisualStyles = false;
             dgvSanPham.CellClick += DgvSanPham_CellClick;
+            dgvSanPham.CellMouseEnter += DgvSanPham_CellMouseEnter;
+            dgvSanPham.CellMouseLeave += DgvSanPham_CellMouseLeave;
 
-            // Add columns
-            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "MSP", HeaderText = "Mã SP", DataPropertyName = "MSP" });
-            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TEN", HeaderText = "Tên sản phẩm", DataPropertyName = "TEN" });
-            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "SL", HeaderText = "Tồn kho", DataPropertyName = "SL" });
-            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TIENX", HeaderText = "Giá xuất", DataPropertyName = "TIENX" });
+            // Add columns với FillWeight - CHỈ các cột cần hiển thị
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "MSP", HeaderText = "Mã SP", DataPropertyName = "MSP", FillWeight = 10 });
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TEN", HeaderText = "Tên sản phẩm", DataPropertyName = "TEN", FillWeight = 30 });
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "HINHANH", HeaderText = "Hình ảnh", DataPropertyName = "HINHANH", FillWeight = 20 });
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "SL", HeaderText = "Tồn kho", DataPropertyName = "SL", FillWeight = 10 });
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TIENX", HeaderText = "Giá xuất", DataPropertyName = "TIENX", FillWeight = 15 });
+            dgvSanPham.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TIENN", HeaderText = "Giá nhập", DataPropertyName = "TIENN", FillWeight = 15 });
 
             dgvSanPham.Columns["SL"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
             dgvSanPham.Columns["TIENX"].DefaultCellStyle.Format = "N0";
             dgvSanPham.Columns["TIENX"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dgvSanPham.Columns["TIENN"].DefaultCellStyle.Format = "N0";
+            dgvSanPham.Columns["TIENN"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
             ((System.ComponentModel.ISupportInitialize)(dgvSanPham)).EndInit();
+            
+            // 
+            // PictureBox for image preview
+            // 
+            pictureBoxPreview = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(pictureBoxPreview)).BeginInit();
+            pictureBoxPreview.Size = new System.Drawing.Size(200, 200);
+            pictureBoxPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            pictureBoxPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            pictureBoxPreview.BackColor = System.Drawing.Color.White;
+            pictureBoxPreview.Visible = false;
+            ((System.ComponentModel.ISupportInitialize)(pictureBoxPreview)).EndInit();
 
             // 
             // Panel Input
             // 
             pnlInput = new System.Windows.Forms.Panel();
-            pnlInput.Location = new System.Drawing.Point(20, 470);
-            pnlInput.Size = new System.Drawing.Size(910, 100);
+            pnlInput.Location = new System.Drawing.Point(20, 540);
+            pnlInput.Size = new System.Drawing.Size(1160, 100);
             pnlInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 
             // Row 1: Tồn kho hiện tại
@@ -147,7 +171,7 @@ namespace src.GUI.NghiepVu
 
             btnChon = new System.Windows.Forms.Button();
             btnChon.Text = "Chọn";
-            btnChon.Location = new System.Drawing.Point(700, 12);
+            btnChon.Location = new System.Drawing.Point(950, 12);
             btnChon.Size = new System.Drawing.Size(90, 75);
             btnChon.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
             btnChon.ForeColor = System.Drawing.Color.White;
@@ -157,7 +181,7 @@ namespace src.GUI.NghiepVu
 
             btnHuy = new System.Windows.Forms.Button();
             btnHuy.Text = "Hủy";
-            btnHuy.Location = new System.Drawing.Point(800, 12);
+            btnHuy.Location = new System.Drawing.Point(1050, 12);
             btnHuy.Size = new System.Drawing.Size(90, 75);
             btnHuy.BackColor = System.Drawing.Color.Gray;
             btnHuy.ForeColor = System.Drawing.Color.White;
@@ -174,7 +198,7 @@ namespace src.GUI.NghiepVu
             // Add to form
             // 
             this.Controls.AddRange(new System.Windows.Forms.Control[] {
-                pnlSearch, dgvSanPham, pnlInput
+                pnlSearch, dgvSanPham, pnlInput, pictureBoxPreview
             });
         }
 
@@ -193,5 +217,6 @@ namespace src.GUI.NghiepVu
         private System.Windows.Forms.TextBox txtTonKho;
         private System.Windows.Forms.Button btnChon;
         private System.Windows.Forms.Button btnHuy;
+        private System.Windows.Forms.PictureBox pictureBoxPreview;
     }
 }

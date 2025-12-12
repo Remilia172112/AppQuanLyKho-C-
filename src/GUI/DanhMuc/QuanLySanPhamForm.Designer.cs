@@ -290,8 +290,8 @@ namespace src.GUI.DanhMuc
 
             // Hình ảnh
             picHinhAnh.BorderStyle = BorderStyle.FixedSingle;
-            picHinhAnh.Location = new Point(120, y);
-            picHinhAnh.Size = new Size(150, 150);
+            picHinhAnh.Location = new Point(15, y);
+            picHinhAnh.Size = new Size(230, 220);
             picHinhAnh.SizeMode = PictureBoxSizeMode.Zoom;
             panel.Controls.Add(picHinhAnh);
 
@@ -301,8 +301,8 @@ namespace src.GUI.DanhMuc
             btnChonAnh.BackColor = Color.FromArgb(52, 152, 219);
             btnChonAnh.FlatStyle = FlatStyle.Flat;
             btnChonAnh.ForeColor = Color.White;
-            btnChonAnh.Location = new Point(280, y);
-            btnChonAnh.Size = new Size(80, 30);
+            btnChonAnh.Location = new Point(275, y);
+            btnChonAnh.Size = new Size(85, 35);
             btnChonAnh.Text = "Chọn ảnh";
             btnChonAnh.FlatAppearance.BorderSize = 0;
             btnChonAnh.Click += BtnChonAnh_Click;
