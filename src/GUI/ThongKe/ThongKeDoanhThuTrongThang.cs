@@ -224,7 +224,7 @@ namespace src.GUI.ThongKe
         private void BtnExport_Click(object sender, EventArgs e)
         {
             // Gọi hàm export đã viết ở bài trước
-            JTableExporter.ExportJTableToExcel(tableThongKe);
+            TableExporter.ExportTableToExcel(tableThongKe, "TKDTTNN");
         }
     }
 }

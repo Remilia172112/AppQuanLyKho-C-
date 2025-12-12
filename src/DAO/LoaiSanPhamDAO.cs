@@ -53,5 +53,75 @@ namespace src.DAO
             }
             return result;
         }
+
+        public int Insert(LoaiSanPhamDTO lsp)
+        {
+            int result = 0;
+            try
+            {
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    string sql = "INSERT INTO LOAISANPHAM (TEN, GHICHU, TT) VALUES (@TEN, @GHICHU, 1)";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TEN", lsp.TEN);
+                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi Insert LoaiSanPham: " + ex.Message);
+            }
+            return result;
+        }
+
+        public int Update(LoaiSanPhamDTO lsp)
+        {
+            int result = 0;
+            try
+            {
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    string sql = "UPDATE LOAISANPHAM SET TEN=@TEN, GHICHU=@GHICHU WHERE MLSP=@MLSP";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@TEN", lsp.TEN);
+                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU);
+                        cmd.Parameters.AddWithValue("@MLSP", lsp.MLSP);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi Update LoaiSanPham: " + ex.Message);
+            }
+            return result;
+        }
+
+        public int Delete(int mlsp)
+        {
+            int result = 0;
+            try
+            {
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    // Xóa mềm (Soft delete)
+                    string sql = "UPDATE LOAISANPHAM SET TT=0 WHERE MLSP=@MLSP";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MLSP", mlsp);
+                        result = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi Delete LoaiSanPham: " + ex.Message);
+            }
+            return result;
+        }
     }
 }

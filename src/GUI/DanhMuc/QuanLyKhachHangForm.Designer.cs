@@ -311,7 +311,7 @@ namespace src.GUI.DanhMuc
 
             btnThem = new System.Windows.Forms.Button
             {
-                Text = "Thêm",
+                Text = "➕ Thêm",
                 Location = new System.Drawing.Point(xPos, 10),
                 Size = new System.Drawing.Size(btnWidth, btnHeight),
                 BackColor = System.Drawing.Color.FromArgb(39, 174, 96),
@@ -327,7 +327,7 @@ namespace src.GUI.DanhMuc
 
             btnSua = new System.Windows.Forms.Button
             {
-                Text = "Sửa",
+                Text = "✏️ Sửa",
                 Location = new System.Drawing.Point(xPos, 10),
                 Size = new System.Drawing.Size(btnWidth, btnHeight),
                 BackColor = System.Drawing.Color.FromArgb(241, 196, 15),
@@ -343,7 +343,7 @@ namespace src.GUI.DanhMuc
 
             btnXoa = new System.Windows.Forms.Button
             {
-                Text = "Xóa",
+                Text = "🗑️ Xóa",
                 Location = new System.Drawing.Point(xPos, 10),
                 Size = new System.Drawing.Size(btnWidth, btnHeight),
                 BackColor = System.Drawing.Color.FromArgb(231, 76, 60),
@@ -359,7 +359,7 @@ namespace src.GUI.DanhMuc
 
             btnLuu = new System.Windows.Forms.Button
             {
-                Text = "Lưu",
+                Text = "💾 Lưu",
                 Location = new System.Drawing.Point(xPos, 10),
                 Size = new System.Drawing.Size(btnWidth, btnHeight),
                 BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
@@ -376,7 +376,7 @@ namespace src.GUI.DanhMuc
 
             btnHuy = new System.Windows.Forms.Button
             {
-                Text = "Hủy",
+                Text = "❌ Hủy",
                 Location = new System.Drawing.Point(xPos, 10),
                 Size = new System.Drawing.Size(btnWidth, btnHeight),
                 BackColor = System.Drawing.Color.FromArgb(149, 165, 166),

@@ -74,8 +74,6 @@ namespace src.BUS
 
         public bool Add(KhachHangDTO kh)
         {
-            // Kiểm tra trùng SDT hoặc Email trước khi thêm nếu cần
-            // Ở đây giữ nguyên logic insert -> add list
             bool check = khDAO.insert(kh) != 0;
             if (check)
             {

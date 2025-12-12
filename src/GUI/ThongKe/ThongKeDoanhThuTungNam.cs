@@ -220,7 +220,7 @@ namespace src.GUI.ThongKe
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            JTableExporter.ExportJTableToExcel(tableThongKe);
+            TableExporter.ExportTableToExcel(tableThongKe, "TKDTTN");
         }
     }
 }

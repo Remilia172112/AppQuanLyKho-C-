@@ -172,6 +172,7 @@ CREATE TABLE `KHUVUCKHO` (
 INSERT INTO `DANHMUCCHUCNANG`(`MCN`, `TEN`, `TT`)
 VALUES 
         ('sanpham', 'Quản lý sản phẩm', 1),
+        ('loaisanpham', 'Quản lý loại sản phẩm', 1),
         ('khachhang', 'Quản lý khách hàng', 1),
         ('nhacungcap', 'Quản lý nhà cung cấp', 1),
         ('nhasanxuat', 'Quản lý nhà sản xuất', 1),
@@ -190,6 +191,10 @@ VALUES
         (1, 'sanpham', 'delete'),
         (1, 'sanpham', 'update'),
         (1, 'sanpham', 'view'),
+        (1, 'loaisanpham', 'create'),
+        (1, 'loaisanpham', 'delete'),
+        (1, 'loaisanpham', 'update'),
+        (1, 'loaisanpham', 'view'),
         (1, 'khachhang', 'create'),
         (1, 'khachhang', 'delete'),
         (1, 'khachhang', 'update'),
@@ -235,6 +240,7 @@ VALUES
         (1, 'thongke', 'update'),
         (1, 'thongke', 'view'),
         (2, 'sanpham', 'view'),
+        (2, 'loaisanpham', 'create'),
         (2, 'nhasanxuat', 'view'),
         (2, 'khachhang', 'create'),
         (2, 'khachhang', 'delete'),
@@ -247,6 +253,10 @@ VALUES
         (3, 'sanpham', 'delete'),
         (3, 'sanpham', 'update'),
         (3, 'sanpham', 'view'),
+        (3, 'loaisanpham', 'create'),
+        (3, 'loaisanpham', 'delete'),
+        (3, 'loaisanpham', 'update'),
+        (3, 'loaisanpham', 'view'),
         (3, 'nhaphang', 'create'),
         (3, 'nhaphang', 'delete'),
         (3, 'nhaphang', 'update'),
@@ -270,8 +280,8 @@ VALUES
 
 INSERT INTO `NHOMQUYEN` (`TEN`, `TT`)
 VALUES
-        ('Quản lý cửa hàng', 1),
-        ('Nhân viên bán hàng', 1),
+        ('Quản lý kho hàng', 1),
+        ('Nhân viên xuất hàng', 1),
         ('Nhân viên quản lý kho', 1);
 
 
@@ -384,13 +394,28 @@ VALUES
         (8, 4, 20, 500000, 0),   
         (9, 5, 20, 4800000, 0);  
 
-INSERT INTO `PHIEUKIEMKE` (`MNV` , `TG` , `TT`) 
+INSERT INTO `PHIEUKIEMKE` (`MNV`, `TG`, `TT`) 
 VALUES
-        (1 , '2024-04-01 01:09:27' , 1);
+    (1, '2024-05-20 09:00:00', 1), -- Phiếu số 1: Đã duyệt (NV 1 kiểm)
+    (2, '2025-12-10 14:30:00', 2), -- Phiếu số 2: Chờ duyệt (NV 2 đang kiểm)
+    (3, '2024-06-15 10:00:00', 0); -- Phiếu số 3: Đã hủy/Xóa
 
-INSERT INTO `CTPHIEUKIEMKE` (`MPKK`,`MSP` ,`TRANGTHAISP`, `GHICHU`)
+
+/* BƯỚC 3: Tạo Chi tiết kiểm kê (Detail) khớp với bảng SANPHAM */
+INSERT INTO `CTPHIEUKIEMKE` (`MPKK`, `MSP`, `TRANGTHAISP`, `GHICHU`) 
 VALUES 
-        (1, 1, 1 ,'Hư' );
+    -- --- Chi tiết cho Phiếu 1 (Kiểm kê Laptop & Điện thoại) ---
+    (1, 1, 1, 'Hàng nguyên seal, đủ số lượng'),       -- Kiểm MSP 1: Laptop Dell XPS 13 (Tốt)
+    (1, 2, 0, 'Hộp bị móp góc do vận chuyển'),        -- Kiểm MSP 2: iPhone 15 Pro Max (Lỗi nhẹ)
+    (1, 6, 1, 'Tồn kho thực tế khớp hệ thống'),       -- Kiểm MSP 6: MacBook Air M2 (Tốt)
+
+    -- --- Chi tiết cho Phiếu 2 (Kiểm kê Phụ kiện - Đang chờ duyệt) ---
+    (2, 3, 1, 'Đang kiểm đếm, tình trạng tốt'),       -- Kiểm MSP 3: Chuột Logitech G502
+    (2, 4, 1, 'Mới nhập kho hôm qua'),                -- Kiểm MSP 4: Bàn phím Keychron
+    (2, 18, 0, 'Phát hiện thiếu dây cáp đi kèm'),     -- Kiểm MSP 18: Chuột Logitech MX Master 3S (Lỗi)
+
+    -- --- Chi tiết cho Phiếu 3 (Phiếu bị hủy) ---
+    (3, 5, 1, 'Nhân viên kiểm đếm sai quy trình');    -- Kiểm MSP 5: Màn hình LG
 
 
 INSERT INTO `SANPHAM` (`TEN`, `HINHANH`, `DANHMUC`, `MNSX`, `MKVK`, `MLSP`, `TIENX`, `TIENN`, `SL`, `TT`) 

@@ -293,7 +293,7 @@ namespace src.GUI.DanhMuc
             btnThem.ForeColor = Color.White;
             btnThem.Location = new Point(xPos, 10);
             btnThem.Size = new Size(btnWidth, btnHeight);
-            btnThem.Text = "Thêm";
+            btnThem.Text = "➕ Thêm";
             btnThem.FlatAppearance.BorderSize = 0;
             btnThem.Click += BtnThem_Click;
             panel.Controls.Add(btnThem);
@@ -309,7 +309,7 @@ namespace src.GUI.DanhMuc
             btnSua.ForeColor = Color.White;
             btnSua.Location = new Point(xPos, 10);
             btnSua.Size = new Size(btnWidth, btnHeight);
-            btnSua.Text = "Sửa";
+            btnSua.Text = "✏️ Sửa";
             btnSua.FlatAppearance.BorderSize = 0;
             btnSua.Click += BtnSua_Click;
             panel.Controls.Add(btnSua);
@@ -325,7 +325,7 @@ namespace src.GUI.DanhMuc
             btnXoa.ForeColor = Color.White;
             btnXoa.Location = new Point(xPos, 10);
             btnXoa.Size = new Size(btnWidth, btnHeight);
-            btnXoa.Text = "Xóa";
+            btnXoa.Text = "🗑️ Xóa";
             btnXoa.FlatAppearance.BorderSize = 0;
             btnXoa.Click += BtnXoa_Click;
             panel.Controls.Add(btnXoa);
@@ -341,7 +341,7 @@ namespace src.GUI.DanhMuc
             btnLuu.ForeColor = Color.White;
             btnLuu.Location = new Point(xPos, 10);
             btnLuu.Size = new Size(btnWidth, btnHeight);
-            btnLuu.Text = "Lưu";
+            btnLuu.Text = "💾 Lưu";
             btnLuu.FlatAppearance.BorderSize = 0;
             btnLuu.Click += BtnLuu_Click;
             panel.Controls.Add(btnLuu);
@@ -357,7 +357,7 @@ namespace src.GUI.DanhMuc
             btnHuy.ForeColor = Color.White;
             btnHuy.Location = new Point(xPos, 10);
             btnHuy.Size = new Size(btnWidth, btnHeight);
-            btnHuy.Text = "Hủy";
+            btnHuy.Text = "❌ Hủy";
             btnHuy.FlatAppearance.BorderSize = 0;
             btnHuy.Click += BtnHuy_Click;
             panel.Controls.Add(btnHuy);

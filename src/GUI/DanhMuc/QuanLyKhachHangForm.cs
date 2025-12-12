@@ -114,7 +114,6 @@ namespace src.GUI.DanhMuc
             });
         }
 
-        // LOAD DATA AN TOÀN - Columns đã được tạo sẵn
         private void LoadData()
         {
             try
@@ -126,7 +125,6 @@ namespace src.GUI.DanhMuc
                     khachHangList = new List<KhachHangDTO>();
                 }
 
-                // Bind data - Columns đã tạo sẵn nên KHÔNG CÒN LỖI
                 dgvKhachHang.DataSource = new BindingList<KhachHangDTO>(khachHangList);
             }
             catch (Exception ex)
@@ -407,7 +405,7 @@ namespace src.GUI.DanhMuc
                     return;
                 }
 
-                JTableExporter.ExportJTableToExcel(dgvKhachHang);
+                TableExporter.ExportTableToExcel(dgvKhachHang,"KH");
                 MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Windows.Forms; // Dùng cho SaveFileDialog, MessageBox
 using System.Diagnostics;   // Dùng để mở file sau khi xuất
 using iTextSharp.text;      // Thư viện PDF
 using iTextSharp.text.pdf;  // Thư viện PDF
@@ -215,7 +212,7 @@ namespace src.Helper
                     PdfWriter.GetInstance(document, fs);
                     document.Open();
 
-                    Paragraph company = new Paragraph("Hệ thống quản lý cửa hàng sách BestBook", fontBold15);
+                    Paragraph company = new Paragraph("Hệ thống quản lý kho hàng BestKhos", fontBold15);
                     company.Add(CreateWhiteSpace(20));
                     company.Add(new Chunk("Thời gian in phiếu: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"), fontNormal10));
                     company.Alignment = Element.ALIGN_LEFT;
@@ -317,7 +314,7 @@ namespace src.Helper
                     PdfWriter.GetInstance(document, fs);
                     document.Open();
 
-                    Paragraph company = new Paragraph("Hệ thống quản lý cửa hàng sách BestBook", fontBold15);
+                    Paragraph company = new Paragraph("Hệ thống quản lý kho hàng BestKho", fontBold15);
                     company.Add(CreateWhiteSpace(20));
                     company.Add(new Chunk("Thời gian in phiếu: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"), fontNormal10));
                     company.Alignment = Element.ALIGN_LEFT;

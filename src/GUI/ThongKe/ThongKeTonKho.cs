@@ -220,7 +220,7 @@ namespace src.GUI.ThongKe
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            JTableExporter.ExportJTableToExcel(tblTonKho);
+            TableExporter.ExportTableToExcel(tblTonKho, "TKTK");
         }
 
         private void TblTonKho_CellDoubleClick(object sender, DataGridViewCellEventArgs e)

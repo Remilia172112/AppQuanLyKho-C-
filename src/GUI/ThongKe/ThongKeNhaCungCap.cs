@@ -208,7 +208,7 @@ namespace src.GUI.ThongKe
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            JTableExporter.ExportJTableToExcel(tblNCC);
+            TableExporter.ExportTableToExcel(tblNCC, "TKNCC");
         }
     }
 }

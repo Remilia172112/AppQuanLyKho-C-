@@ -189,19 +189,16 @@ namespace src.GUI.DanhMuc
         {
             try
             {
-                SaveFileDialog saveFileDialog = new SaveFileDialog
+                if (dgvNhanVien.Rows.Count == 0)
                 {
-                    Title = "Xuất danh sách nhân viên",
-                    Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"DanhSachNhanVien_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
-                };
-
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    var nhanVienList = nhanVienBUS.GetAll();
-                    nhanVienBUS.ExportToExcelFile(nhanVienList, saveFileDialog.FileName);
-                    MessageBox.Show("Xuất Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
+                TableExporter.ExportTableToExcel(dgvNhanVien,"NV");
+                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {

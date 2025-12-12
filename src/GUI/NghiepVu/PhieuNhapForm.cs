@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
 using src.BUS;
 using src.DTO;
 using src.GUI.Components;
+using src.Helper;
 
 namespace src.GUI.NghiepVu
 {
@@ -14,30 +10,6 @@ namespace src.GUI.NghiepVu
         private PhieuNhapBUS phieuNhapBUS = new PhieuNhapBUS();
         private NhaCungCapBUS nhaCungCapBUS = new NhaCungCapBUS();
         private NhanVienBUS nhanVienBUS = new NhanVienBUS();
-
-        // UI Controls
-        private System.Windows.Forms.Panel pnlTop;
-        private Label lblTitle;
-        private System.Windows.Forms.Panel pnlFilter;
-        private TextBox txtSearch;
-        private ComboBox cboNhaCungCap;
-        private ComboBox cboNhanVien;
-        private DateTimePicker dtpTuNgay;
-        private DateTimePicker dtpDenNgay;
-        private CheckBox chkLocTheoNgay;
-        private RadioButton rdoTatCa;
-        private RadioButton rdoChoDuyet;
-        private RadioButton rdoDaDuyet;
-        private Button btnLoc;
-        private Button btnReset;
-        private Panel pnlButtons;
-        private Button btnThem;
-        private Button btnXem;
-        private Button btnSua;
-        private Button btnXoa;
-        private Button btnDuyet;
-        private Button btnExport;
-        private DataGridView dgvPhieuNhap;
 
         public PhieuNhapForm()
         {
@@ -318,9 +290,57 @@ namespace src.GUI.NghiepVu
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Chức năng xuất Excel sẽ được triển khai sau", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                // Kiểm tra xem DataGridView có dữ liệu không
+                if (dgvPhieuNhap.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu phiếu nhập để xuất!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Gọi hàm xuất Excel từ Helper
+                TableExporter.ExportTableToExcel(dgvPhieuNhap, "PN");
+                
+                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
+        private void BtnXuatPDF_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // 1. Kiểm tra xem người dùng đã chọn dòng nào chưa
+                if (dgvPhieuNhap.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn phiếu nhập cần xuất PDF!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 2. Lấy Mã phiếu nhập (MPN) từ dòng được chọn
+                // Lưu ý: Đảm bảo tên cột trong DataGridView là "MPN"
+                int mpn = Convert.ToInt32(dgvPhieuNhap.SelectedRows[0].Cells["MPN"].Value);
+
+                // 3. Gọi class WritePDF để xuất file
+                WritePDF pdfWriter = new WritePDF(); 
+                pdfWriter.WritePN(mpn); // Gọi hàm WritePN dành cho phiếu nhập
+
+                // Hàm WritePN đã tự động mở file sau khi lưu nên không cần thông báo thêm
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xuất PDF: {ex.Message}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void DgvPhieuNhap_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)

@@ -162,7 +162,7 @@ namespace src.GUI.NghiepVu
             ((System.ComponentModel.ISupportInitialize)(dgvChiTiet)).EndInit();
 
             btnThemSP = new System.Windows.Forms.Button();
-            btnThemSP.Text = "Thêm sản phẩm";
+            btnThemSP.Text = "Thêm SP";
             btnThemSP.Location = new System.Drawing.Point(550, 320);
             btnThemSP.Size = new System.Drawing.Size(120, 35);
             btnThemSP.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);

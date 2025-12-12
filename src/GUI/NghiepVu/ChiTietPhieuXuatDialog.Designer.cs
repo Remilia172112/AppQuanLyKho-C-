@@ -243,7 +243,7 @@ namespace src.GUI.NghiepVu
             btnThemSP.ForeColor = Color.White;
             btnThemSP.Location = new Point(10, 300);
             btnThemSP.Size = new Size(130, 35);
-            btnThemSP.Text = "Thêm sản phẩm";
+            btnThemSP.Text = "Thêm SP";
             btnThemSP.Click += BtnThemSP_Click;
 
             // 

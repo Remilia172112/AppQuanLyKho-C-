@@ -1,16 +1,39 @@
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+
 namespace src.GUI.NghiepVu
 {
     partial class PhieuNhapForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        // UI Controls
+        private Panel pnlTop;
+        private Label lblTitle;
+        private Panel pnlFilter;
+        private TextBox txtSearch;
+        private ComboBox cboNhaCungCap;
+        private ComboBox cboNhanVien;
+        private DateTimePicker dtpTuNgay;
+        private DateTimePicker dtpDenNgay;
+        private CheckBox chkLocTheoNgay;
+        private RadioButton rdoTatCa;
+        private RadioButton rdoChoDuyet;
+        private RadioButton rdoDaDuyet;
+        private Button btnLoc;
+        private Button btnReset;
+        private Panel pnlButtons;
+        private Button btnThem;
+        private Button btnXem;
+        private Button btnSua;
+        private Button btnXoa;
+        private Button btnDuyet;
+        private Button btnXuatPDF; // Nút PDF
+        private Button btnExport;  // Nút Excel
+        private DataGridView dgvPhieuNhap;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,405 +43,319 @@ namespace src.GUI.NghiepVu
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-
-            // 
-            // Form Configuration
-            // 
             this.Text = "Quản lý Phiếu Nhập hàng";
             this.Size = new System.Drawing.Size(1400, 800);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.FromArgb(236, 240, 241);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            // --- Khởi tạo ---
+            pnlTop = new Panel();
+            lblTitle = new Label();
+            pnlFilter = new Panel();
+            txtSearch = new TextBox();
+            cboNhaCungCap = new ComboBox();
+            cboNhanVien = new ComboBox();
+            dtpTuNgay = new DateTimePicker();
+            dtpDenNgay = new DateTimePicker();
+            chkLocTheoNgay = new CheckBox();
+            rdoTatCa = new RadioButton();
+            rdoChoDuyet = new RadioButton();
+            rdoDaDuyet = new RadioButton();
+            btnLoc = new Button();
+            btnReset = new Button();
+            pnlButtons = new Panel();
+            btnThem = new Button();
+            btnXem = new Button();
+            btnSua = new Button();
+            btnXoa = new Button();
+            btnDuyet = new Button();
+            btnXuatPDF = new Button();
+            btnExport = new Button();
+            dgvPhieuNhap = new DataGridView();
+
+            Label lblSearch = new Label();
+            Label lblNCC = new Label();
+            Label lblNV = new Label();
+            Label lblTuNgay = new Label();
+            Label lblDenNgay = new Label();
+            Label lblTrangThai = new Label();
+
+            ((ISupportInitialize)(dgvPhieuNhap)).BeginInit();
+            pnlTop.SuspendLayout();
+            pnlFilter.SuspendLayout();
+            pnlButtons.SuspendLayout();
+            SuspendLayout();
 
             // 
-            // Panel Title
+            // pnlTop
             // 
-            pnlTop = new System.Windows.Forms.Panel
-            {
-                Dock = System.Windows.Forms.DockStyle.Top,
-                Height = 60,
-                BackColor = System.Drawing.Color.FromArgb(8, 133, 204)
-            };
-
-            lblTitle = new System.Windows.Forms.Label
-            {
-                Text = "QUẢN LÝ PHIẾU NHẬP HÀNG",
-                Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold),
-                ForeColor = System.Drawing.Color.White,
-                Dock = System.Windows.Forms.DockStyle.Fill,
-                TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-            };
+            pnlTop.BackColor = Color.FromArgb(8, 133, 204);
             pnlTop.Controls.Add(lblTitle);
+            pnlTop.Dock = DockStyle.Top;
+            pnlTop.Height = 60;
+
+            // lblTitle
+            lblTitle.Dock = DockStyle.Fill;
+            lblTitle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.White;
+            lblTitle.Text = "QUẢN LÝ PHIẾU NHẬP HÀNG";
+            lblTitle.TextAlign = ContentAlignment.MiddleCenter;
 
             // 
-            // Panel Filter
+            // pnlFilter (Đã chỉnh tọa độ để không bị dính)
             // 
-            pnlFilter = new System.Windows.Forms.Panel
-            {
-                Dock = System.Windows.Forms.DockStyle.Top,
-                Height = 120,
-                Padding = new System.Windows.Forms.Padding(10),
-                BackColor = System.Drawing.Color.White
-            };
+            pnlFilter.Dock = DockStyle.Top;
+            pnlFilter.Height = 120;
+            pnlFilter.Padding = new Padding(10);
+            pnlFilter.BackColor = Color.WhiteSmoke;
 
-            // Row 1 - Search and ComboBoxes
-            System.Windows.Forms.Label lblSearch = new System.Windows.Forms.Label
-            {
-                Text = "Tìm kiếm:",
-                Location = new System.Drawing.Point(15, 15),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblSearch);
+            // Row 1
+            lblSearch.AutoSize = true;
+            lblSearch.Location = new Point(15, 15);
+            lblSearch.Text = "Tìm kiếm:";
+            lblSearch.Font = new Font("Segoe UI", 10F);
 
-            txtSearch = new System.Windows.Forms.TextBox
-            {
-                Location = new System.Drawing.Point(100, 12),
-                Size = new System.Drawing.Size(200, 25),
-                PlaceholderText = "Nhập mã phiếu..."
-            };
-            pnlFilter.Controls.Add(txtSearch);
+            txtSearch.Location = new Point(100, 12);
+            txtSearch.Size = new Size(200, 25);
+            txtSearch.Font = new Font("Segoe UI", 10F);
+            txtSearch.PlaceholderText = "Nhập mã phiếu...";
 
-            System.Windows.Forms.Label lblNCC = new System.Windows.Forms.Label
-            {
-                Text = "Nhà cung cấp:",
-                Location = new System.Drawing.Point(320, 15),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblNCC);
+            lblNCC.AutoSize = true;
+            lblNCC.Location = new Point(330, 15); // Đẩy ra 330
+            lblNCC.Text = "Nhà cung cấp:";
+            lblNCC.Font = new Font("Segoe UI", 10F);
 
-            cboNhaCungCap = new System.Windows.Forms.ComboBox
-            {
-                Location = new System.Drawing.Point(425, 12),
-                Size = new System.Drawing.Size(200, 25),
-                DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-            };
-            pnlFilter.Controls.Add(cboNhaCungCap);
+            cboNhaCungCap.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboNhaCungCap.Location = new Point(440, 12); // Đẩy ra 440
+            cboNhaCungCap.Size = new Size(200, 25);
+            cboNhaCungCap.Font = new Font("Segoe UI", 10F);
 
-            System.Windows.Forms.Label lblNV = new System.Windows.Forms.Label
-            {
-                Text = "Nhân viên:",
-                Location = new System.Drawing.Point(645, 15),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblNV);
+            lblNV.AutoSize = true;
+            lblNV.Location = new Point(670, 15); // Đẩy ra 670
+            lblNV.Text = "Nhân viên:";
+            lblNV.Font = new Font("Segoe UI", 10F);
 
-            cboNhanVien = new System.Windows.Forms.ComboBox
-            {
-                Location = new System.Drawing.Point(730, 12),
-                Size = new System.Drawing.Size(200, 25),
-                DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-            };
-            pnlFilter.Controls.Add(cboNhanVien);
+            cboNhanVien.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboNhanVien.Location = new Point(760, 12); // Đẩy ra 760
+            cboNhanVien.Size = new Size(200, 25);
+            cboNhanVien.Font = new Font("Segoe UI", 10F);
 
-            // Row 2 - Date Range and Status
-            System.Windows.Forms.Label lblTuNgay = new System.Windows.Forms.Label
-            {
-                Text = "Từ ngày:",
-                Location = new System.Drawing.Point(15, 55),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblTuNgay);
+            // Row 2
+            lblTuNgay.AutoSize = true;
+            lblTuNgay.Location = new Point(15, 55);
+            lblTuNgay.Text = "Từ ngày:";
+            lblTuNgay.Font = new Font("Segoe UI", 10F);
 
-            dtpTuNgay = new System.Windows.Forms.DateTimePicker
-            {
-                Location = new System.Drawing.Point(100, 52),
-                Size = new System.Drawing.Size(150, 25),
-                Format = System.Windows.Forms.DateTimePickerFormat.Custom,
-                CustomFormat = "dd-MM-yyyy",
-                Enabled = false
-            };
-            pnlFilter.Controls.Add(dtpTuNgay);
+            dtpTuNgay.CustomFormat = "dd-MM-yyyy";
+            dtpTuNgay.Enabled = false;
+            dtpTuNgay.Format = DateTimePickerFormat.Custom;
+            dtpTuNgay.Location = new Point(100, 52);
+            dtpTuNgay.Size = new Size(130, 25);
+            dtpTuNgay.Font = new Font("Segoe UI", 10F);
 
-            System.Windows.Forms.Label lblDenNgay = new System.Windows.Forms.Label
-            {
-                Text = "Đến ngày:",
-                Location = new System.Drawing.Point(260, 55),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblDenNgay);
+            lblDenNgay.AutoSize = true;
+            lblDenNgay.Location = new Point(250, 55);
+            lblDenNgay.Text = "Đến ngày:";
+            lblDenNgay.Font = new Font("Segoe UI", 10F);
 
-            dtpDenNgay = new System.Windows.Forms.DateTimePicker
-            {
-                Location = new System.Drawing.Point(345, 52),
-                Size = new System.Drawing.Size(150, 25),
-                Format = System.Windows.Forms.DateTimePickerFormat.Custom,
-                CustomFormat = "dd-MM-yyyy",
-                Enabled = false
-            };
-            pnlFilter.Controls.Add(dtpDenNgay);
+            dtpDenNgay.CustomFormat = "dd-MM-yyyy";
+            dtpDenNgay.Enabled = false;
+            dtpDenNgay.Format = DateTimePickerFormat.Custom;
+            dtpDenNgay.Location = new Point(330, 52);
+            dtpDenNgay.Size = new Size(130, 25);
+            dtpDenNgay.Font = new Font("Segoe UI", 10F);
 
-            chkLocTheoNgay = new System.Windows.Forms.CheckBox
+            chkLocTheoNgay.AutoSize = true;
+            chkLocTheoNgay.Location = new Point(480, 54); // Đẩy ra 480
+            chkLocTheoNgay.Text = "Lọc ngày";
+            chkLocTheoNgay.Font = new Font("Segoe UI", 10F);
+            chkLocTheoNgay.CheckedChanged += (s, e) =>
             {
-                Text = "Lọc theo ngày",
-                Location = new System.Drawing.Point(505, 54),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            chkLocTheoNgay.CheckedChanged += (s, e) => {
                 dtpTuNgay.Enabled = chkLocTheoNgay.Checked;
                 dtpDenNgay.Enabled = chkLocTheoNgay.Checked;
             };
-            pnlFilter.Controls.Add(chkLocTheoNgay);
 
-            System.Windows.Forms.Label lblTrangThai = new System.Windows.Forms.Label
-            {
-                Text = "Trạng thái:",
-                Location = new System.Drawing.Point(625, 55),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(lblTrangThai);
+            lblTrangThai.AutoSize = true;
+            lblTrangThai.Location = new Point(580, 55); // Đẩy ra 580
+            lblTrangThai.Text = "Trạng thái:";
+            lblTrangThai.Font = new Font("Segoe UI", 10F);
 
-            rdoTatCa = new System.Windows.Forms.RadioButton
-            {
-                Text = "Tất cả",
-                Location = new System.Drawing.Point(710, 52),
-                AutoSize = true,
-                Checked = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(rdoTatCa);
+            rdoTatCa.AutoSize = true;
+            rdoTatCa.Checked = true;
+            rdoTatCa.Location = new Point(660, 54);
+            rdoTatCa.Text = "Tất cả";
+            rdoTatCa.Font = new Font("Segoe UI", 10F);
 
-            rdoChoDuyet = new System.Windows.Forms.RadioButton
-            {
-                Text = "Chờ duyệt",
-                Location = new System.Drawing.Point(800, 52),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(rdoChoDuyet);
+            rdoChoDuyet.AutoSize = true;
+            rdoChoDuyet.Location = new Point(740, 54);
+            rdoChoDuyet.Text = "Chờ duyệt";
+            rdoChoDuyet.Font = new Font("Segoe UI", 10F);
 
-            rdoDaDuyet = new System.Windows.Forms.RadioButton
-            {
-                Text = "Đã duyệt",
-                Location = new System.Drawing.Point(910, 52),
-                AutoSize = true,
-                Font = new System.Drawing.Font("Segoe UI", 9F)
-            };
-            pnlFilter.Controls.Add(rdoDaDuyet);
+            rdoDaDuyet.AutoSize = true;
+            rdoDaDuyet.Location = new Point(840, 54);
+            rdoDaDuyet.Text = "Đã duyệt";
+            rdoDaDuyet.Font = new Font("Segoe UI", 10F);
 
-            btnLoc = new System.Windows.Forms.Button
-            {
-                Text = "Lọc",
-                Location = new System.Drawing.Point(1050, 12),
-                Size = new System.Drawing.Size(100, 35),
-                BackColor = System.Drawing.Color.FromArgb(8, 133, 204),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnLoc.FlatAppearance.BorderSize = 0;
+            // Buttons Filter
+            btnLoc.BackColor = Color.FromArgb(8, 133, 204);
+            btnLoc.FlatStyle = FlatStyle.Flat;
+            btnLoc.ForeColor = Color.White;
+            btnLoc.Location = new Point(1000, 12);
+            btnLoc.Size = new Size(100, 35);
+            btnLoc.Text = "🔍 Lọc";
+            btnLoc.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnLoc.Click += BtnLoc_Click;
-            pnlFilter.Controls.Add(btnLoc);
 
-            btnReset = new System.Windows.Forms.Button
-            {
-                Text = "Đặt lại",
-                Location = new System.Drawing.Point(1050, 52),
-                Size = new System.Drawing.Size(100, 35),
-                BackColor = System.Drawing.Color.Gray,
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnReset.FlatAppearance.BorderSize = 0;
+            btnReset.BackColor = Color.Gray;
+            btnReset.FlatStyle = FlatStyle.Flat;
+            btnReset.ForeColor = Color.White;
+            btnReset.Location = new Point(1000, 52);
+            btnReset.Size = new Size(100, 35);
+            btnReset.Text = "⟳ Đặt lại";
+            btnReset.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             btnReset.Click += BtnReset_Click;
-            pnlFilter.Controls.Add(btnReset);
+
+            pnlFilter.Controls.AddRange(new Control[] {
+                lblSearch, txtSearch, lblNCC, cboNhaCungCap, lblNV, cboNhanVien,
+                lblTuNgay, dtpTuNgay, lblDenNgay, dtpDenNgay, chkLocTheoNgay,
+                lblTrangThai, rdoTatCa, rdoChoDuyet, rdoDaDuyet,
+                btnLoc, btnReset
+            });
 
             // 
-            // Panel Buttons
+            // pnlButtons
             // 
-            pnlButtons = new System.Windows.Forms.Panel
-            {
-                Dock = System.Windows.Forms.DockStyle.Bottom,
-                Height = 70,
-                BackColor = System.Drawing.Color.WhiteSmoke
-            };
+            pnlButtons.BackColor = Color.WhiteSmoke;
+            pnlButtons.Dock = DockStyle.Bottom;
+            pnlButtons.Height = 70;
+            pnlButtons.Padding = new Padding(10);
 
-            btnThem = new System.Windows.Forms.Button
-            {
-                Text = "Thêm mới",
-                Location = new System.Drawing.Point(20, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(40, 167, 69),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnThem.FlatAppearance.BorderSize = 0;
+            Size btnSize = new Size(130, 40);
+            int startX = 20;
+            int spacing = 150;
+
+            // 1. Thêm
+            btnThem.BackColor = Color.FromArgb(40, 167, 69);
+            btnThem.FlatStyle = FlatStyle.Flat;
+            btnThem.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnThem.ForeColor = Color.White;
+            btnThem.Location = new Point(startX, 15);
+            btnThem.Size = btnSize;
+            btnThem.Text = "➕ Thêm";
             btnThem.Click += BtnThem_Click;
-            pnlButtons.Controls.Add(btnThem);
 
-            btnXem = new System.Windows.Forms.Button
-            {
-                Text = "Xem chi tiết",
-                Location = new System.Drawing.Point(160, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(8, 133, 204),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnXem.FlatAppearance.BorderSize = 0;
+            // 2. Xem
+            btnXem.BackColor = Color.FromArgb(23, 162, 184);
+            btnXem.FlatStyle = FlatStyle.Flat;
+            btnXem.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnXem.ForeColor = Color.White;
+            btnXem.Location = new Point(startX + spacing, 15);
+            btnXem.Size = btnSize;
+            btnXem.Text = "👁 Xem chi tiết";
             btnXem.Click += BtnXem_Click;
-            pnlButtons.Controls.Add(btnXem);
 
-            btnSua = new System.Windows.Forms.Button
-            {
-                Text = "Sửa",
-                Location = new System.Drawing.Point(300, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(255, 193, 7),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnSua.FlatAppearance.BorderSize = 0;
+            // 3. Sửa
+            btnSua.BackColor = Color.FromArgb(255, 193, 7);
+            btnSua.FlatStyle = FlatStyle.Flat;
+            btnSua.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnSua.ForeColor = Color.White;
+            btnSua.Location = new Point(startX + spacing * 2, 15);
+            btnSua.Size = btnSize;
+            btnSua.Text = "✏️ Sửa";
             btnSua.Click += BtnSua_Click;
-            pnlButtons.Controls.Add(btnSua);
 
-            btnXoa = new System.Windows.Forms.Button
-            {
-                Text = "Xóa",
-                Location = new System.Drawing.Point(440, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(220, 53, 69),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnXoa.FlatAppearance.BorderSize = 0;
+            // 4. Xóa
+            btnXoa.BackColor = Color.FromArgb(220, 53, 69);
+            btnXoa.FlatStyle = FlatStyle.Flat;
+            btnXoa.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnXoa.ForeColor = Color.White;
+            btnXoa.Location = new Point(startX + spacing * 3, 15);
+            btnXoa.Size = btnSize;
+            btnXoa.Text = "🗑️ Xóa";
             btnXoa.Click += BtnXoa_Click;
-            pnlButtons.Controls.Add(btnXoa);
 
-            btnDuyet = new System.Windows.Forms.Button
-            {
-                Text = "Duyệt phiếu",
-                Location = new System.Drawing.Point(580, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(23, 162, 184),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnDuyet.FlatAppearance.BorderSize = 0;
+            // 5. Duyệt
+            btnDuyet.BackColor = Color.FromArgb(102, 16, 242);
+            btnDuyet.FlatStyle = FlatStyle.Flat;
+            btnDuyet.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnDuyet.ForeColor = Color.White;
+            btnDuyet.Location = new Point(startX + spacing * 4, 15);
+            btnDuyet.Size = btnSize;
+            btnDuyet.Text = "✅ Duyệt phiếu";
             btnDuyet.Click += BtnDuyet_Click;
-            pnlButtons.Controls.Add(btnDuyet);
 
-            btnExport = new System.Windows.Forms.Button
-            {
-                Text = "Xuất Excel",
-                Location = new System.Drawing.Point(720, 15),
-                Size = new System.Drawing.Size(120, 40),
-                BackColor = System.Drawing.Color.FromArgb(108, 117, 125),
-                ForeColor = System.Drawing.Color.White,
-                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
-                Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold),
-                Cursor = System.Windows.Forms.Cursors.Hand
-            };
-            btnExport.FlatAppearance.BorderSize = 0;
+            // 6. PDF
+            btnXuatPDF.BackColor = Color.FromArgb(200, 35, 51);
+            btnXuatPDF.FlatStyle = FlatStyle.Flat;
+            btnXuatPDF.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnXuatPDF.ForeColor = Color.White;
+            btnXuatPDF.Location = new Point(startX + spacing * 5, 15);
+            btnXuatPDF.Size = btnSize;
+            btnXuatPDF.Text = "📄 Xuất PDF";
+            btnXuatPDF.Click += BtnXuatPDF_Click;
+
+            // 7. Excel
+            btnExport.BackColor = Color.FromArgb(25, 135, 84);
+            btnExport.FlatStyle = FlatStyle.Flat;
+            btnExport.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnExport.ForeColor = Color.White;
+            btnExport.Location = new Point(startX + spacing * 6, 15);
+            btnExport.Size = btnSize;
+            btnExport.Text = "📊 Xuất Excel";
             btnExport.Click += BtnExport_Click;
-            pnlButtons.Controls.Add(btnExport);
+
+            pnlButtons.Controls.AddRange(new Control[] {
+                btnThem, btnXem, btnSua, btnXoa, btnDuyet, btnXuatPDF, btnExport
+            });
 
             // 
-            // DataGridView
+            // dgvPhieuNhap
             // 
-            dgvPhieuNhap = new System.Windows.Forms.DataGridView();
-            dgvPhieuNhap.Dock = System.Windows.Forms.DockStyle.Fill;
-            dgvPhieuNhap.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            dgvPhieuNhap.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            dgvPhieuNhap.MultiSelect = false;
             dgvPhieuNhap.AllowUserToAddRows = false;
             dgvPhieuNhap.AllowUserToDeleteRows = false;
-            dgvPhieuNhap.ReadOnly = true;
-            dgvPhieuNhap.BackgroundColor = System.Drawing.Color.White;
-            dgvPhieuNhap.RowHeadersVisible = false;
-            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(8, 133, 204);
-            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            dgvPhieuNhap.ColumnHeadersHeight = 40;
+            dgvPhieuNhap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvPhieuNhap.BackgroundColor = Color.White;
+            dgvPhieuNhap.BorderStyle = BorderStyle.None;
+            
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(8, 133, 204);
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvPhieuNhap.ColumnHeadersHeight = 45;
+            
+            dgvPhieuNhap.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            dgvPhieuNhap.RowTemplate.Height = 35;
+            
+            dgvPhieuNhap.Dock = DockStyle.Fill;
             dgvPhieuNhap.EnableHeadersVisualStyles = false;
-            dgvPhieuNhap.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            dgvPhieuNhap.MultiSelect = false;
+            dgvPhieuNhap.ReadOnly = true;
+            dgvPhieuNhap.RowHeadersVisible = false;
+            dgvPhieuNhap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPhieuNhap.CellDoubleClick += DgvPhieuNhap_CellDoubleClick;
 
-            // Add columns
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "MPN", 
-                HeaderText = "Mã phiếu", 
-                DataPropertyName = "MPN" 
-            });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "MPN", HeaderText = "Mã phiếu", DataPropertyName = "MPN" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNCC", HeaderText = "Nhà cung cấp", DataPropertyName = "TenNCC" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNV", HeaderText = "Nhân viên", DataPropertyName = "TenNV" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TG", HeaderText = "Thời gian", DataPropertyName = "TG" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TongTien", HeaderText = "Tổng tiền", DataPropertyName = "TongTien" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng thái", DataPropertyName = "TrangThai" });
 
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "TenNCC", 
-                HeaderText = "Nhà cung cấp", 
-                DataPropertyName = "TenNCC" 
-            });
-
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "TenNV", 
-                HeaderText = "Nhân viên", 
-                DataPropertyName = "TenNV" 
-            });
-
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "TG", 
-                HeaderText = "Thời gian", 
-                DataPropertyName = "TG" 
-            });
-
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "TongTien", 
-                HeaderText = "Tổng tiền", 
-                DataPropertyName = "TongTien" 
-            });
-
-            dgvPhieuNhap.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn 
-            { 
-                Name = "TrangThai", 
-                HeaderText = "Trạng thái", 
-                DataPropertyName = "TrangThai" 
-            });
-
-            // Format currency column
             dgvPhieuNhap.Columns["TongTien"].DefaultCellStyle.Format = "N0";
-            dgvPhieuNhap.Columns["TongTien"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dgvPhieuNhap.Columns["TongTien"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
-            // 
-            // Add controls to form
-            // 
-            this.Controls.Add(dgvPhieuNhap);
-            this.Controls.Add(pnlFilter);
-            this.Controls.Add(pnlTop);
-            this.Controls.Add(pnlButtons);
+            // Form
+            Controls.Add(dgvPhieuNhap);
+            Controls.Add(pnlFilter);
+            Controls.Add(pnlTop);
+            Controls.Add(pnlButtons);
 
-            this.ResumeLayout(false);
+            ((ISupportInitialize)(dgvPhieuNhap)).EndInit();
+            pnlTop.ResumeLayout(false);
+            pnlFilter.ResumeLayout(false);
+            pnlFilter.PerformLayout();
+            pnlButtons.ResumeLayout(false);
+            ResumeLayout(false);
         }
-
-        #endregion
     }
 }

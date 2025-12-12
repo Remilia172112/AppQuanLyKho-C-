@@ -371,14 +371,48 @@ namespace src.DAO
                     }
                 }
 
-                // Bước 2: Cập nhật tồn kho cho từng sản phẩm trong chi tiết phiếu nhập
+                // Bước 2: TÍNH GIÁ BÌNH QUÂN VÀ CẬP NHẬT KHO
                 if (result > 0)
                 {
                     List<ChiTietPhieuNhapDTO> listCT = ChiTietPhieuNhapDAO.Instance.selectAll(maphieu.ToString());
                     foreach (var item in listCT)
                     {
-                        // Cộng số lượng vào tồn kho
-                        SanPhamDAO.Instance.UpdateSoLuongTon(item.MSP, item.SL);
+                        // 2.1 Lấy thông tin sản phẩm hiện tại trong kho để lấy SL cũ và Giá nhập cũ
+                        SanPhamDTO spCu = SanPhamDAO.Instance.selectById(item.MSP.ToString());
+
+                        if (spCu != null)
+                        {
+                            // --- ÁP DỤNG CÔNG THỨC BÌNH QUÂN GIA QUYỀN ---
+                            
+                            // A. Tính giá trị tồn kho cũ
+                            // Lưu ý: ép kiểu long để tránh tràn số nếu tiền quá lớn
+                            long giaTriTonKhoCu = (long)spCu.SL * spCu.TIENN;
+
+                            // B. Tính giá trị lô hàng mới nhập
+                            long giaTriNhapMoi = (long)item.SL * item.TIENNHAP;
+
+                            // C. Tổng số lượng mới
+                            int tongSoLuong = spCu.SL + item.SL;
+
+                            // D. Tính giá bình quân mới
+                            int giaBinhQuanMoi = spCu.TIENN; // Mặc định giữ giá cũ nếu có lỗi
+                            
+                            if (tongSoLuong > 0)
+                            {
+                                // Công thức: (Giá trị cũ + Giá trị mới) / Tổng số lượng
+                                giaBinhQuanMoi = (int)((giaTriTonKhoCu + giaTriNhapMoi) / tongSoLuong);
+                            }
+
+                            // 2.2 Cập nhật vào đối tượng sản phẩm
+                            spCu.SL = tongSoLuong;
+                            spCu.TIENN = giaBinhQuanMoi; // Cập nhật giá vốn mới
+                            // 3. Cập nhật Giá Xuất (Giá Nhập + 10%)
+                            // Công thức: Giá Xuất = Giá Nhập * 1.1
+                            spCu.TIENX = (int)(spCu.TIENN * 1.1);
+                            // 4. Gọi hàm Update của SanPhamDAO để lưu xuống DB
+                            // (Đảm bảo SanPhamDAO có hàm update nhận vào đối tượng SanPhamDTO)
+                            SanPhamDAO.Instance.update(spCu);
+                        }
                     }
                 }
             }

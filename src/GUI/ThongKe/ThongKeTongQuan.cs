@@ -41,7 +41,7 @@ namespace src.GUI.ThongKe
             try { nvCount = NhanVienDAO.Instance.selectAll().Count.ToString(); } catch {}
 
             summaryData = new string[,] {
-                {"Sản phẩm trong kho", "productt.svg", spCount},
+                {"Sản phẩm trong kho", "brand.svg", spCount},
                 {"Khách hàng", "stafff.svg", khCount},
                 {"Nhân viên hoạt động", "customerr.svg", nvCount}
             };

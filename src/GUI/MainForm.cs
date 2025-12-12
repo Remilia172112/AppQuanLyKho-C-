@@ -2,6 +2,9 @@ using src.GUI.Components;
 using src.GUI.DanhMuc;
 using src.GUI.NghiepVu;
 using src.GUI.PhanQuyen;
+using System.Drawing.Drawing2D;
+using System.IO;
+using Svg; // <--- QUAN TRỌNG: Thêm thư viện này
 
 namespace src.GUI.Auth
 {
@@ -13,32 +16,36 @@ namespace src.GUI.Auth
 
         public MainForm()
         {
-            try 
+            InitializeComponent();
+            SetupAppIcon();
+            LoadUserInfo();
+            LoadDefaultContent();
+        }
+
+        private void SetupAppIcon()
+        {
+            try
             {
-                string iconPath = "icon/app.ico";
-                if (System.IO.File.Exists(iconPath))
+                string path = FindIconFile("app.ico");
+                if (!string.IsNullOrEmpty(path))
                 {
-                    this.Icon = new System.Drawing.Icon(iconPath);
+                    this.Icon = new System.Drawing.Icon(path);
                 }
             }
             catch { }
-            InitializeComponent();
-            LoadUserInfo();
-            LoadDefaultContent();
         }
 
         private void InitializeComponent()
         {
             this.SuspendLayout();
 
-            // Form settings
             this.Size = new Size(1600, 900);
             this.Text = "Hệ thống Quản lý Kho hàng";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimumSize = new Size(1200, 600);
             this.WindowState = FormWindowState.Normal;
 
-            // Header Panel
+            // Header
             headerPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -82,7 +89,7 @@ namespace src.GUI.Auth
             };
             headerPanel.Controls.Add(lblUser);
 
-            // Content Panel - Add đầu tiên để nó nằm dưới cùng
+            // Content
             contentPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -92,7 +99,7 @@ namespace src.GUI.Auth
             };
             this.Controls.Add(contentPanel);
 
-            // Sidebar Panel - Add thứ 2
+            // Sidebar
             sidebarPanel = new Panel
             {
                 Dock = DockStyle.Left,
@@ -103,8 +110,6 @@ namespace src.GUI.Auth
             CreateMenuButtons();
             this.Controls.Add(sidebarPanel);
 
-            // Header Panel - Add cuối cùng để nó nằm trên cùng
-            // Position controls on right side
             this.Resize += (s, e) => PositionHeaderControls();
             this.Load += (s, e) => PositionHeaderControls();
             this.Shown += (s, e) => PositionHeaderControls();
@@ -121,18 +126,14 @@ namespace src.GUI.Auth
 
             if (btnLogout != null && lblUser != null)
             {
-                // Tính toán kích thước label trước
                 using (Graphics g = Graphics.FromHwnd(lblUser.Handle))
                 {
                     SizeF textSize = g.MeasureString(lblUser.Text, lblUser.Font);
                     lblUser.Size = new Size((int)Math.Ceiling(textSize.Width) + 5, (int)Math.Ceiling(textSize.Height));
                 }
                 
-                // Đặt logout button cách mép phải headerPanel 20px
                 int rightMargin = 20;
                 btnLogout.Location = new Point(headerPanel.Width - btnLogout.Width - rightMargin, 15);
-                
-                // Đặt label user bên trái logout button, cách 15px
                 lblUser.Location = new Point(btnLogout.Left - lblUser.Width - 15, 22);
             }
         }
@@ -144,99 +145,93 @@ namespace src.GUI.Auth
             int spacing = 5;
 
             // Dashboard
-            AddMenuButton("Dashboard", y, () => LoadDashboard());
+            AddMenuButton("Trang chủ", "home.svg", y, () => LoadDashboard());
             y += buttonHeight + spacing;
 
-            // Quản lý Sản phẩm
             if (SessionManager.CanView("sanpham"))
             {
-                AddMenuButton("Quản lý Sản phẩm", y, () => OpenForm(new QuanLySanPhamForm()));
+                AddMenuButton("Sản phẩm", "book.svg", y, () => OpenForm(new QuanLySanPhamForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Khách hàng
+            if (SessionManager.CanView("loaisanpham")) 
+            {
+                AddMenuButton("Loại sản phẩm", "book.svg", y, () => OpenForm(new LoaiSanPhamForm()));
+                y += buttonHeight + spacing;
+            }
+
             if (SessionManager.CanView("khachhang"))
             {
-                AddMenuButton("Quản lý Khách hàng", y, () => OpenForm(new QuanLyKhachHangForm()));
+                AddMenuButton("Khách hàng", "customer.svg", y, () => OpenForm(new QuanLyKhachHangForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Nhà cung cấp
             if (SessionManager.CanView("nhacungcap"))
             {
-                AddMenuButton("Quản lý Nhà cung cấp", y, () => OpenForm(new QuanLyNhaCungCapForm()));
+                AddMenuButton("Nhà cung cấp", "supplier.svg", y, () => OpenForm(new QuanLyNhaCungCapForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Nhà sản xuất
             if (SessionManager.CanView("nhasanxuat"))
             {
-                AddMenuButton("Quản lý Nhà sản xuất", y, () => OpenForm(new QuanLyNhaSanXuatForm()));
+                AddMenuButton("Nhà sản xuất", "nhaxb.svg", y, () => OpenForm(new QuanLyNhaSanXuatForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Khu vực kho
             if (SessionManager.CanView("khuvuckho"))
             {
-                AddMenuButton("Quản lý Khu vực kho", y, () => OpenForm(new QuanLyKhuVucKhoForm()));
+                AddMenuButton("Khu vực kho", "khu_vuc.svg", y, () => OpenForm(new QuanLyKhuVucKhoForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Nhân viên
             if (SessionManager.CanView("nhanvien"))
             {
-                AddMenuButton("Quản lý Nhân viên", y, () => OpenForm(new QuanLyNhanVienForm()));
+                AddMenuButton("Nhân viên", "staff_1.svg", y, () => OpenForm(new QuanLyNhanVienForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Quản lý Tài khoản
             if (SessionManager.CanView("taikhoan"))
             {
-                AddMenuButton("Quản lý Tài khoản", y, () => OpenForm(new QuanLyTaiKhoanForm()));
+                AddMenuButton("Tài khoản", "account.svg", y, () => OpenForm(new QuanLyTaiKhoanForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Phiếu nhập
             if (SessionManager.CanView("nhaphang"))
             {
-                AddMenuButton("Phiếu Nhập hàng", y, () => OpenForm(new PhieuNhapForm()));
+                AddMenuButton("Phiếu nhập", "import.svg", y, () => OpenForm(new PhieuNhapForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Phiếu xuất
             if (SessionManager.CanView("xuathang"))
             {
-                AddMenuButton("Phiếu Xuất hàng", y, () => OpenForm(new PhieuXuatForm()));
+                AddMenuButton("Phiếu xuất", "export.svg", y, () => OpenForm(new PhieuXuatForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Phiếu kiểm kê
             if (SessionManager.CanView("kiemke"))
             {
-                AddMenuButton("Phiếu Kiểm kê", y, () => OpenForm(new PhieuKiemKeForm()));
+                AddMenuButton("Phiếu kiểm kê", "inventory.svg", y, () => OpenForm(new PhieuKiemKeForm()));
                 y += buttonHeight + spacing;
             }
 
-            // Thống kê
             if (SessionManager.CanView("thongke"))
             {
-                AddMenuButton("Thống kê và Báo cáo", y, () => OpenForm(new ThongKe.ThongKe()));
+                AddMenuButton("Thống kê", "statistical_1.svg", y, () => OpenForm(new ThongKe.ThongKe()));
                 y += buttonHeight + spacing;
             }
 
-            // Phân quyền
             if (SessionManager.CanView("nhomquyen"))
             {
-                AddMenuButton("Quản lý Phân quyền", y, () => OpenForm(new QuanLyNhomQuyenForm()));
+                AddMenuButton("Phân quyền", "protect.svg", y, () => OpenForm(new QuanLyNhomQuyenForm()));
                 y += buttonHeight + spacing;
             }
         }
 
-        private void AddMenuButton(string text, int y, Action onClick)
+        private void AddMenuButton(string text, string iconName, int y, Action onClick)
         {
             Button btn = new Button
             {
-                Text = text,
+                Text = "  " + text,
                 Location = new Point(10, y),
                 Size = new Size(230, 45),
                 BackColor = Color.FromArgb(52, 73, 94),
@@ -244,9 +239,18 @@ namespace src.GUI.Auth
                 Font = new Font("Segoe UI", 10F),
                 FlatStyle = FlatStyle.Flat,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(15, 0, 0, 0),
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                Padding = new Padding(10, 0, 0, 0),
                 Cursor = Cursors.Hand
             };
+            
+            // XỬ LÝ LOAD ICON
+            if (!string.IsNullOrEmpty(iconName))
+            {
+                btn.Image = LoadIconFromSrc(iconName, 24, 24); 
+            }
+
             btn.FlatAppearance.BorderSize = 0;
             btn.Click += (s, e) => onClick();
             
@@ -254,6 +258,68 @@ namespace src.GUI.Auth
             btn.MouseLeave += (s, e) => btn.BackColor = Color.FromArgb(52, 73, 94);
 
             sidebarPanel.Controls.Add(btn);
+        }
+
+        // --- TÌM FILE ICON (Hỗ trợ cả trong src/icon và bin) ---
+        private string FindIconFile(string fileName)
+        {
+            // 1. Tìm trong thư mục output (bin/Debug/...)
+            string pathInBin = Path.Combine(Application.StartupPath, "icon", fileName);
+            if (File.Exists(pathInBin)) return pathInBin;
+
+            // 2. Tìm trong thư mục src/icon (Khi chạy Debug từ VS)
+            try 
+            {
+                string projectRoot = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\.."));
+                string pathInSrc = Path.Combine(projectRoot, "src", "icon", fileName);
+                
+                if (File.Exists(pathInSrc)) return pathInSrc;
+            }
+            catch { }
+
+            return null; // Không tìm thấy
+        }
+
+        // --- HÀM LOAD ICON ĐÃ SỬA ĐỂ HỖ TRỢ SVG ---
+        private Image? LoadIconFromSrc(string fileName, int w, int h)
+        {
+            try
+            {
+                string path = FindIconFile(fileName);
+
+                if (!string.IsNullOrEmpty(path))
+                {
+                    // Nếu là file .svg -> Dùng thư viện Svg để render
+                    if (path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var svgDocument = SvgDocument.Open(path);
+                        if (svgDocument != null)
+                        {
+                            return svgDocument.Draw(w, h); // Render ra Bitmap
+                        }
+                    }
+                    else 
+                    {
+                        // Nếu là file ảnh thường (png, jpg, ico)
+                        using (Image original = Image.FromFile(path))
+                        {
+                            Bitmap resized = new Bitmap(w, h);
+                            using (Graphics g = Graphics.FromImage(resized))
+                            {
+                                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                g.DrawImage(original, 0, 0, w, h);
+                            }
+                            return resized;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // In lỗi ra console để debug nếu cần
+                System.Diagnostics.Debug.WriteLine($"Lỗi load icon {fileName}: {ex.Message}");
+            }
+            return null;
         }
 
         private void LoadUserInfo()
@@ -298,12 +364,7 @@ namespace src.GUI.Auth
             };
             contentPanel.Controls.Add(lblInfo);
         }
-        private void OpenControl(UserControl control)
-        {
-            contentPanel.Controls.Clear();
-            control.Dock = DockStyle.Fill;
-            contentPanel.Controls.Add(control);
-        }
+
         private void OpenForm(Form childForm)
         {
             contentPanel.Controls.Clear();
@@ -317,7 +378,6 @@ namespace src.GUI.Auth
             contentPanel.Controls.Add(childForm);
             childForm.Show();
             
-            // Thêm event để resize child form khi contentPanel thay đổi kích thước
             contentPanel.Resize += (s, e) => 
             {
                 if (contentPanel.Controls.Count > 0 && contentPanel.Controls[0] is Form form)

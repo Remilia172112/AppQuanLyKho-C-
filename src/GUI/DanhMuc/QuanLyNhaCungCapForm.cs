@@ -170,7 +170,7 @@ namespace src.GUI.DanhMuc
         {
             try
             {
-                JTableExporter.ExportJTableToExcel(dgvNhaCungCap);
+                TableExporter.ExportTableToExcel(dgvNhaCungCap, "NCC");
                 MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)

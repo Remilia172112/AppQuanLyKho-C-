@@ -288,35 +288,35 @@ namespace src.GUI.DanhMuc
             // 
             // btnThem
             // 
-            btnThem = CreateButton("Thêm", x, Color.FromArgb(46, 204, 113), BtnThem_Click);
+            btnThem = CreateButton("➕ Thêm", x, Color.FromArgb(46, 204, 113), BtnThem_Click);
             panel.Controls.Add(btnThem);
             x += 110;
 
             // 
             // btnSua
             // 
-            btnSua = CreateButton("Sửa", x, Color.FromArgb(52, 152, 219), BtnSua_Click);
+            btnSua = CreateButton("✏️ Sửa", x, Color.FromArgb(52, 152, 219), BtnSua_Click);
             panel.Controls.Add(btnSua);
             x += 110;
 
             // 
             // btnXoa
             // 
-            btnXoa = CreateButton("Xóa", x, Color.FromArgb(231, 76, 60), BtnXoa_Click);
+            btnXoa = CreateButton("🗑️ Xóa", x, Color.FromArgb(231, 76, 60), BtnXoa_Click);
             panel.Controls.Add(btnXoa);
             x += 110;
 
             // 
             // btnLuu
             // 
-            btnLuu = CreateButton("Lưu", x, Color.FromArgb(41, 128, 185), BtnLuu_Click);
+            btnLuu = CreateButton("💾 Lưu", x, Color.FromArgb(41, 128, 185), BtnLuu_Click);
             panel.Controls.Add(btnLuu);
             x += 110;
 
             // 
             // btnHuy
             // 
-            btnHuy = CreateButton("Hủy", x, Color.FromArgb(149, 165, 166), BtnHuy_Click);
+            btnHuy = CreateButton("❌ Hủy", x, Color.FromArgb(149, 165, 166), BtnHuy_Click);
             panel.Controls.Add(btnHuy);
 
             return panel;

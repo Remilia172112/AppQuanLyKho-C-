@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using src.BUS;
 using src.DTO;
 using src.GUI.Components;
+using src.Helper;
 
 namespace src.GUI.NghiepVu
 {
@@ -303,7 +304,55 @@ namespace src.GUI.NghiepVu
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Chức năng xuất Excel sẽ được triển khai sau", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            try
+            {
+                // Kiểm tra xem DataGridView có dữ liệu không
+                if (dgvPhieuXuat.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu phiếu xuất để xuất!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Gọi hàm xuất Excel từ Helper
+                TableExporter.ExportTableToExcel(dgvPhieuXuat, "PX");
+
+                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnXuatPDF_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // 1. Kiểm tra xem người dùng đã chọn dòng nào chưa
+                if (dgvPhieuXuat.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn phiếu xuất cần xuất PDF!", "Thông báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 2. Lấy Mã phiếu xuất (MPX) từ dòng được chọn
+                int mpx = Convert.ToInt32(dgvPhieuXuat.SelectedRows[0].Cells["MPX"].Value);
+
+                // 3. Gọi class WritePDF để xuất file
+                WritePDF pdfWriter = new WritePDF(); 
+                pdfWriter.WritePX(mpx); // Gọi hàm WritePX dành cho phiếu xuất
+
+                // Hàm WritePX đã tự động mở file sau khi lưu nên không cần thông báo thêm
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xuất PDF: {ex.Message}", 
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void DgvPhieuXuat_CellDoubleClick(object sender, DataGridViewCellEventArgs e)

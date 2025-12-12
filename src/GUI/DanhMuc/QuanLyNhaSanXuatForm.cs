@@ -378,7 +378,7 @@ namespace src.GUI.DanhMuc
                     return;
                 }
 
-                JTableExporter.ExportJTableToExcel(dgvNhaSanXuat);
+                TableExporter.ExportTableToExcel(dgvNhaSanXuat);
                 MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

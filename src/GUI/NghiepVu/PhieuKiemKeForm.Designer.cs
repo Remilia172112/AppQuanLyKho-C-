@@ -12,15 +12,20 @@ namespace src.GUI.NghiepVu
         private Button btnTimKiem;
         private Label lblNhanVien;
         private ComboBox cboNhanVien;
+        
+        // Nhóm Date Filter
         private Label lblTuNgay;
         private DateTimePicker dtpTuNgay;
         private Label lblDenNgay;
         private DateTimePicker dtpDenNgay;
+        private CheckBox chkLocTheoNgay; // <--- Đã thêm mới
+
         private GroupBox grpTrangThai;
         private RadioButton rdoTatCa;
         private RadioButton rdoChoDuyet;
         private RadioButton rdoDaDuyet;
         private RadioButton rdoDaXoa;
+        
         private Panel pnlButtons;
         private Button btnThem;
         private Button btnXem;
@@ -28,6 +33,7 @@ namespace src.GUI.NghiepVu
         private Button btnXoa;
         private Button btnDuyet;
         private Button btnXuatPDF;
+        private Button btnExport; 
         private DataGridView dgvPhieuKiemKe;
 
         protected override void Dispose(bool disposing)
@@ -51,6 +57,7 @@ namespace src.GUI.NghiepVu
             this.dtpTuNgay = new DateTimePicker();
             this.lblDenNgay = new Label();
             this.dtpDenNgay = new DateTimePicker();
+            this.chkLocTheoNgay = new CheckBox(); // <--- Khởi tạo
             this.grpTrangThai = new GroupBox();
             this.rdoTatCa = new RadioButton();
             this.rdoChoDuyet = new RadioButton();
@@ -63,6 +70,7 @@ namespace src.GUI.NghiepVu
             this.btnXoa = new Button();
             this.btnDuyet = new Button();
             this.btnXuatPDF = new Button();
+            this.btnExport = new Button(); 
             this.dgvPhieuKiemKe = new DataGridView();
 
             this.pnlFilter.SuspendLayout();
@@ -71,7 +79,9 @@ namespace src.GUI.NghiepVu
             ((System.ComponentModel.ISupportInitialize)(this.dgvPhieuKiemKe)).BeginInit();
             this.SuspendLayout();
 
+            // 
             // pnlFilter
+            // 
             this.pnlFilter.BackColor = Color.FromArgb(240, 240, 240);
             this.pnlFilter.Dock = DockStyle.Top;
             this.pnlFilter.Location = new Point(0, 0);
@@ -85,6 +95,7 @@ namespace src.GUI.NghiepVu
             this.pnlFilter.Controls.Add(this.dtpTuNgay);
             this.pnlFilter.Controls.Add(this.lblDenNgay);
             this.pnlFilter.Controls.Add(this.dtpDenNgay);
+            this.pnlFilter.Controls.Add(this.chkLocTheoNgay); // <--- Add CheckBox
             this.pnlFilter.Controls.Add(this.grpTrangThai);
 
             // lblTitle
@@ -137,6 +148,7 @@ namespace src.GUI.NghiepVu
             this.dtpTuNgay.Format = DateTimePickerFormat.Custom;
             this.dtpTuNgay.Location = new Point(380, 97);
             this.dtpTuNgay.Size = new Size(120, 25);
+            this.dtpTuNgay.Enabled = false; // Mặc định tắt
 
             // lblDenNgay
             this.lblDenNgay.AutoSize = true;
@@ -150,6 +162,18 @@ namespace src.GUI.NghiepVu
             this.dtpDenNgay.Format = DateTimePickerFormat.Custom;
             this.dtpDenNgay.Location = new Point(580, 97);
             this.dtpDenNgay.Size = new Size(120, 25);
+            this.dtpDenNgay.Enabled = false; // Mặc định tắt
+
+            // chkLocTheoNgay (MỚI)
+            this.chkLocTheoNgay.AutoSize = true;
+            this.chkLocTheoNgay.Location = new Point(720, 100);
+            this.chkLocTheoNgay.Text = "Lọc theo ngày";
+            this.chkLocTheoNgay.Font = new Font("Segoe UI", 9F);
+            // Sự kiện bật tắt datetime picker
+            this.chkLocTheoNgay.CheckedChanged += (s, e) => {
+                dtpTuNgay.Enabled = chkLocTheoNgay.Checked;
+                dtpDenNgay.Enabled = chkLocTheoNgay.Checked;
+            };
 
             // grpTrangThai
             this.grpTrangThai.Font = new Font("Segoe UI", 9F);
@@ -163,25 +187,26 @@ namespace src.GUI.NghiepVu
 
             // rdoTatCa
             this.rdoTatCa.AutoSize = true;
-            this.rdoTatCa.Location = new Point(15, 15);
+            this.rdoTatCa.Location = new Point(60, 15);
             this.rdoTatCa.Text = "Tất cả";
+            this.rdoTatCa.Checked = true; // Mặc định chọn tất cả
             this.rdoTatCa.CheckedChanged += RadioButton_CheckedChanged;
 
             // rdoChoDuyet
             this.rdoChoDuyet.AutoSize = true;
-            this.rdoChoDuyet.Location = new Point(120, 15);
+            this.rdoChoDuyet.Location = new Point(160, 15);
             this.rdoChoDuyet.Text = "Chờ duyệt";
             this.rdoChoDuyet.CheckedChanged += RadioButton_CheckedChanged;
 
             // rdoDaDuyet
             this.rdoDaDuyet.AutoSize = true;
-            this.rdoDaDuyet.Location = new Point(240, 15);
+            this.rdoDaDuyet.Location = new Point(280, 15);
             this.rdoDaDuyet.Text = "Đã duyệt";
             this.rdoDaDuyet.CheckedChanged += RadioButton_CheckedChanged;
 
             // rdoDaXoa
             this.rdoDaXoa.AutoSize = true;
-            this.rdoDaXoa.Location = new Point(350, 15);
+            this.rdoDaXoa.Location = new Point(390, 15);
             this.rdoDaXoa.Text = "Đã xóa";
             this.rdoDaXoa.CheckedChanged += RadioButton_CheckedChanged;
 
@@ -196,72 +221,64 @@ namespace src.GUI.NghiepVu
             this.pnlButtons.Controls.Add(this.btnXoa);
             this.pnlButtons.Controls.Add(this.btnDuyet);
             this.pnlButtons.Controls.Add(this.btnXuatPDF);
+            this.pnlButtons.Controls.Add(this.btnExport);
 
-            // btnThem
-            this.btnThem.BackColor = Color.FromArgb(46, 125, 50);
-            this.btnThem.FlatStyle = FlatStyle.Flat;
-            this.btnThem.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            this.btnThem.ForeColor = Color.White;
-            this.btnThem.Location = new Point(20, 10);
-            this.btnThem.Size = new Size(120, 35);
+            // Buttons Config
             this.btnThem.Text = "+ Thêm";
-            this.btnThem.UseVisualStyleBackColor = false;
+            this.btnThem.Location = new Point(20, 10);
+            this.btnThem.Size = new Size(100, 35);
+            this.btnThem.BackColor = Color.FromArgb(46, 125, 50);
+            this.btnThem.ForeColor = Color.White;
+            this.btnThem.FlatStyle = FlatStyle.Flat;
             this.btnThem.Click += BtnThem_Click;
 
-            // btnXem
-            this.btnXem.BackColor = Color.FromArgb(0, 122, 204);
-            this.btnXem.FlatStyle = FlatStyle.Flat;
-            this.btnXem.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            this.btnXem.ForeColor = Color.White;
-            this.btnXem.Location = new Point(150, 10);
-            this.btnXem.Size = new Size(120, 35);
             this.btnXem.Text = "👁 Xem";
-            this.btnXem.UseVisualStyleBackColor = false;
+            this.btnXem.Location = new Point(130, 10);
+            this.btnXem.Size = new Size(100, 35);
+            this.btnXem.BackColor = Color.FromArgb(0, 122, 204);
+            this.btnXem.ForeColor = Color.White;
+            this.btnXem.FlatStyle = FlatStyle.Flat;
             this.btnXem.Click += BtnXem_Click;
 
-            // btnSua
-            this.btnSua.BackColor = Color.FromArgb(255, 152, 0);
-            this.btnSua.FlatStyle = FlatStyle.Flat;
-            this.btnSua.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            this.btnSua.ForeColor = Color.White;
-            this.btnSua.Location = new Point(280, 10);
-            this.btnSua.Size = new Size(120, 35);
             this.btnSua.Text = "✏ Sửa";
-            this.btnSua.UseVisualStyleBackColor = false;
+            this.btnSua.Location = new Point(240, 10);
+            this.btnSua.Size = new Size(100, 35);
+            this.btnSua.BackColor = Color.FromArgb(255, 152, 0);
+            this.btnSua.ForeColor = Color.White;
+            this.btnSua.FlatStyle = FlatStyle.Flat;
             this.btnSua.Click += BtnSua_Click;
 
-            // btnXoa
-            this.btnXoa.BackColor = Color.FromArgb(211, 47, 47);
-            this.btnXoa.FlatStyle = FlatStyle.Flat;
-            this.btnXoa.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            this.btnXoa.ForeColor = Color.White;
-            this.btnXoa.Location = new Point(410, 10);
-            this.btnXoa.Size = new Size(120, 35);
             this.btnXoa.Text = "✗ Xóa";
-            this.btnXoa.UseVisualStyleBackColor = false;
+            this.btnXoa.Location = new Point(350, 10);
+            this.btnXoa.Size = new Size(100, 35);
+            this.btnXoa.BackColor = Color.FromArgb(211, 47, 47);
+            this.btnXoa.ForeColor = Color.White;
+            this.btnXoa.FlatStyle = FlatStyle.Flat;
             this.btnXoa.Click += BtnXoa_Click;
 
-            // btnDuyet
-            this.btnDuyet.BackColor = Color.FromArgb(76, 175, 80);
-            this.btnDuyet.FlatStyle = FlatStyle.Flat;
-            this.btnDuyet.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            this.btnDuyet.ForeColor = Color.White;
-            this.btnDuyet.Location = new Point(540, 10);
-            this.btnDuyet.Size = new Size(120, 35);
             this.btnDuyet.Text = "✓ Duyệt";
-            this.btnDuyet.UseVisualStyleBackColor = false;
+            this.btnDuyet.Location = new Point(460, 10);
+            this.btnDuyet.Size = new Size(100, 35);
+            this.btnDuyet.BackColor = Color.FromArgb(76, 175, 80);
+            this.btnDuyet.ForeColor = Color.White;
+            this.btnDuyet.FlatStyle = FlatStyle.Flat;
             this.btnDuyet.Click += BtnDuyet_Click;
 
-            // btnXuatPDF
-            this.btnXuatPDF.BackColor = Color.FromArgb(158, 158, 158);
-            this.btnXuatPDF.FlatStyle = FlatStyle.Flat;
-            this.btnXuatPDF.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            this.btnXuatPDF.Text = "📄 PDF";
+            this.btnXuatPDF.Location = new Point(570, 10);
+            this.btnXuatPDF.Size = new Size(100, 35);
+            this.btnXuatPDF.BackColor = Color.FromArgb(200, 35, 51);
             this.btnXuatPDF.ForeColor = Color.White;
-            this.btnXuatPDF.Location = new Point(670, 10);
-            this.btnXuatPDF.Size = new Size(120, 35);
-            this.btnXuatPDF.Text = "📄 Xuất PDF";
-            this.btnXuatPDF.UseVisualStyleBackColor = false;
+            this.btnXuatPDF.FlatStyle = FlatStyle.Flat;
             this.btnXuatPDF.Click += BtnXuatPDF_Click;
+
+            this.btnExport.Text = "📊 Excel";
+            this.btnExport.Location = new Point(680, 10);
+            this.btnExport.Size = new Size(100, 35);
+            this.btnExport.BackColor = Color.FromArgb(25, 135, 84);
+            this.btnExport.ForeColor = Color.White;
+            this.btnExport.FlatStyle = FlatStyle.Flat;
+            this.btnExport.Click += BtnExport_Click;
 
             // dgvPhieuKiemKe
             this.dgvPhieuKiemKe.AllowUserToAddRows = false;
