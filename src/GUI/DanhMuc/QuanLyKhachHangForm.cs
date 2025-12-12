@@ -16,7 +16,7 @@ namespace src.GUI.DanhMuc
         private DataGridView dgvKhachHang;
         private TextBox txtMaKH, txtHoTen, txtDiaChi, txtSDT, txtEmail, txtTimKiem;
         private ComboBox cboTimKiem;
-        private Button btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnTimKiem, btnRefresh, btnExport;
+        private Button btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnTimKiem, btnRefresh, btnExport, btnImport;
         private bool isEditing = false;
         private int currentMaKH = -1;
 
@@ -26,7 +26,7 @@ namespace src.GUI.DanhMuc
             {
                 InitializeComponent();
                 khachHangBUS = new KhachHangBUS();
-                InitializeDataGridView(); // THÊM: Tạo columns THỦ CÔNG
+                InitializeDataGridView();
                 LoadData();
                 SetButtonStates(false);
             }
@@ -36,12 +36,10 @@ namespace src.GUI.DanhMuc
                     "Lỗi nghiêm trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void InitializeDataGridView()
         {
             dgvKhachHang.Columns.Clear();
-            // Ngăn tự động tạo cột để dễ kiểm soát định dạng
-            dgvKhachHang.AutoGenerateColumns = false;
+            dgvKhachHang.AutoGenerateColumns = false; // Quan trọng: Chặn tự sinh cột
 
             // 1. Mã Khách Hàng
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
@@ -50,20 +48,16 @@ namespace src.GUI.DanhMuc
                 DataPropertyName = "MKH",
                 HeaderText = "Mã KH",
                 Width = 80,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
-            // 2. Họ Tên
+            // 2. Họ Tên (Giãn tự động)
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "HOTEN",
                 DataPropertyName = "HOTEN",
                 HeaderText = "Họ tên",
-                Width = 150,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill 
             });
 
             // 3. Số Điện Thoại
@@ -72,41 +66,39 @@ namespace src.GUI.DanhMuc
                 Name = "SDT",
                 DataPropertyName = "SDT",
                 HeaderText = "Số điện thoại",
-                Width = 130,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                Width = 120
             });
 
-            // 4. Địa Chỉ (Cho giãn hết phần còn lại)
+            // 4. Địa Chỉ
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "DIACHI",
                 DataPropertyName = "DIACHI",
                 HeaderText = "Địa chỉ",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                Resizable = DataGridViewTriState.True
+                Width = 200
             });
 
-            // 5. Ngày Tham Gia (Định dạng ngày tháng)
+            // 5. Ngày Tham Gia
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "NGAYTHAMGIA",
                 DataPropertyName = "NGAYTHAMGIA",
                 HeaderText = "Ngày tham gia",
-                Width = 140,
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter },
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                Width = 120,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
-            // --- CỘT ẨN (Email, Trạng thái - Có thể hiện Email nếu muốn) ---
+            // 6. Email (Hiện hoặc Ẩn tùy bạn, ở đây mình hiện để tiện tra cứu)
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "EMAIL",
                 DataPropertyName = "EMAIL",
-                Visible = false // Hoặc để true nếu bạn muốn hiện Email
+                HeaderText = "Email",
+                Width = 150,
+                Visible = false
             });
 
+            // 7. Cột Ẩn (Trạng thái)
             dgvKhachHang.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
@@ -114,7 +106,54 @@ namespace src.GUI.DanhMuc
                 Visible = false
             });
         }
+        private void FormatDataGridView()
+        {
+            if (dgvKhachHang.Columns.Count == 0) return;
 
+            // Cấu hình cột hiển thị
+            if (dgvKhachHang.Columns.Contains("MKH"))
+            {
+                dgvKhachHang.Columns["MKH"].HeaderText = "Mã KH";
+                dgvKhachHang.Columns["MKH"].Width = 80;
+                dgvKhachHang.Columns["MKH"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dgvKhachHang.Columns.Contains("HOTEN"))
+            {
+                dgvKhachHang.Columns["HOTEN"].HeaderText = "Họ tên";
+                dgvKhachHang.Columns["HOTEN"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+
+            if (dgvKhachHang.Columns.Contains("SDT"))
+            {
+                dgvKhachHang.Columns["SDT"].HeaderText = "Số điện thoại";
+                dgvKhachHang.Columns["SDT"].Width = 120;
+            }
+
+            if (dgvKhachHang.Columns.Contains("DIACHI"))
+            {
+                dgvKhachHang.Columns["DIACHI"].HeaderText = "Địa chỉ";
+                dgvKhachHang.Columns["DIACHI"].Width = 200;
+            }
+
+            if (dgvKhachHang.Columns.Contains("NGAYTHAMGIA"))
+            {
+                dgvKhachHang.Columns["NGAYTHAMGIA"].HeaderText = "Ngày tham gia";
+                dgvKhachHang.Columns["NGAYTHAMGIA"].Width = 120;
+                dgvKhachHang.Columns["NGAYTHAMGIA"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                dgvKhachHang.Columns["NGAYTHAMGIA"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            // Ẩn cột không cần thiết
+            string[] hiddenCols = { "EMAIL", "TT" };
+            foreach (var col in hiddenCols)
+            {
+                if (dgvKhachHang.Columns.Contains(col))
+                    dgvKhachHang.Columns[col].Visible = false;
+            }
+        }
+
+        // 2. Cập nhật hàm LoadData
         private void LoadData()
         {
             try
@@ -126,13 +165,12 @@ namespace src.GUI.DanhMuc
                     listKhachHang = new List<KhachHangDTO>();
                 }
 
-                // Dùng BindingList để hỗ trợ cập nhật giao diện tốt hơn
+                // Gán dữ liệu vào Grid (Cột đã được tạo sẵn ở InitializeDataGridView)
                 dgvKhachHang.DataSource = new BindingList<KhachHangDTO>(listKhachHang);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -373,21 +411,23 @@ namespace src.GUI.DanhMuc
 
         private void BtnTimKiem_Click(object sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim();
-            string searchType = cboTimKiem.SelectedItem?.ToString() ?? "Tất cả";
-
             try
             {
+                string keyword = txtTimKiem.Text.Trim();
+                string searchType = cboTimKiem.SelectedItem?.ToString() ?? "Tất cả";
+
                 var result = khachHangBUS.Search(keyword, searchType);
+                
+                dgvKhachHang.DataSource = null;
                 dgvKhachHang.DataSource = new BindingList<KhachHangDTO>(result);
+                
+                FormatDataGridView(); // Định dạng lại sau khi tìm kiếm
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
             txtTimKiem.Clear();
@@ -402,19 +442,42 @@ namespace src.GUI.DanhMuc
             {
                 if (dgvKhachHang.Rows.Count == 0)
                 {
-                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
-                TableExporter.ExportTableToExcel(dgvKhachHang,"KH");
-                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                TableExporter.ExportTableToExcel(dgvKhachHang, "KH");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Gọi Helper đọc file
+                List<KhachHangDTO> listNewData = ExcelHelper.ReadKhachHangFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // Gọi BUS thêm hàng loạt
+                    int count = khachHangBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} khách hàng!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dòng nào (Có thể do lỗi dữ liệu).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

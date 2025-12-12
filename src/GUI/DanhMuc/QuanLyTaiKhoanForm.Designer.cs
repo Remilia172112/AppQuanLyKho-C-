@@ -100,62 +100,75 @@ namespace src.GUI.DanhMuc
             ResumeLayout(false);
             PerformLayout();
         }
-
         private Panel CreateSearchPanel()
         {
             Panel panel = new Panel
             {
-                Size = new Size(1110, 50),
-                BackColor = Color.White,
+                Size = new System.Drawing.Size(1110, 50),
+                BackColor = System.Drawing.Color.White,
                 Padding = new Padding(10)
             };
 
-            // 
-            // cboTimKiem
-            // 
-            cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboTimKiem.Location = new Point(10, 12);
-            cboTimKiem.Size = new Size(150, 25);
+            // ComboBox
+            cboTimKiem = new ComboBox
+            {
+                Location = new System.Drawing.Point(10, 12),
+                Size = new System.Drawing.Size(150, 25),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
             cboTimKiem.Items.AddRange(new object[] { "Tất cả", "Mã nhân viên", "Username" });
             cboTimKiem.SelectedIndex = 0;
 
-            // 
-            // txtTimKiem
-            // 
-            txtTimKiem.Font = new Font("Segoe UI", 10F);
-            txtTimKiem.Location = new Point(170, 12);
-            txtTimKiem.Size = new Size(400, 25);
+            // TextBox
+            txtTimKiem = new TextBox
+            {
+                Location = new System.Drawing.Point(170, 12),
+                Size = new System.Drawing.Size(300, 25), // Size chuẩn
+                Font = new System.Drawing.Font("Segoe UI", 10F)
+            };
 
-            // 
-            // btnTimKiem
-            // 
-            btnTimKiem.BackColor = Color.FromArgb(52, 152, 219);
-            btnTimKiem.FlatStyle = FlatStyle.Flat;
-            btnTimKiem.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnTimKiem.ForeColor = Color.White;
-            btnTimKiem.Location = new Point(580, 10);
-            btnTimKiem.Size = new Size(100, 30);
-            btnTimKiem.Text = "🔍 Tìm kiếm";
+            // Button Tìm kiếm
+            btnTimKiem = new Button
+            {
+                Text = "Tìm kiếm",
+                Location = new System.Drawing.Point(480, 10),
+                Size = new System.Drawing.Size(90, 30),
+                BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
+                ForeColor = System.Drawing.Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
             btnTimKiem.FlatAppearance.BorderSize = 0;
             btnTimKiem.Click += BtnTimKiem_Click;
 
-            // 
-            // btnRefresh
-            // 
-            btnRefresh.BackColor = Color.FromArgb(149, 165, 166);
-            btnRefresh.FlatStyle = FlatStyle.Flat;
-            btnRefresh.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnRefresh.ForeColor = Color.White;
-            btnRefresh.Location = new Point(690, 10);
-            btnRefresh.Size = new Size(100, 30);
-            btnRefresh.Text = "🔄 Làm mới";
+            // Button Làm mới
+            btnRefresh = new Button
+            {
+                Text = "Làm mới",
+                Location = new System.Drawing.Point(580, 10),
+                Size = new System.Drawing.Size(90, 30),
+                BackColor = System.Drawing.Color.FromArgb(149, 165, 166),
+                ForeColor = System.Drawing.Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
             btnRefresh.FlatAppearance.BorderSize = 0;
             btnRefresh.Click += BtnRefresh_Click;
 
-            panel.Controls.Add(cboTimKiem);
-            panel.Controls.Add(txtTimKiem);
-            panel.Controls.Add(btnTimKiem);
-            panel.Controls.Add(btnRefresh);
+            btnExport = new Button
+            {
+                Text = "📤 Xuất Excel",
+                Location = new System.Drawing.Point(680, 10),
+                Size = new System.Drawing.Size(100, 30),
+                BackColor = System.Drawing.Color.FromArgb(39, 174, 96), // Xanh đậm
+                ForeColor = System.Drawing.Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.Click += BtnExport_Click;
+
+            panel.Controls.AddRange(new Control[] { cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnExport });
 
             return panel;
         }
@@ -396,6 +409,7 @@ namespace src.GUI.DanhMuc
         private Button btnTimKiem;
         private Button btnRefresh;
         private Button btnResetMK;
+        private Button btnExport;
 
         #endregion
     }

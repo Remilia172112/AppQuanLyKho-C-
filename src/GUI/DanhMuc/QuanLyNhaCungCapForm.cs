@@ -30,98 +30,122 @@ namespace src.GUI.DanhMuc
                 MessageBox.Show($"Lỗi khởi tạo form: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void InitializeDataGridView()
         {
             dgvNhaCungCap.Columns.Clear();
+            dgvNhaCungCap.AutoGenerateColumns = false; // Quan trọng: Chặn tự sinh cột
 
-            // Column MNCC
-            DataGridViewTextBoxColumn colMNCC = new DataGridViewTextBoxColumn
+            // 1. Mã NCC
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MNCC",
                 DataPropertyName = "MNCC",
                 HeaderText = "Mã NCC",
-                Width = 80
-            };
-            dgvNhaCungCap.Columns.Add(colMNCC);
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
 
-            // Column TEN
-            DataGridViewTextBoxColumn colTEN = new DataGridViewTextBoxColumn
+            // 2. Tên NCC
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TEN",
                 DataPropertyName = "TEN",
                 HeaderText = "Tên nhà cung cấp",
-                Width = 200
-            };
-            dgvNhaCungCap.Columns.Add(colTEN);
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill // Tự động giãn
+            });
 
-            // Column DIACHI
-            DataGridViewTextBoxColumn colDIACHI = new DataGridViewTextBoxColumn
+            // 3. Địa chỉ
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "DIACHI",
                 DataPropertyName = "DIACHI",
                 HeaderText = "Địa chỉ",
                 Width = 200
-            };
-            dgvNhaCungCap.Columns.Add(colDIACHI);
+            });
 
-            // Column SDT
-            DataGridViewTextBoxColumn colSDT = new DataGridViewTextBoxColumn
+            // 4. Số điện thoại
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "SDT",
                 DataPropertyName = "SDT",
                 HeaderText = "Số điện thoại",
-                Width = 110
-            };
-            dgvNhaCungCap.Columns.Add(colSDT);
+                Width = 120
+            });
 
-            // Column EMAIL
-            DataGridViewTextBoxColumn colEMAIL = new DataGridViewTextBoxColumn
+            // 5. Email
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "EMAIL",
                 DataPropertyName = "EMAIL",
                 HeaderText = "Email",
                 Width = 150
-            };
-            dgvNhaCungCap.Columns.Add(colEMAIL);
+            });
 
-            // Column TT
-            DataGridViewTextBoxColumn colTT = new DataGridViewTextBoxColumn
+            // 6. Cột ẩn (Trạng thái)
+            dgvNhaCungCap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
                 DataPropertyName = "TT",
-                HeaderText = "Trạng thái",
-                Width = 100
-            };
-            dgvNhaCungCap.Columns.Add(colTT);
+                Visible = false
+            });
+        }
 
-            // Style header
-            dgvNhaCungCap.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
-            dgvNhaCungCap.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvNhaCungCap.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dgvNhaCungCap.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        private void FormatDataGridView()
+        {
+            if (dgvNhaCungCap.Columns.Count == 0) return;
+
+            if (dgvNhaCungCap.Columns.Contains("MNCC"))
+            {
+                dgvNhaCungCap.Columns["MNCC"].HeaderText = "Mã NCC";
+                dgvNhaCungCap.Columns["MNCC"].Width = 80;
+                dgvNhaCungCap.Columns["MNCC"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dgvNhaCungCap.Columns.Contains("TEN"))
+            {
+                dgvNhaCungCap.Columns["TEN"].HeaderText = "Tên nhà cung cấp";
+                dgvNhaCungCap.Columns["TEN"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+
+            if (dgvNhaCungCap.Columns.Contains("DIACHI"))
+            {
+                dgvNhaCungCap.Columns["DIACHI"].HeaderText = "Địa chỉ";
+                dgvNhaCungCap.Columns["DIACHI"].Width = 200;
+            }
+
+            if (dgvNhaCungCap.Columns.Contains("SDT"))
+            {
+                dgvNhaCungCap.Columns["SDT"].HeaderText = "Số điện thoại";
+                dgvNhaCungCap.Columns["SDT"].Width = 120;
+            }
+
+            if (dgvNhaCungCap.Columns.Contains("EMAIL"))
+            {
+                dgvNhaCungCap.Columns["EMAIL"].HeaderText = "Email";
+                dgvNhaCungCap.Columns["EMAIL"].Width = 150;
+            }
+
+            // Ẩn cột Trạng thái
+            if (dgvNhaCungCap.Columns.Contains("TT"))
+            {
+                dgvNhaCungCap.Columns["TT"].Visible = false;
+            }
         }
 
         private void LoadData()
         {
             try
             {
-                var nhaCungCapList = nhaCungCapBUS.GetAll();
-                
-                if (nhaCungCapList != null)
-                {
-                    dgvNhaCungCap.DataSource = new BindingList<NhaCungCapDTO>(nhaCungCapList);
-                }
-                else
-                {
-                    dgvNhaCungCap.DataSource = null;
-                }
+                var list = nhaCungCapBUS.GetAll();
+                if (list == null) list = new System.Collections.Generic.List<NhaCungCapDTO>();
+
+                dgvNhaCungCap.DataSource = new System.ComponentModel.BindingList<NhaCungCapDTO>(list);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
+}
 
         private void DgvNhaCungCap_SelectionChanged(object sender, EventArgs e)
         {
@@ -156,7 +180,11 @@ namespace src.GUI.DanhMuc
             string searchType = cboTimKiem.SelectedItem?.ToString() ?? "Tất cả";
 
             var result = nhaCungCapBUS.Search(keyword, searchType);
+            
+            dgvNhaCungCap.DataSource = null;
             dgvNhaCungCap.DataSource = new BindingList<NhaCungCapDTO>(result);
+            
+            FormatDataGridView(); // Định dạng lại sau khi tìm kiếm
         }
 
         private void BtnRefresh_Click(object sender, EventArgs e)
@@ -166,19 +194,34 @@ namespace src.GUI.DanhMuc
             LoadData();
         }
 
-        private void BtnExport_Click(object sender, EventArgs e)
+        private void BtnImport_Click(object sender, EventArgs e)
         {
             try
             {
-                TableExporter.ExportTableToExcel(dgvNhaCungCap, "NCC");
-                MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Gọi Helper đọc file
+                List<NhaCungCapDTO> listNewData = ExcelHelper.ReadNhaCungCapFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // Gọi BUS thêm hàng loạt
+                    int count = nhaCungCapBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} nhà cung cấp!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dữ liệu nào (Có thể do lỗi DB).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void ClearForm()
         {
             txtMaNCC.Clear();
@@ -358,6 +401,22 @@ namespace src.GUI.DanhMuc
             else
             {
                 ClearForm();
+            }
+        }
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvNhaCungCap.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                TableExporter.ExportTableToExcel(dgvNhaCungCap, "NCC");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

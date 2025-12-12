@@ -197,5 +197,255 @@ namespace src.Helper
             }
             return listResult;
         }
+        public static List<KhachHangDTO> ReadKhachHangFromExcel()
+        {
+            List<KhachHangDTO> listResult = new List<KhachHangDTO>();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Chọn file Excel nhập Khách hàng",
+                Filter = "Excel Files|*.xlsx;*.xls"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        // Giả sử Excel mẫu: 
+                        // Cột 1: Họ tên | Cột 2: Địa chỉ | Cột 3: SĐT | Cột 4: Email
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string hoTen = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            if (!string.IsNullOrEmpty(hoTen))
+                            {
+                                KhachHangDTO kh = new KhachHangDTO
+                                {
+                                    HOTEN = hoTen,
+                                    DIACHI = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? "",
+                                    SDT = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? "",
+                                    EMAIL = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? "",
+                                    NGAYTHAMGIA = DateTime.Now,
+                                    TT = 1
+                                };
+                                listResult.Add(kh);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message);
+                    return null;
+                }
+            }
+            return listResult;
+        }
+        public static List<NhaCungCapDTO> ReadNhaCungCapFromExcel()
+        {
+            List<NhaCungCapDTO> listResult = new List<NhaCungCapDTO>();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Chọn file Excel nhập Nhà cung cấp",
+                Filter = "Excel Files|*.xlsx;*.xls"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        // Giả sử Excel mẫu: 
+                        // Cột 1: Tên NCC | Cột 2: Địa chỉ | Cột 3: SĐT | Cột 4: Email
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string tenNCC = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            if (!string.IsNullOrEmpty(tenNCC))
+                            {
+                                NhaCungCapDTO ncc = new NhaCungCapDTO
+                                {
+                                    TEN = tenNCC,
+                                    DIACHI = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? "",
+                                    SDT = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? "",
+                                    EMAIL = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? "",
+                                    TT = 1
+                                };
+                                listResult.Add(ncc);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message);
+                    return null;
+                }
+            }
+            return listResult;
+        }
+        public static List<NhaSanXuatDTO> ReadNhaSanXuatFromExcel()
+        {
+            List<NhaSanXuatDTO> listResult = new List<NhaSanXuatDTO>();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Chọn file Excel nhập Nhà sản xuất",
+                Filter = "Excel Files|*.xlsx;*.xls"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        // Giả sử Excel mẫu: 
+                        // Cột 1: Tên NSX | Cột 2: Địa chỉ | Cột 3: SĐT | Cột 4: Email
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string tenNSX = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            if (!string.IsNullOrEmpty(tenNSX))
+                            {
+                                NhaSanXuatDTO nsx = new NhaSanXuatDTO
+                                {
+                                    TEN = tenNSX,
+                                    DIACHI = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? "",
+                                    SDT = worksheet.Cells[row, 3].Value?.ToString()?.Trim() ?? "",
+                                    EMAIL = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? "",
+                                    TT = 1
+                                };
+                                listResult.Add(nsx);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message);
+                    return null;
+                }
+            }
+            return listResult;
+        }
+        public static List<KhuVucKhoDTO> ReadKhuVucKhoFromExcel()
+        {
+            List<KhuVucKhoDTO> listResult = new List<KhuVucKhoDTO>();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Chọn file Excel nhập Khu vực kho",
+                Filter = "Excel Files|*.xlsx;*.xls"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        // Giả sử Excel mẫu: 
+                        // Cột 1: Tên Khu vực | Cột 2: Ghi chú
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string tenKVK = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            if (!string.IsNullOrEmpty(tenKVK))
+                            {
+                                KhuVucKhoDTO kvk = new KhuVucKhoDTO
+                                {
+                                    TEN = tenKVK,
+                                    GHICHU = worksheet.Cells[row, 2].Value?.ToString()?.Trim() ?? "",
+                                    TT = 1
+                                };
+                                listResult.Add(kvk);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message);
+                    return null;
+                }
+            }
+            return listResult;
+        }
+        public static List<NhanVienDTO> ReadNhanVienFromExcel()
+        {
+            List<NhanVienDTO> listResult = new List<NhanVienDTO>();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Chọn file Excel nhập Nhân viên",
+                Filter = "Excel Files|*.xlsx;*.xls"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(openFileDialog.FileName)))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                        if (worksheet == null) return null;
+
+                        int rowCount = worksheet.Dimension.Rows;
+                        // Giả sử Excel mẫu: 
+                        // Cột 1: Họ tên | Cột 2: Giới tính (Nam/Nữ) | Cột 3: Ngày sinh (dd/MM/yyyy) | Cột 4: SĐT | Cột 5: Email
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            string hoTen = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                            if (!string.IsNullOrEmpty(hoTen))
+                            {
+                                NhanVienDTO nv = new NhanVienDTO();
+                                nv.HOTEN = hoTen;
+                                
+                                string gioiTinhStr = worksheet.Cells[row, 2].Value?.ToString()?.Trim().ToLower();
+                                nv.GIOITINH = (gioiTinhStr == "nam" || gioiTinhStr == "1") ? 1 : 0;
+
+                                if (DateTime.TryParse(worksheet.Cells[row, 3].Value?.ToString(), out DateTime ns))
+                                {
+                                    nv.NGAYSINH = ns;
+                                }
+                                else
+                                {
+                                    nv.NGAYSINH = DateTime.Now.AddYears(-18); // Default
+                                }
+
+                                nv.SDT = worksheet.Cells[row, 4].Value?.ToString()?.Trim() ?? "";
+                                nv.EMAIL = worksheet.Cells[row, 5].Value?.ToString()?.Trim() ?? "";
+                                nv.TT = 1;
+
+                                listResult.Add(nv);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi đọc file: " + ex.Message);
+                    return null;
+                }
+            }
+            return listResult;
+        }
     }
 }

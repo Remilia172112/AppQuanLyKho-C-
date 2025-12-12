@@ -5,6 +5,7 @@ using System.ComponentModel;
 using src.BUS;
 using src.DTO;
 using src.GUI.Components;
+using src.Helper;
 
 namespace src.GUI.DanhMuc
 {
@@ -39,19 +40,51 @@ namespace src.GUI.DanhMuc
 
         private void InitializeDataGridView()
         {
-            // Cấu hình Grid Khu Vực Kho
+            // --- Grid Khu Vực Kho ---
             dgvKhuVucKho.Columns.Clear();
-            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "MKVK", DataPropertyName = "MKVK", HeaderText = "Mã khu vực", Width = 100 });
-            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "TEN", DataPropertyName = "TEN", HeaderText = "Tên khu vực", Width = 200 });
-            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "GHICHU", DataPropertyName = "GHICHU", HeaderText = "Ghi chú", Width = 300 });
-            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "TT", DataPropertyName = "TT", HeaderText = "Trạng thái", Width = 120 });
+            
+            // Mã KV
+            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "MKVK", 
+                DataPropertyName = "MKVK", 
+                HeaderText = "Mã khu vực", 
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            // Tên KV
+            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TEN", 
+                DataPropertyName = "TEN", 
+                HeaderText = "Tên khu vực", 
+                Width = 200 
+            });
+
+            // Ghi chú
+            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "GHICHU", 
+                DataPropertyName = "GHICHU", 
+                HeaderText = "Ghi chú", 
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill 
+            });
+
+            // Ẩn Trạng thái
+            dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                Name = "TT", 
+                DataPropertyName = "TT", 
+                Visible = false 
+            });
 
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            
-            // Lưu ý: Grid Sản Phẩm đã được cấu hình trong Designer.cs
+
+            // --- Grid Sản Phẩm (Giữ nguyên hoặc dùng code trong Designer) ---
         }
 
         private void LoadData()
@@ -323,6 +356,53 @@ namespace src.GUI.DanhMuc
             cboTimKiem.SelectedIndex = 0;
             LoadData();
             ClearForm();
+        }
+
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Gọi Helper đọc file
+                List<KhuVucKhoDTO> listNewData = ExcelHelper.ReadKhuVucKhoFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // Gọi BUS thêm hàng loạt
+                    int count = khuVucKhoBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} khu vực kho!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dữ liệu nào (Có thể do lỗi DB).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvKhuVucKho.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                // Xuất Grid Khu vực kho với Prefix "KVK"
+                TableExporter.ExportTableToExcel(dgvKhuVucKho, "KVK");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

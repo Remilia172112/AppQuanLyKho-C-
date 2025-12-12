@@ -21,37 +21,43 @@ namespace src.GUI.DanhMuc
             {
                 InitializeComponent();
                 nhaSanXuatBUS = new NhaSanXuatBUS();
-                InitializeDataGridView(); // THÊM: Tạo columns THỦ CÔNG
+                
+                InitializeDataGridView(); 
                 LoadData();
+                
                 SetButtonStates(false);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khởi tạo form: {ex.Message}\n\nStack trace: {ex.StackTrace}", 
-                    "Lỗi nghiêm trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khởi tạo form: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void InitializeDataGridView()
         {
             dgvNhaSanXuat.Columns.Clear();
+            dgvNhaSanXuat.AutoGenerateColumns = false;
 
+            // Mã NSX
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MNSX",
                 DataPropertyName = "MNSX",
                 HeaderText = "Mã NSX",
-                Width = 80
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
+            // Tên NSX
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TEN",
                 DataPropertyName = "TEN",
-                HeaderText = "Tên NSX",
-                Width = 200
+                HeaderText = "Tên nhà sản xuất",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
 
+            // Địa chỉ
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "DIACHI",
@@ -60,14 +66,16 @@ namespace src.GUI.DanhMuc
                 Width = 200
             });
 
+            // SĐT
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "SDT",
                 DataPropertyName = "SDT",
                 HeaderText = "Số điện thoại",
-                Width = 110
+                Width = 120
             });
 
+            // Email
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "EMAIL",
@@ -76,34 +84,28 @@ namespace src.GUI.DanhMuc
                 Width = 150
             });
 
+            // Ẩn cột Trạng thái
             dgvNhaSanXuat.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
                 DataPropertyName = "TT",
-                HeaderText = "Trạng thái",
-                Width = 100
+                Visible = false
             });
         }
 
-        // LOAD DATA AN TOÀN - Columns đã được tạo sẵn
         private void LoadData()
         {
             try
             {
-                var nhaSanXuatList = nhaSanXuatBUS.GetAll();
-                
-                if (nhaSanXuatList == null)
-                {
-                    nhaSanXuatList = new List<NhaSanXuatDTO>();
-                }
+                var list = nhaSanXuatBUS.GetAll();
+                if (list == null) list = new List<NhaSanXuatDTO>();
 
-                // Bind data - Columns đã tạo sẵn nên KHÔNG CÒN LỖI
-                dgvNhaSanXuat.DataSource = new BindingList<NhaSanXuatDTO>(nhaSanXuatList);
+                dgvNhaSanXuat.DataSource = null; // Reset để tránh lỗi
+                dgvNhaSanXuat.DataSource = new BindingList<NhaSanXuatDTO>(list);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -367,25 +369,50 @@ namespace src.GUI.DanhMuc
             ClearForm();
         }
 
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Gọi Helper đọc file
+                List<NhaSanXuatDTO> listNewData = ExcelHelper.ReadNhaSanXuatFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // Gọi BUS thêm hàng loạt
+                    int count = nhaSanXuatBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} nhà sản xuất!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dữ liệu nào (Có thể do lỗi DB).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void BtnExport_Click(object sender, EventArgs e)
         {
             try
             {
                 if (dgvNhaSanXuat.Rows.Count == 0)
                 {
-                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
-                TableExporter.ExportTableToExcel(dgvNhaSanXuat);
-                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Gọi Helper
+                TableExporter.ExportTableToExcel(dgvNhaSanXuat, "NSX");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi xuất file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

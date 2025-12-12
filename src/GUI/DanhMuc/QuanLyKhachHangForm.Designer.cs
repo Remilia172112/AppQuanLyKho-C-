@@ -109,11 +109,12 @@ namespace src.GUI.DanhMuc
         {
             Panel panel = new Panel
             {
-                Size = new System.Drawing.Size(1300, 45),
+                Size = new System.Drawing.Size(1300, 50),
                 BackColor = System.Drawing.Color.White,
-                Padding = new Padding(8)
+                Padding = new Padding(10)
             };
 
+            // ComboBox Tìm kiếm
             cboTimKiem = new ComboBox
             {
                 Location = new System.Drawing.Point(10, 12),
@@ -122,48 +123,62 @@ namespace src.GUI.DanhMuc
             };
             cboTimKiem.Items.AddRange(new object[] { "Tất cả", "Mã KH", "Họ tên", "Số điện thoại", "Email" });
             cboTimKiem.SelectedIndex = 0;
-            panel.Controls.Add(cboTimKiem);
 
+            // TextBox Tìm kiếm
             txtTimKiem = new TextBox
             {
                 Location = new System.Drawing.Point(170, 12),
-                Size = new System.Drawing.Size(300, 25),
+                Size = new System.Drawing.Size(250, 25), // Giống SP
                 Font = new System.Drawing.Font("Segoe UI", 10F)
             };
-            panel.Controls.Add(txtTimKiem);
 
+            // Button Tìm kiếm
             btnTimKiem = new Button
             {
                 Text = "Tìm kiếm",
-                Location = new System.Drawing.Point(480, 10),
-                Size = new System.Drawing.Size(100, 30),
-                BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
+                Location = new System.Drawing.Point(430, 10),
+                Size = new System.Drawing.Size(90, 30),
+                BackColor = System.Drawing.Color.FromArgb(41, 128, 185),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
             btnTimKiem.FlatAppearance.BorderSize = 0;
             btnTimKiem.Click += BtnTimKiem_Click;
-            panel.Controls.Add(btnTimKiem);
 
+            // Button Làm mới
             btnRefresh = new Button
             {
                 Text = "Làm mới",
-                Location = new System.Drawing.Point(590, 10),
-                Size = new System.Drawing.Size(100, 30),
-                BackColor = System.Drawing.Color.FromArgb(149, 165, 166),
+                Location = new System.Drawing.Point(530, 10),
+                Size = new System.Drawing.Size(90, 30),
+                BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
                 ForeColor = System.Drawing.Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
             btnRefresh.FlatAppearance.BorderSize = 0;
             btnRefresh.Click += BtnRefresh_Click;
-            panel.Controls.Add(btnRefresh);
 
+            // --- Button Import (MỚI) ---
+            btnImport = new Button
+            {
+                Text = "📥 Nhập Excel",
+                Location = new System.Drawing.Point(630, 10),
+                Size = new System.Drawing.Size(100, 30),
+                BackColor = System.Drawing.Color.FromArgb(46, 204, 113),
+                ForeColor = System.Drawing.Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnImport.FlatAppearance.BorderSize = 0;
+            btnImport.Click += BtnImport_Click;
+
+            // --- Button Export (MỚI) ---
             btnExport = new Button
             {
-                Text = "Xuất Excel",
-                Location = new System.Drawing.Point(700, 10),
+                Text = "📤 Xuất Excel",
+                Location = new System.Drawing.Point(740, 10),
                 Size = new System.Drawing.Size(100, 30),
                 BackColor = System.Drawing.Color.FromArgb(39, 174, 96),
                 ForeColor = System.Drawing.Color.White,
@@ -172,7 +187,13 @@ namespace src.GUI.DanhMuc
             };
             btnExport.FlatAppearance.BorderSize = 0;
             btnExport.Click += BtnExport_Click;
-            panel.Controls.Add(btnExport);
+
+            panel.Controls.Add(cboTimKiem);
+            panel.Controls.Add(txtTimKiem);
+            panel.Controls.Add(btnTimKiem);
+            panel.Controls.Add(btnRefresh);
+            panel.Controls.Add(btnImport); // Thêm vào panel
+            panel.Controls.Add(btnExport); // Thêm vào panel
 
             return panel;
         }

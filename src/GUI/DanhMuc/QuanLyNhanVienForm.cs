@@ -21,8 +21,12 @@ namespace src.GUI.DanhMuc
             {
                 InitializeComponent();
                 nhanVienBUS = new NhanVienBUS();
-                InitializeDataGridView();
+                
+                // Tạo cột trước
+                InitializeDataGridView(); 
+                // Load dữ liệu sau
                 LoadData();
+                
                 SetButtonStates(false);
             }
             catch (Exception ex)
@@ -34,99 +38,82 @@ namespace src.GUI.DanhMuc
         private void InitializeDataGridView()
         {
             dgvNhanVien.Columns.Clear();
+            dgvNhanVien.AutoGenerateColumns = false;
 
-            // Column MNV
-            DataGridViewTextBoxColumn colMNV = new DataGridViewTextBoxColumn
+            // Mã NV
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MNV",
                 DataPropertyName = "MNV",
                 HeaderText = "Mã NV",
-                Width = 70
-            };
-            dgvNhanVien.Columns.Add(colMNV);
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
 
-            // Column HOTEN
-            DataGridViewTextBoxColumn colHOTEN = new DataGridViewTextBoxColumn
+            // Họ tên
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "HOTEN",
                 DataPropertyName = "HOTEN",
                 HeaderText = "Họ tên",
-                Width = 180
-            };
-            dgvNhanVien.Columns.Add(colHOTEN);
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
 
-            // Column GIOITINH
-            DataGridViewTextBoxColumn colGIOITINH = new DataGridViewTextBoxColumn
+            // Giới tính
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "GIOITINH",
                 DataPropertyName = "GIOITINH",
                 HeaderText = "Giới tính",
                 Width = 80
-            };
-            dgvNhanVien.Columns.Add(colGIOITINH);
+            });
 
-            // Column NGAYSINH
-            DataGridViewTextBoxColumn colNGAYSINH = new DataGridViewTextBoxColumn
+            // Ngày sinh
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "NGAYSINH",
                 DataPropertyName = "NGAYSINH",
                 HeaderText = "Ngày sinh",
-                Width = 120
-            };
-            colNGAYSINH.DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvNhanVien.Columns.Add(colNGAYSINH);
+                Width = 120,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
 
-            // Column SDT
-            DataGridViewTextBoxColumn colSDT = new DataGridViewTextBoxColumn
+            // SĐT
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "SDT",
                 DataPropertyName = "SDT",
                 HeaderText = "Số điện thoại",
                 Width = 120
-            };
-            dgvNhanVien.Columns.Add(colSDT);
+            });
 
-            // Column EMAIL
-            DataGridViewTextBoxColumn colEMAIL = new DataGridViewTextBoxColumn
+            // Email
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "EMAIL",
                 DataPropertyName = "EMAIL",
                 HeaderText = "Email",
                 Width = 180
-            };
-            dgvNhanVien.Columns.Add(colEMAIL);
+            });
 
-            // Column TT
-            DataGridViewTextBoxColumn colTT = new DataGridViewTextBoxColumn
+            // Ẩn cột Trạng thái
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
                 DataPropertyName = "TT",
-                HeaderText = "Trạng thái",
-                Width = 90
-            };
-            dgvNhanVien.Columns.Add(colTT);
-
-            // Style header
-            dgvNhanVien.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
-            dgvNhanVien.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvNhanVien.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dgvNhanVien.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                Visible = false
+            });
         }
 
         private void LoadData()
         {
             try
             {
-                var nhanVienList = nhanVienBUS.GetAll();
-                
-                if (nhanVienList != null)
-                {
-                    dgvNhanVien.DataSource = new BindingList<NhanVienDTO>(nhanVienList);
-                }
-                else
-                {
-                    dgvNhanVien.DataSource = null;
-                }
+                var list = nhanVienBUS.GetAll();
+                if (list == null) list = new List<NhanVienDTO>();
+
+                dgvNhanVien.DataSource = null; // Reset để tránh lỗi
+                dgvNhanVien.DataSource = new BindingList<NhanVienDTO>(list);
             }
             catch (Exception ex)
             {
@@ -185,20 +172,46 @@ namespace src.GUI.DanhMuc
             LoadData();
         }
 
+        private void BtnImport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Gọi Helper đọc file
+                List<NhanVienDTO> listNewData = ExcelHelper.ReadNhanVienFromExcel();
+
+                if (listNewData != null && listNewData.Count > 0)
+                {
+                    // Gọi BUS thêm hàng loạt
+                    int count = nhanVienBUS.AddMany(listNewData);
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"Đã nhập thành công {count} nhân viên!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData(); // Load lại grid
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không thêm được dữ liệu nào (Có thể do lỗi DB hoặc dữ liệu không hợp lệ).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void BtnExport_Click(object sender, EventArgs e)
         {
             try
             {
                 if (dgvNhanVien.Rows.Count == 0)
                 {
-                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
-                TableExporter.ExportTableToExcel(dgvNhanVien,"NV");
-                MessageBox.Show("Xuất file Excel thành công!", "Thành công", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Gọi Helper
+                TableExporter.ExportTableToExcel(dgvNhanVien, "NV");
             }
             catch (Exception ex)
             {

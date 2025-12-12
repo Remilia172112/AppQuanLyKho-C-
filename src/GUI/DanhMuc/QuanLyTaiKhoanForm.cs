@@ -26,10 +26,16 @@ namespace src.GUI.DanhMuc
                 taiKhoanBUS = new TaiKhoanBUS();
                 nhanVienBUS = new NhanVienBUS();
                 nhomQuyenBUS = new NhomQuyenBUS();
+                
+                // Tạo cột trước
                 InitializeDataGridView();
+                
                 LoadNhomQuyen();
                 LoadNhanVien();
+                
+                // Load dữ liệu sau
                 LoadData();
+                
                 SetButtonStates(false);
             }
             catch (Exception ex)
@@ -41,65 +47,77 @@ namespace src.GUI.DanhMuc
         private void InitializeDataGridView()
         {
             dgvTaiKhoan.Columns.Clear();
+            dgvTaiKhoan.AutoGenerateColumns = false;
 
-            // Column MNV
-            DataGridViewTextBoxColumn colMNV = new DataGridViewTextBoxColumn
+            // Mã NV
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MNV",
                 DataPropertyName = "MNV",
                 HeaderText = "Mã NV",
-                Width = 80
-            };
-            dgvTaiKhoan.Columns.Add(colMNV);
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
 
-            // Column TDN
-            DataGridViewTextBoxColumn colTDN = new DataGridViewTextBoxColumn
+            // Tên đăng nhập
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TDN",
                 DataPropertyName = "TDN",
                 HeaderText = "Tên đăng nhập",
                 Width = 200
-            };
-            dgvTaiKhoan.Columns.Add(colTDN);
+            });
 
-            // Column MK (ẩn hoặc hiển thị **)
-            DataGridViewTextBoxColumn colMK = new DataGridViewTextBoxColumn
-            {
-                Name = "MK",
-                DataPropertyName = "MK",
-                HeaderText = "Mật khẩu",
-                Width = 150,
-                Visible = false // Ẩn mật khẩu
-            };
-            dgvTaiKhoan.Columns.Add(colMK);
-
-            // Column MNQ
-            DataGridViewTextBoxColumn colMNQ = new DataGridViewTextBoxColumn
+            // Mã nhóm quyền
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MNQ",
                 DataPropertyName = "MNQ",
                 HeaderText = "Mã nhóm quyền",
-                Width = 160
-            };
-            dgvTaiKhoan.Columns.Add(colMNQ);
+                Width = 150,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
 
-            // Column TT
-            DataGridViewTextBoxColumn colTT = new DataGridViewTextBoxColumn
+            // Ẩn cột Mật khẩu (Bảo mật)
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "MK",
+                DataPropertyName = "MK",
+                Visible = false
+            });
+
+            // Ẩn cột Trạng thái
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
                 DataPropertyName = "TT",
-                HeaderText = "Trạng thái",
-                Width = 100
-            };
-            dgvTaiKhoan.Columns.Add(colTT);
-
-            // Style header
-            dgvTaiKhoan.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
-            dgvTaiKhoan.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvTaiKhoan.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            dgvTaiKhoan.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                Visible = false
+            });
+            
+            // Ẩn cột OTP
+            dgvTaiKhoan.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "OTP",
+                DataPropertyName = "OTP",
+                Visible = false
+            });
         }
 
+        private void LoadData()
+        {
+            try
+            {
+                var taiKhoanList = taiKhoanBUS.GetTaiKhoanAll();
+                if (taiKhoanList == null) taiKhoanList = new System.Collections.Generic.List<TaiKhoanDTO>();
+
+                dgvTaiKhoan.DataSource = null; // Reset để tránh lỗi
+                dgvTaiKhoan.DataSource = new BindingList<TaiKhoanDTO>(taiKhoanList);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void LoadNhomQuyen()
         {
             try
@@ -168,26 +186,6 @@ namespace src.GUI.DanhMuc
             }
         }
 
-        private void LoadData()
-        {
-            try
-            {
-                var taiKhoanList = taiKhoanBUS.GetTaiKhoanAll();
-                
-                if (taiKhoanList != null)
-                {
-                    dgvTaiKhoan.DataSource = new BindingList<TaiKhoanDTO>(taiKhoanList);
-                }
-                else
-                {
-                    dgvTaiKhoan.DataSource = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private void DgvTaiKhoan_SelectionChanged(object sender, EventArgs e)
         {
@@ -523,6 +521,23 @@ namespace src.GUI.DanhMuc
             public override string ToString()
             {
                 return Text;
+            }
+        }
+        private void BtnExport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvTaiKhoan.Rows.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                // Gọi Helper xuất Excel với Prefix "TK"
+                TableExporter.ExportTableToExcel(dgvTaiKhoan, "TK");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất file: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
