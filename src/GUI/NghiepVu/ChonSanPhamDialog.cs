@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using src.BUS;
@@ -133,6 +134,69 @@ namespace src.GUI.NghiepVu
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
+        }
+
+        private void DgvSanPham_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            // Chỉ hiển thị ảnh khi di chuột vào cột HINHANH
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && 
+                dgvSanPham.Columns[e.ColumnIndex].Name == "HINHANH")
+            {
+                var hinhAnh = dgvSanPham.Rows[e.RowIndex].Cells["HINHANH"].Value?.ToString();
+                if (!string.IsNullOrEmpty(hinhAnh))
+                {
+                    try
+                    {
+                        // Lấy đường dẫn tương đối từ thư mục gốc project
+                        string projectPath = Directory.GetParent(Application.StartupPath).Parent.Parent.Parent.FullName;
+                        string imagePath = Path.Combine(projectPath, "img_product", hinhAnh);
+
+                        if (File.Exists(imagePath))
+                        {
+                            pictureBoxPreview.Image = Image.FromFile(imagePath);
+                            
+                            // Tính toán vị trí hiển thị ảnh bên cạnh cell
+                            var cellRect = dgvSanPham.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true);
+                            int x = dgvSanPham.Location.X + cellRect.Right + 10;
+                            int y = dgvSanPham.Location.Y + cellRect.Top;
+                            
+                            // Đảm bảo ảnh không vượt quá form
+                            if (x + pictureBoxPreview.Width > this.ClientSize.Width)
+                            {
+                                x = dgvSanPham.Location.X + cellRect.Left - pictureBoxPreview.Width - 10;
+                            }
+                            if (y + pictureBoxPreview.Height > this.ClientSize.Height)
+                            {
+                                y = this.ClientSize.Height - pictureBoxPreview.Height - 10;
+                            }
+                            
+                            pictureBoxPreview.Location = new Point(x, y);
+                            pictureBoxPreview.Visible = true;
+                            pictureBoxPreview.BringToFront();
+                        }
+                    }
+                    catch
+                    {
+                        // Nếu không load được ảnh thì không hiển thị
+                        pictureBoxPreview.Visible = false;
+                    }
+                }
+            }
+        }
+
+        private void DgvSanPham_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            // Ẩn ảnh khi chuột rời khỏi cell
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && 
+                dgvSanPham.Columns[e.ColumnIndex].Name == "HINHANH")
+            {
+                pictureBoxPreview.Visible = false;
+                if (pictureBoxPreview.Image != null)
+                {
+                    pictureBoxPreview.Image.Dispose();
+                    pictureBoxPreview.Image = null;
+                }
+            }
         }
     }
 }

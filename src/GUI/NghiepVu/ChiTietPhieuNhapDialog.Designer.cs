@@ -32,7 +32,7 @@ namespace src.GUI.NghiepVu
             // Form Configuration
             // 
             this.Text = "Chi tiết Phiếu Nhập";
-            this.Size = new System.Drawing.Size(1000, 700);
+            this.Size = new System.Drawing.Size(1000, 740);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -135,6 +135,7 @@ namespace src.GUI.NghiepVu
             dgvChiTiet.Location = new System.Drawing.Point(10, 40);
             dgvChiTiet.Size = new System.Drawing.Size(940, 270);
             dgvChiTiet.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            dgvChiTiet.AutoGenerateColumns = false;
             dgvChiTiet.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             dgvChiTiet.MultiSelect = false;
             dgvChiTiet.AllowUserToAddRows = false;
@@ -145,18 +146,21 @@ namespace src.GUI.NghiepVu
             dgvChiTiet.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(8, 133, 204);
             dgvChiTiet.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
             dgvChiTiet.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9, System.Drawing.FontStyle.Bold);
+            dgvChiTiet.ColumnHeadersDefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dgvChiTiet.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9);
+            dgvChiTiet.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dgvChiTiet.EnableHeadersVisualStyles = false;
 
             // Add columns
-            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "MSP", HeaderText = "Mã SP", Width = 80 });
-            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TenSP", HeaderText = "Tên sản phẩm", Width = 200 });
-            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "SL", HeaderText = "Số lượng", Width = 100 });
-            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TIENNHAP", HeaderText = "Đơn giá", Width = 120 });
-            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ThanhTien", HeaderText = "Thành tiền", Width = 120 });
+            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "MSP", HeaderText = "Mã SP", DataPropertyName = "MSP", Width = 80 });
+            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "TenSP", HeaderText = "Tên sản phẩm", DataPropertyName = "TenSP", Width = 300 });
+            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "SL", HeaderText = "Số lượng", DataPropertyName = "SL", Width = 100 });
+            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "GIA", HeaderText = "Đơn giá", DataPropertyName = "GIA", Width = 120 });
+            dgvChiTiet.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ThanhTien", HeaderText = "Thành tiền", DataPropertyName = "ThanhTien", Width = 150 });
 
             dgvChiTiet.Columns["SL"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            dgvChiTiet.Columns["TIENNHAP"].DefaultCellStyle.Format = "N0";
-            dgvChiTiet.Columns["TIENNHAP"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            dgvChiTiet.Columns["GIA"].DefaultCellStyle.Format = "N0";
+            dgvChiTiet.Columns["GIA"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
             dgvChiTiet.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
             dgvChiTiet.Columns["ThanhTien"].DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
             ((System.ComponentModel.ISupportInitialize)(dgvChiTiet)).EndInit();

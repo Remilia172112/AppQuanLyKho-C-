@@ -67,12 +67,14 @@ namespace src.GUI.DanhMuc
             dgvTaiKhoan.BackgroundColor = Color.White;
             dgvTaiKhoan.BorderStyle = BorderStyle.None;
             dgvTaiKhoan.ColumnHeadersHeight = 40;
+            dgvTaiKhoan.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvTaiKhoan.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dgvTaiKhoan.EnableHeadersVisualStyles = false;
             dgvTaiKhoan.Location = new Point(30, 140);
             dgvTaiKhoan.ReadOnly = true;
             dgvTaiKhoan.RowHeadersVisible = false;
             dgvTaiKhoan.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvTaiKhoan.Size = new Size(750, 500);
+            dgvTaiKhoan.Size = new Size(550, 500);
             dgvTaiKhoan.SelectionChanged += DgvTaiKhoan_SelectionChanged;
 
             // Create panels
@@ -80,7 +82,7 @@ namespace src.GUI.DanhMuc
             searchPanel.Location = new Point(30, 70);
 
             Panel formPanel = CreateFormPanel();
-            formPanel.Location = new Point(800, 140);
+            formPanel.Location = new Point(600, 140);
 
             Panel buttonPanel = CreateButtonPanel();
             buttonPanel.Location = new Point(30, 660);
@@ -103,7 +105,7 @@ namespace src.GUI.DanhMuc
         {
             Panel panel = new Panel
             {
-                Size = new Size(1320, 50),
+                Size = new Size(1110, 50),
                 BackColor = Color.White,
                 Padding = new Padding(10)
             };
@@ -162,7 +164,7 @@ namespace src.GUI.DanhMuc
         {
             Panel panel = new Panel
             {
-                Size = new Size(550, 500),
+                Size = new Size(540, 500),
                 BackColor = Color.White,
                 Padding = new Padding(20)
             };
@@ -282,7 +284,7 @@ namespace src.GUI.DanhMuc
         {
             Panel panel = new Panel
             {
-                Size = new Size(1320, 60),
+                Size = new Size(1110, 60),
                 BackColor = Color.White,
                 Padding = new Padding(10)
             };

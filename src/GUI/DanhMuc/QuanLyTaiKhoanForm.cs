@@ -58,7 +58,7 @@ namespace src.GUI.DanhMuc
                 Name = "TDN",
                 DataPropertyName = "TDN",
                 HeaderText = "Tên đăng nhập",
-                Width = 180
+                Width = 200
             };
             dgvTaiKhoan.Columns.Add(colTDN);
 
@@ -79,7 +79,7 @@ namespace src.GUI.DanhMuc
                 Name = "MNQ",
                 DataPropertyName = "MNQ",
                 HeaderText = "Mã nhóm quyền",
-                Width = 120
+                Width = 160
             };
             dgvTaiKhoan.Columns.Add(colMNQ);
 

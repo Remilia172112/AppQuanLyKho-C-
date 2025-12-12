@@ -332,14 +332,16 @@ namespace src.GUI.NghiepVu
             dgvPhieuNhap.ReadOnly = true;
             dgvPhieuNhap.RowHeadersVisible = false;
             dgvPhieuNhap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvPhieuNhap.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvPhieuNhap.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dgvPhieuNhap.CellDoubleClick += DgvPhieuNhap_CellDoubleClick;
 
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "MPN", HeaderText = "Mã phiếu", DataPropertyName = "MPN" });
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNCC", HeaderText = "Nhà cung cấp", DataPropertyName = "TenNCC" });
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNV", HeaderText = "Nhân viên", DataPropertyName = "TenNV" });
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TG", HeaderText = "Thời gian", DataPropertyName = "TG" });
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TongTien", HeaderText = "Tổng tiền", DataPropertyName = "TongTien" });
-            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng thái", DataPropertyName = "TrangThai" });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "MPN", HeaderText = "Mã phiếu", DataPropertyName = "MPN", FillWeight = 10 });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNCC", HeaderText = "Nhà cung cấp", DataPropertyName = "TenNCC", FillWeight = 25 });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNV", HeaderText = "Nhân viên", DataPropertyName = "TenNV", FillWeight = 20 });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TG", HeaderText = "Thời gian", DataPropertyName = "TG", FillWeight = 15 });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TongTien", HeaderText = "Tổng tiền", DataPropertyName = "TongTien", FillWeight = 15 });
+            dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng thái", DataPropertyName = "TrangThai", FillWeight = 15 });
 
             dgvPhieuNhap.Columns["TongTien"].DefaultCellStyle.Format = "N0";
             dgvPhieuNhap.Columns["TongTien"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;

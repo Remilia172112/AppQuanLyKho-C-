@@ -280,17 +280,42 @@ namespace src.GUI.NghiepVu
             this.btnExport.FlatStyle = FlatStyle.Flat;
             this.btnExport.Click += BtnExport_Click;
 
+            // 
             // dgvPhieuKiemKe
+            // 
+            // dgvPhieuKiemKe
+            // 
             this.dgvPhieuKiemKe.AllowUserToAddRows = false;
             this.dgvPhieuKiemKe.AllowUserToDeleteRows = false;
             this.dgvPhieuKiemKe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvPhieuKiemKe.BackgroundColor = Color.White;
-            this.dgvPhieuKiemKe.ColumnHeadersHeight = 40;
+            this.dgvPhieuKiemKe.BorderStyle = BorderStyle.None;
+            
+            this.dgvPhieuKiemKe.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(120, 120, 120);
+            this.dgvPhieuKiemKe.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.dgvPhieuKiemKe.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            this.dgvPhieuKiemKe.ColumnHeadersHeight = 45;
+            this.dgvPhieuKiemKe.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            
+            this.dgvPhieuKiemKe.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvPhieuKiemKe.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            this.dgvPhieuKiemKe.RowTemplate.Height = 35;
+            
             this.dgvPhieuKiemKe.Dock = DockStyle.Fill;
+            this.dgvPhieuKiemKe.EnableHeadersVisualStyles = false;
             this.dgvPhieuKiemKe.Location = new Point(0, 180);
+            this.dgvPhieuKiemKe.MultiSelect = false;
             this.dgvPhieuKiemKe.ReadOnly = true;
+            this.dgvPhieuKiemKe.RowHeadersVisible = false;
             this.dgvPhieuKiemKe.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             this.dgvPhieuKiemKe.Size = new Size(1100, 470);
+
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "MPKK", HeaderText = "Mã phiếu", DataPropertyName = "MPKK", FillWeight = 15 });
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "NhanVien", HeaderText = "Nhân viên", DataPropertyName = "NhanVien", FillWeight = 30 });
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "ThoiGian", HeaderText = "Thời gian", DataPropertyName = "ThoiGian", FillWeight = 25 });
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoSP", HeaderText = "Số SP", DataPropertyName = "SoSP", FillWeight = 15 });
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng thái", DataPropertyName = "TrangThai", FillWeight = 15 });
+            this.dgvPhieuKiemKe.Columns.Add(new DataGridViewTextBoxColumn { Name = "TT", DataPropertyName = "TT", Visible = false });
 
             // PhieuKiemKeForm
             this.AutoScaleDimensions = new SizeF(7F, 15F);

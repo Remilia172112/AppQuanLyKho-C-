@@ -8,10 +8,20 @@ using src.GUI.Components;
 
 namespace src.GUI.DanhMuc
 {
+    // ViewModel cho hiển thị sản phẩm trong kho
+    public class SanPhamKhoViewModel
+    {
+        public int MaSP { get; set; }
+        public string TenSP { get; set; } = "";
+        public string LoaiSP { get; set; } = "";
+        public int SoLuong { get; set; }
+    }
+
     public partial class QuanLyKhuVucKhoForm : Form
     {
         private KhuVucKhoBUS khuVucKhoBUS;
-        private SanPhamBUS sanPhamBUS; // 1. Khai báo BUS Sản phẩm
+        private SanPhamBUS sanPhamBUS;
+        private LoaiSanPhamBUS loaiSanPhamBUS;
         private bool isEditing = false;
         private int currentMaKV = -1;
 
@@ -19,7 +29,8 @@ namespace src.GUI.DanhMuc
         {
             InitializeComponent();
             khuVucKhoBUS = new KhuVucKhoBUS();
-            sanPhamBUS = new SanPhamBUS(); // 2. Khởi tạo BUS Sản phẩm
+            sanPhamBUS = new SanPhamBUS();
+            loaiSanPhamBUS = new LoaiSanPhamBUS();
             
             InitializeDataGridView();
             LoadData();
@@ -28,7 +39,7 @@ namespace src.GUI.DanhMuc
 
         private void InitializeDataGridView()
         {
-            // --- Cấu hình Grid Khu Vực Kho ---
+            // Cấu hình Grid Khu Vực Kho
             dgvKhuVucKho.Columns.Clear();
             dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "MKVK", DataPropertyName = "MKVK", HeaderText = "Mã khu vực", Width = 100 });
             dgvKhuVucKho.Columns.Add(new DataGridViewTextBoxColumn { Name = "TEN", DataPropertyName = "TEN", HeaderText = "Tên khu vực", Width = 200 });
@@ -39,22 +50,8 @@ namespace src.GUI.DanhMuc
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dgvKhuVucKho.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-            // --- 3. Cấu hình Grid Sản Phẩm (MỚI) ---
-            InitializeSanPhamGrid();
-        }
-
-        private void InitializeSanPhamGrid()
-        {
-            dgvSanPham.Columns.Clear();
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "MSP", DataPropertyName = "MSP", HeaderText = "Mã SP", Width = 80 });
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "TEN", DataPropertyName = "TEN", HeaderText = "Tên Sản Phẩm" }); // AutoSize
-            dgvSanPham.Columns.Add(new DataGridViewTextBoxColumn { Name = "SL", DataPropertyName = "SL", HeaderText = "Tồn kho", Width = 100 });
             
-            var colTien = new DataGridViewTextBoxColumn { Name = "TIENX", DataPropertyName = "TIENX", HeaderText = "Giá bán", Width = 120 };
-            colTien.DefaultCellStyle.Format = "N0";
-            colTien.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dgvSanPham.Columns.Add(colTien);
+            // Lưu ý: Grid Sản Phẩm đã được cấu hình trong Designer.cs
         }
 
         private void LoadData()
@@ -78,7 +75,7 @@ namespace src.GUI.DanhMuc
         }
 
         // 4. Sự kiện khi chọn dòng ở bảng Khu Vực
-        private void DgvKhuVucKho_SelectionChanged(object sender, EventArgs e)
+        private void DgvKhuVucKho_SelectionChanged(object? sender, EventArgs? e)
         {
             if (dgvKhuVucKho.CurrentRow != null && !isEditing)
             {
@@ -88,12 +85,26 @@ namespace src.GUI.DanhMuc
                 try
                 {
                     int mkvk = Convert.ToInt32(dgvKhuVucKho.CurrentRow.Cells["MKVK"].Value);
-                    string tenKhuVuc = dgvKhuVucKho.CurrentRow.Cells["TEN"].Value.ToString();
+                    string tenKhuVuc = dgvKhuVucKho.CurrentRow.Cells["TEN"].Value?.ToString() ?? "";
 
                     // Gọi BUS lấy sản phẩm theo khu vực
                     var listSP = sanPhamBUS.GetByMaKhuVuc(mkvk);
-                    dgvSanPham.DataSource = new BindingList<SanPhamDTO>(listSP);
                     
+                    // Chuyển đổi sang ViewModel với tên loại sản phẩm
+                    var viewModelList = new BindingList<SanPhamKhoViewModel>();
+                    foreach (var sp in listSP)
+                    {
+                        var loaiSP = loaiSanPhamBUS.GetById(sp.MLSP);
+                        viewModelList.Add(new SanPhamKhoViewModel
+                        {
+                            MaSP = sp.MSP,
+                            TenSP = sp.TEN ?? "",
+                            LoaiSP = loaiSP?.TEN ?? "Không xác định",
+                            SoLuong = sp.SL
+                        });
+                    }
+                    
+                    dgvSanPham.DataSource = viewModelList;
                     grpSanPham.Text = $"Sản phẩm tại: {tenKhuVuc} ({listSP.Count} sản phẩm)";
                 }
                 catch

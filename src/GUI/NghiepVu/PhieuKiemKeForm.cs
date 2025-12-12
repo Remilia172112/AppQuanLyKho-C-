@@ -154,17 +154,7 @@ namespace src.GUI.NghiepVu
 
         private void FormatDataGridView()
         {
-            if (dgvPhieuKiemKe.Columns.Count == 0) return;
-
-            // Đặt tên cột tiếng Việt
-            if (dgvPhieuKiemKe.Columns.Contains("MPKK")) dgvPhieuKiemKe.Columns["MPKK"].HeaderText = "Mã phiếu";
-            if (dgvPhieuKiemKe.Columns.Contains("NhanVien")) dgvPhieuKiemKe.Columns["NhanVien"].HeaderText = "Nhân viên";
-            if (dgvPhieuKiemKe.Columns.Contains("ThoiGian")) dgvPhieuKiemKe.Columns["ThoiGian"].HeaderText = "Thời gian";
-            if (dgvPhieuKiemKe.Columns.Contains("SoSP")) dgvPhieuKiemKe.Columns["SoSP"].HeaderText = "Số SP";
-            if (dgvPhieuKiemKe.Columns.Contains("TrangThai")) dgvPhieuKiemKe.Columns["TrangThai"].HeaderText = "Trạng thái";
-            
-            // Ẩn cột TT (chỉ dùng để code màu)
-            if (dgvPhieuKiemKe.Columns.Contains("TT")) dgvPhieuKiemKe.Columns["TT"].Visible = false;
+            if (dgvPhieuKiemKe.Rows.Count == 0) return;
 
             // Tô màu trạng thái
             foreach (DataGridViewRow row in dgvPhieuKiemKe.Rows)
