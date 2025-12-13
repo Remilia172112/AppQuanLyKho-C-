@@ -22,11 +22,14 @@ namespace src.GUI.DanhMuc
                 InitializeComponent();
                 nhanVienBUS = new NhanVienBUS();
                 
-                // Tạo cột trước
                 InitializeDataGridView(); 
-                // Load dữ liệu sau
-                LoadData();
                 
+                dgvNhanVien.CellFormatting += DgvNhanVien_CellFormatting; 
+                cboGioiTinh.Items.Clear();
+                cboGioiTinh.Items.AddRange(new string[] { "Nam", "Nữ" }); 
+                cboGioiTinh.SelectedIndex = 0;
+
+                LoadData();
                 SetButtonStates(false);
             }
             catch (Exception ex)
@@ -412,6 +415,28 @@ namespace src.GUI.DanhMuc
             else
             {
                 ClearForm();
+            }
+        }
+        private void DgvNhanVien_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Kiểm tra nếu đang ở cột "GIOITINH" và giá trị không null
+            if (dgvNhanVien.Columns[e.ColumnIndex].Name == "GIOITINH" && e.Value != null)
+            {
+                int value = 0;
+                int.TryParse(e.Value.ToString(), out value);
+
+                // Logic: 1 là Nam, 0 là Nữ
+                if (value == 1)
+                {
+                    e.Value = "Nam";
+                }
+                else
+                {
+                    e.Value = "Nữ";
+                }
+                
+                // Đánh dấu là đã xử lý format
+                e.FormattingApplied = true;
             }
         }
     }

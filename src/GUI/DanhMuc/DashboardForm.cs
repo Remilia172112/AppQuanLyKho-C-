@@ -56,12 +56,12 @@ namespace src.GUI
             timerDateTime.Start();
 
             // Card click events
-            pnlCardSanPham.Click += (s, e) => NavigateToForm("sanpham");
-            pnlCardKhachHang.Click += (s, e) => NavigateToForm("khachhang");
-            pnlCardPhieuNhap.Click += (s, e) => NavigateToForm("nhaphang");
-            pnlCardPhieuXuat.Click += (s, e) => NavigateToForm("xuathang");
-            pnlCardDoanhThu.Click += (s, e) => NavigateToForm("thongke");
-            pnlCardTonKho.Click += (s, e) => NavigateToForm("thongke");
+            // pnlCardSanPham.Click += (s, e) => NavigateToForm("sanpham");
+            // pnlCardKhachHang.Click += (s, e) => NavigateToForm("khachhang");
+            // pnlCardPhieuNhap.Click += (s, e) => NavigateToForm("nhaphang");
+            // pnlCardPhieuXuat.Click += (s, e) => NavigateToForm("xuathang");
+            // pnlCardDoanhThu.Click += (s, e) => NavigateToForm("thongke");
+            // pnlCardTonKho.Click += (s, e) => NavigateToForm("thongke");
 
             // Add hover effect for cards
             AddCardHoverEffect(pnlCardSanPham, Color.FromArgb(52, 152, 219));
@@ -447,13 +447,13 @@ namespace src.GUI
             return amount.ToString("N0");
         }
 
-        private void NavigateToForm(string formType)
-        {
-            // This will be handled by MainForm
-            // For now, just show a message
-            MessageBox.Show($"Chuyển đến: {formType}", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+        // private void NavigateToForm(string formType)
+        // {
+        //     // This will be handled by MainForm
+        //     // For now, just show a message
+        //     MessageBox.Show($"Chuyển đến: {formType}", "Thông báo",
+        //         MessageBoxButtons.OK, MessageBoxIcon.Information);
+        // }
 
         private void BtnQuickNhap_Click(object sender, EventArgs e)
         {

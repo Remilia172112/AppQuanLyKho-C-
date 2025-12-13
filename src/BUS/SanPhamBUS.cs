@@ -89,10 +89,10 @@ namespace src.BUS
 
             switch (type)
             {
-                case "Mã sản phẩm":
+                case "Mã SP":
                     query = query.Where(sp => sp.MSP.ToString().Contains(text));
                     break;
-                case "Tên sản phẩm":
+                case "Tên SP":
                     query = query.Where(sp => sp.TEN.ToLower().Contains(text));
                     break;
                 case "Danh mục":

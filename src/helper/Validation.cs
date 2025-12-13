@@ -56,7 +56,6 @@ namespace src.Helper
             str = str.Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "");
 
             // Kiểm tra xem chuỗi có phải là 10 chữ số hay không
-            // Lưu ý: Trong code Java gốc, sau khi replace hết các ký tự đặc biệt, 
             // thì các dòng check "-" hay "()" bên dưới sẽ không bao giờ khớp nữa.
             // Nên chỉ cần check \d{10} là đủ cho logic tương đương.
             

@@ -473,7 +473,6 @@ namespace src.GUI.DanhMuc
                 dgvSanPham.DataSource = null;
                 dgvSanPham.DataSource = new System.ComponentModel.BindingList<SanPhamDTO>(filteredList);
 
-                // --- QUAN TRỌNG: Gọi hàm định dạng lại cột ---
                 FormatDataGridView();
             }
             catch (Exception ex)
