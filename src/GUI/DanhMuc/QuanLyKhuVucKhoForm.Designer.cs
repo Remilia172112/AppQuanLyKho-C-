@@ -169,7 +169,7 @@ namespace src.GUI.DanhMuc
                 Size = new System.Drawing.Size(150, 25),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            cboTimKiem.Items.AddRange(new object[] { "Tất cả", "Mã KV", "Tên khu vực" });
+            cboTimKiem.Items.AddRange(new object[] { "Tất cả", "Mã khu vực kho", "Tên khu vực kho" });
             cboTimKiem.SelectedIndex = 0;
 
             // TextBox

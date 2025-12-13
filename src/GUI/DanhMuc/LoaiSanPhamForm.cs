@@ -255,7 +255,7 @@ namespace src.GUI.DanhMuc
             }
 
             var all = lspBUS.GetAll();
-            var filtered = all.FindAll(x => x.TEN.ToLower().Contains(keyword));
+            var filtered = all.FindAll(x => x.TEN.ToLower().Contains(keyword) ||x.GHICHU.ToLower().Contains(keyword));
             
             dgvLoaiSanPham.DataSource = null;
             dgvLoaiSanPham.DataSource = filtered;

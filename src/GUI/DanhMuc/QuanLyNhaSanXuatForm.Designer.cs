@@ -77,7 +77,7 @@ namespace src.GUI.DanhMuc
             cboTimKiem.DropDownStyle = ComboBoxStyle.DropDownList;
             cboTimKiem.Location = new Point(0, 8);
             cboTimKiem.Size = new Size(130, 25);
-            cboTimKiem.Items.AddRange(new string[] { "Tất cả", "Mã NSX", "Tên NSX", "Số điện thoại", "Email" });
+            cboTimKiem.Items.AddRange(new string[] { "Tất cả", "Mã NSX", "Tên NSX", "Địa chỉ", "Số điện thoại", "Email" });
             cboTimKiem.SelectedIndex = 0;
 
             txtTimKiem = new TextBox();

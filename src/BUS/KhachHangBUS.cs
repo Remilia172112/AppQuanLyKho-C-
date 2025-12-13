@@ -87,10 +87,10 @@ namespace src.BUS
 
             switch (type)
             {
-                case "Mã khách hàng":
+                case "Mã KH":
                     query = query.Where(kh => kh.MKH.ToString().Contains(text));
                     break;
-                case "Tên khách hàng":
+                case "Họ tên":
                     query = query.Where(kh => kh.HOTEN.ToLower().Contains(text));
                     break;
                 case "Địa chỉ":

@@ -94,10 +94,10 @@ namespace src.BUS
 
             switch (type)
             {
-                case "Mã nhà sản xuất":
+                case "Mã NSX":
                     query = query.Where(nsx => nsx.MNSX.ToString().Contains(txt));
                     break;
-                case "Tên nhà sản xuất":
+                case "Tên NSX":
                     query = query.Where(nsx => nsx.TEN.ToLower().Contains(txt));
                     break;
                 case "Địa chỉ":
