@@ -83,14 +83,6 @@ namespace src.BUS
             return false;
         }
 
-        // [Deprecated] Chỉ cập nhật cache - sử dụng Add() thay thế
-        [Obsolete("Use Add() instead")]
-        public void InsertNv(NhanVienDTO nv) => listNv.Add(nv);
-
-        // [Deprecated] Chỉ cập nhật cache - sử dụng Update() thay thế
-        [Obsolete("Use Update() instead")]
-        public void UpdateNv(int index, NhanVienDTO nv) => listNv[index] = nv;
-
         // Xóa nhân viên
         public bool DeleteNv(NhanVienDTO nv)
         {

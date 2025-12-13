@@ -11,6 +11,7 @@ namespace src.GUI.NghiepVu
     public partial class ChonSanPhamXuatDialog : Form
     {
         private SanPhamBUS sanPhamBUS = new SanPhamBUS();
+        private PhieuXuatBUS phieuXuatBUS = new PhieuXuatBUS();
         public ChiTietPhieuXuatDTO SelectedItem { get; private set; }
 
         private ChiTietPhieuXuatDTO editingItem = null;
@@ -101,11 +102,8 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                // LẤY CHỈ SẢN PHẨM CÓ TỒN KHO VÀ ĐANG HOẠT ĐỘNG
-                var list = sanPhamBUS.GetAll()
-                    .Where(p => p.TT == 1 && p.SL > 0)
-                    .ToList();
-                
+                // Gọi hàm đã tính toán trừ đi hàng chưa duyệt
+                var list = GetSanPhamKhaDung();
                 dgvSanPham.DataSource = list;
             }
             catch (Exception ex)
@@ -138,9 +136,8 @@ namespace src.GUI.NghiepVu
         {
             try
             {
-                var list = sanPhamBUS.GetAll()
-                    .Where(p => p.TT == 1 && p.SL > 0)
-                    .ToList();
+                // Cũng lấy từ nguồn đã trừ tồn kho
+                var list = GetSanPhamKhaDung();
                 
                 if (!string.IsNullOrWhiteSpace(txtSearch.Text))
                 {
@@ -294,6 +291,37 @@ namespace src.GUI.NghiepVu
                     pictureBoxPreview.Image = null;
                 }
             }
+        }
+        private List<SanPhamDTO> GetSanPhamKhaDung()
+        {
+            // B1: Lấy tất cả sản phẩm đang hoạt động
+            var listSP = sanPhamBUS.GetAll().Where(p => p.TT == 1).ToList();
+
+            // B2: Lấy tất cả chi tiết phiếu đang chờ duyệt từ BUS
+            // (Lưu ý: phieuXuatBUS đã bao gồm logic gọi DAO chi tiết)
+            var listChiTietCho = phieuXuatBUS.GetChiTietPhieuChoDuyet();
+
+            // B3: Tổng hợp số lượng đang bị giữ
+            Dictionary<int, int> luongGiuCho = new Dictionary<int, int>();
+            foreach (var ct in listChiTietCho)
+            {
+                if (luongGiuCho.ContainsKey(ct.MSP))
+                    luongGiuCho[ct.MSP] += ct.SL;
+                else
+                    luongGiuCho.Add(ct.MSP, ct.SL);
+            }
+
+            // B4: Trừ tồn kho thực tế
+            foreach (var sp in listSP)
+            {
+                if (luongGiuCho.ContainsKey(sp.MSP))
+                {
+                    sp.SL -= luongGiuCho[sp.MSP];
+                }
+            }
+
+            // B5: Trả về SP còn tồn > 0
+            return listSP.Where(p => p.SL > 0).ToList();
         }
     }
 }

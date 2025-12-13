@@ -224,5 +224,25 @@ namespace src.BUS
         // LINQ: Lọc phiếu xuất theo trạng thái (TT)
         public List<PhieuXuatDTO> FillerPhieuXuatByStatus(int status)
             => listPhieuXuat.Where(phieu => phieu.TT == status).ToList();
+        
+        public List<ChiTietPhieuXuatDTO> GetChiTietPhieuChoDuyet()
+        {
+            List<ChiTietPhieuXuatDTO> allDetails = new List<ChiTietPhieuXuatDTO>();
+
+            // 1. Lấy danh sách các phiếu chưa duyệt
+            var listPhieuCho = listPhieuXuat.Where(px => px.TT == 2).ToList(); 
+
+            // 2. Lấy chi tiết của từng phiếu
+            foreach (var phieu in listPhieuCho)
+            {
+                var details = chiTietPhieuXuatDAO.selectAll(phieu.MPX.ToString());
+                if (details != null)
+                {
+                    allDetails.AddRange(details);
+                }
+            }
+
+            return allDetails;
+        }
     }
 }
