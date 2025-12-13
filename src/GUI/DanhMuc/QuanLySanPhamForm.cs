@@ -484,20 +484,54 @@ namespace src.GUI.DanhMuc
 
         private bool ValidateInput()
         {
+            // 1. Kiểm tra tên sản phẩm
             if (string.IsNullOrWhiteSpace(txtTenSP.Text))
             {
                 MessageBox.Show("Nhập tên sản phẩm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTenSP.Focus();
                 return false;
             }
 
-            if (!int.TryParse(txtGiaNhap.Text, out _) || !int.TryParse(txtGiaXuat.Text, out _) || !int.TryParse(txtSoLuong.Text, out _))
+            // 2. Kiểm tra giá nhập là số và > 0 (không cho phép = 0)
+            if (!int.TryParse(txtGiaNhap.Text, out int giaNhap) || giaNhap <= 0)
             {
-                MessageBox.Show("Giá và số lượng phải là số!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Giá nhập phải là số nguyên lớn hơn 0!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtGiaNhap.Focus();
+                txtGiaNhap.SelectAll();
+                return false;
+            }
+
+            // 3. Kiểm tra giá xuất là số và > 0 (không cho phép = 0)
+            if (!int.TryParse(txtGiaXuat.Text, out int giaXuat) || giaXuat <= 0)
+            {
+                MessageBox.Show("Giá xuất phải là số nguyên lớn hơn 0!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtGiaXuat.Focus();
+                txtGiaXuat.SelectAll();
+                return false;
+            }
+
+            // 4. Kiểm tra số lượng là số và >= 0 (số lượng có thể = 0)
+            if (!int.TryParse(txtSoLuong.Text, out int soLuong) || soLuong < 0)
+            {
+                MessageBox.Show("Số lượng phải là số nguyên >= 0!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtSoLuong.Focus();
+                txtSoLuong.SelectAll();
+                return false;
+            }
+
+            // 5. Kiểm tra giá xuất >= giá nhập
+            if (giaXuat < giaNhap)
+            {
+                MessageBox.Show("Giá xuất phải lớn hơn hoặc bằng giá nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtGiaXuat.Focus();
+                txtGiaXuat.SelectAll();
                 return false;
             }
 
             return true;
         }
+
+
         private void BtnExport_Click(object sender, EventArgs e)
         {
             try

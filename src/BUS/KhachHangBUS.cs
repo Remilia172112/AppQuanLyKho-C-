@@ -49,7 +49,7 @@ namespace src.BUS
         {
             if (khDAO.insert(kh) != 0)
             {
-                LoadData(); // Reload để đồng bộ với DB (lấy đúng ID auto increment)
+                LoadData();
                 return true;
             }
             return false;
@@ -99,7 +99,7 @@ namespace src.BUS
                 case "Số điện thoại":
                     query = query.Where(kh => kh.SDT.ToLower().Contains(text));
                     break;
-                default: // Tất cả
+                default:
                     query = query.Where(kh =>
                         kh.MKH.ToString().Contains(text) ||
                         kh.HOTEN.ToLower().Contains(text) ||
@@ -136,11 +136,11 @@ namespace src.BUS
         public KhachHangDTO? FindByEmail(string email)
             => listKhachHang.FirstOrDefault(kh =>
                 kh.EMAIL.Equals(email, StringComparison.OrdinalIgnoreCase));
-        
+
         public int AddMany(List<KhachHangDTO> listKH)
         {
             return listKH.Count(kh => Add(kh));
         }
     }
-    
+
 }
