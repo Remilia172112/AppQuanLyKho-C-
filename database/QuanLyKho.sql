@@ -230,14 +230,6 @@ VALUES
         (1, 'khuvuckho', 'delete'),
         (1, 'khuvuckho', 'update'),
         (1, 'khuvuckho', 'view'),
-        (1, 'nhomquyen', 'create'),
-        (1, 'nhomquyen', 'delete'),
-        (1, 'nhomquyen', 'update'),
-        (1, 'nhomquyen', 'view'),
-        (1, 'taikhoan', 'create'),
-        (1, 'taikhoan', 'delete'),
-        (1, 'taikhoan', 'update'),
-        (1, 'taikhoan', 'view'),
         (1, 'thongke', 'create'),
         (1, 'thongke', 'delete'),
         (1, 'thongke', 'update'),
@@ -279,13 +271,22 @@ VALUES
         (3, 'nhasanxuat', 'create'),
         (3, 'nhasanxuat', 'delete'),
         (3, 'nhasanxuat', 'update'),
-        (3, 'nhasanxuat', 'view');
+        (3, 'nhasanxuat', 'view'),
+        (4, 'nhomquyen', 'create'),
+        (4, 'nhomquyen', 'delete'),
+        (4, 'nhomquyen', 'update'),
+        (4, 'nhomquyen', 'view'),
+        (4, 'taikhoan', 'create'),
+        (4, 'taikhoan', 'delete'),
+        (4, 'taikhoan', 'update'),
+        (4, 'taikhoan', 'view');
 
 INSERT INTO `NHOMQUYEN` (`TEN`, `TT`)
 VALUES
         ('Quản lý kho hàng', 1),
         ('Nhân viên xuất hàng', 1),
-        ('Nhân viên nhập hàng', 1);
+        ('Nhân viên nhập hàng', 1),
+        ('Admin', 1);
 
 
 INSERT INTO `NHANVIEN` (`HOTEN`, `GIOITINH`, `NGAYSINH`, `SDT`, `EMAIL`, `TT`)
@@ -301,7 +302,9 @@ INSERT INTO `TAIKHOAN` (`MNV`, `TDN`, `MK`, `MNQ`, `TT`, `OTP`)
 VALUES
         (1, 'admin', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 1, 1, 'null'),
         (2, 'NV2', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null'),
-        (3, 'NV3', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 3, 1, 'null');
+        (3, 'NV3', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 3, 1, 'null'),
+        (4, 'NV4', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 4, 1, 'null');
+
 
 INSERT INTO `KHACHHANG` (`HOTEN`, `DIACHI`, `SDT`, `TT`, `NGAYTHAMGIA`)
 VALUES
