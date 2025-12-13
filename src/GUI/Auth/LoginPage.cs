@@ -30,7 +30,7 @@ namespace src.GUI.Auth
             nhanVienBUS = new NhanVienBUS();
             nhomQuyenBUS = new NhomQuyenBUS();
             // Set giá trị mặc định
-            txtUsername.Text = "admin";
+            txtUsername.Text = "QL1";
             txtPassword.Text = "123456";
 
             // Đăng ký các sự kiện
