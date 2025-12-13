@@ -29,7 +29,6 @@ namespace src.BUS
         }
 
 
-        // Phương thức getInstance (nếu cần dùng kiểu Singleton, nhưng class này có public constructor)
         public static KhuVucKhoBUS GetInstance()
         {
             return new KhuVucKhoBUS();
@@ -45,8 +44,6 @@ namespace src.BUS
             return this.listKVK[index];
         }
 
-        // Hàm này bị trùng lặp logic với GetIndexByMaKVK, mình giữ lại và đổi tên cho rõ nghĩa
-        // Trong Java: getIndexByMaLH (chắc copy paste chưa sửa tên)
         public int GetIndexByMaKhuVuc(int makhuvuc)
         {
             return listKVK.FindIndex(kvk => kvk.MKVK == makhuvuc);
