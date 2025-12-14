@@ -111,7 +111,35 @@ namespace src.DAO
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "UPDATE SANPHAM SET TT = 0 WHERE MSP = @msp";
+                    conn.Open(); // Mở kết nối ở đây để dùng chung cho cả hai lệnh
+
+                    // 1. Lấy Số lượng (SL) của sản phẩm
+                    int soLuong = 0;
+                    string checkSql = "SELECT SL FROM SANPHAM WHERE MSP = @msp";
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkSql, conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@msp", t);
+                        object slResult = checkCmd.ExecuteScalar();
+                        if (slResult != null && slResult != DBNull.Value)
+                        {
+                            // Đảm bảo cột SL có kiểu dữ liệu số (int, long,...)
+                            soLuong = Convert.ToInt32(slResult); 
+                        }
+                    }
+
+                    string sql;
+                    if (soLuong <= 0) // Điều kiện để xóa vĩnh viễn
+                    {
+                        // 2. Nếu SL <= 0: XÓA VĨNH VIỄN
+                        sql = "DELETE FROM SANPHAM WHERE MSP = @msp";
+                    }
+                    else
+                    {
+                        // 3. Nếu SL > 0: CẬP NHẬT TRẠNG THÁI 
+                        sql = "UPDATE SANPHAM SET TT = 0 WHERE MSP = @msp";
+                    }
+
+                    // Thực thi lệnh UPDATE hoặc DELETE
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@msp", t);
@@ -121,6 +149,7 @@ namespace src.DAO
             }
             catch (Exception ex)
             {
+                // Có thể thêm log hoặc throw exception tùy theo cấu trúc ứng dụng
                 Console.WriteLine("Lỗi Delete SanPham: " + ex.Message);
             }
             return result;

@@ -49,7 +49,7 @@ namespace src.BUS
         {
             if (khDAO.insert(kh) != 0)
             {
-                LoadData();
+                listKhachHang.Add(kh);
                 return true;
             }
             return false;
