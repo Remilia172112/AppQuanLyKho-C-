@@ -122,5 +122,9 @@ namespace src.BUS
                            i.Tennhomquyen.ToLower().Contains(text))
                 .ToList();
         }
+        public int getAutoIncrement()
+        {
+            return nhomquyenDAO.getAutoIncrement();
+        }
     }
 }

@@ -165,7 +165,7 @@ namespace src.GUI.NghiepVu
 
                     case DialogMode.Add:
                         lblTitle.Text = "THÊM PHIẾU KIỂM KÊ MỚI";
-                        txtMaPhieu.Text = "(Tự động)";
+                        txtMaPhieu.Text = phieuKiemKeBUS.getAutoIncrement().ToString();
                         txtTrangThai.Text = "Chờ duyệt";
                         dtpThoiGian.Value = DateTime.Now;
                         

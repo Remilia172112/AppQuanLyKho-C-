@@ -45,7 +45,7 @@ namespace src.BUS
         {
             if (NccDAO.insert(ncc) != 0)
             {
-                LoadData(); // Reload để đồng bộ với DB
+                listNcc.Add(ncc); // Reload để đồng bộ với DB
                 return true;
             }
             return false;
@@ -139,6 +139,10 @@ namespace src.BUS
         public int AddMany(List<NhaCungCapDTO> listNCC)
         {
             return listNCC.Count(ncc => Add(ncc));
+        }
+        public int getAutoIncrement()
+        {
+            return NccDAO.getAutoIncrement();
         }
     }
 }

@@ -209,12 +209,18 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+            
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("sanpham");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("sanpham");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("sanpham");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
 
+            // Nhóm nút trong Form nhập liệu (Ẩn/Hiện)
+            btnLuu.Visible = editing;     // Chỉ hiện khi đang sửa/thêm
+            btnHuy.Visible = editing;     // Chỉ hiện khi đang sửa/thêm
+            btnChonAnh.Visible = editing; // Chỉ hiện nút chọn ảnh khi đang sửa/thêm
+
+            // Các control nhập liệu (Readonly hoặc Enable)
             txtTenSP.ReadOnly = !editing;
             cboDanhMuc.Enabled = editing;
             cboLoaiSP.Enabled = editing;
@@ -223,13 +229,14 @@ namespace src.GUI.DanhMuc
             txtSoLuong.ReadOnly = !editing;
             cboNhaSX.Enabled = editing;
             cboKhuVuc.Enabled = editing;
-            btnChonAnh.Enabled = editing;
+            
+            // Vô hiệu hóa bảng khi đang nhập liệu
             dgvSanPham.Enabled = !editing;
         }
 
         private void ClearForm()
         {
-            txtMaSP.Clear();
+            txtMaSP.Text = sanPhamBUS.getAutoIncrement().ToString();
             txtTenSP.Clear();
             cboDanhMuc.SelectedIndex = -1;
             cboDanhMuc.Text = "";
@@ -404,9 +411,30 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object? sender, EventArgs e)
         {
+            // 1. Reset trạng thái các nút về chế độ Xem
             SetButtonStates(false);
+
+            // 2. Xử lý việc chọn lại dòng đầu tiên
             if (dgvSanPham.Rows.Count > 0)
+            {
+                // Xóa các lựa chọn cũ
+                dgvSanPham.ClearSelection(); 
+                
+                // Chọn dòng đầu tiên (Index 0)
                 dgvSanPham.Rows[0].Selected = true;
+                
+                // QUAN TRỌNG: Đặt ô hiện tại về dòng đầu để đảm bảo Focus nằm đúng chỗ
+                dgvSanPham.CurrentCell = dgvSanPham.Rows[0].Cells[0];
+
+                // 3. Gọi thủ công hàm xử lý chọn dòng để load lại dữ liệu từ Grid lên TextBox
+                // (Phòng trường hợp dòng 1 đã được chọn trước đó, sự kiện SelectionChanged sẽ không tự kích hoạt)
+                DgvSanPham_SelectionChanged(sender, e);
+            }
+            else
+            {
+                // Nếu lưới không có dữ liệu thì xóa trắng form
+                ClearForm();
+            }
         }
 
         private void BtnChonAnh_Click(object? sender, EventArgs e)

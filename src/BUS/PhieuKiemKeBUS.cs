@@ -50,7 +50,7 @@ namespace src.BUS
 
                 check = chiTietKiemKeDAO.insert(dsPhieu) != 0;
 
-                if (check) LoadData(); // Reload để đồng bộ
+                if (check) listPhieuKiemKe.Add(phieu); // Reload để đồng bộ
             }
             return check;
         }
@@ -116,6 +116,10 @@ namespace src.BUS
         {
             var phieu = listPhieuKiemKe.FirstOrDefault(p => p.MPKK == mpkk);
             return phieu != null && phieu.TT == 2;
+        }
+        public int getAutoIncrement()
+        {
+            return phieuKiemKeDAO.getAutoIncrement();
         }
     }
 }

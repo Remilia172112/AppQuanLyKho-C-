@@ -205,7 +205,7 @@ namespace src.GUI.DanhMuc
 
         private void ClearForm()
         {
-            txtMaKH.Clear();
+            txtMaKH.Text = khachHangBUS.getAutoIncrement().ToString();
             txtHoTen.Clear();
             txtDiaChi.Clear();
             txtSDT.Clear();
@@ -216,13 +216,20 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+            
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("khachhang");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("khachhang");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("khachhang");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+            
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+            
+            // Khóa bảng khi đang sửa
             dgvKhachHang.Enabled = !editing;
             
+            // Trạng thái các ô nhập liệu
             txtHoTen.ReadOnly = !editing;
             txtDiaChi.ReadOnly = !editing;
             txtSDT.ReadOnly = !editing;
@@ -398,9 +405,19 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            if (dgvKhachHang.CurrentRow != null)
+            
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvKhachHang.Rows.Count > 0)
             {
+                dgvKhachHang.ClearSelection();
+                dgvKhachHang.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn (tránh lỗi focus ảo)
+                dgvKhachHang.CurrentCell = dgvKhachHang.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayKhachHangInfo();
             }
             else

@@ -62,7 +62,7 @@ namespace src.BUS
         {
             if (nhanVienDAO.insert(nv) > 0)
             {
-                LoadData(); // Reload để lấy đúng ID auto increment
+                listNv.Add(nv); // Reload để lấy đúng ID auto increment
                 return true;
             }
             return false;
@@ -229,6 +229,10 @@ namespace src.BUS
         public int AddMany(List<NhanVienDTO> listNV)
         {
             return listNV.Count(nv => Add(nv));
+        }
+        public int getAutoIncrement()
+        {
+            return nhanVienDAO.getAutoIncrement();
         }
     }
 }

@@ -260,22 +260,62 @@ namespace src.GUI.DanhMuc
 
             int yPos = 60;
 
+            // 1. Mã KV
             Label lblMaKV = new Label { Text = "Mã khu vực:", Location = new Point(20, yPos), Size = new Size(120, 25), Font = new Font("Segoe UI", 10F) };
             txtMaKV = new TextBox { BackColor = Color.FromArgb(236, 240, 241), Location = new Point(140, yPos), ReadOnly = true, Size = new Size(380, 25) };
             panel.Controls.Add(lblMaKV);
             panel.Controls.Add(txtMaKV);
             yPos += 40;
 
+            // 2. Tên KV
             Label lblTenKV = new Label { Text = "Tên khu vực: *", Location = new Point(20, yPos), Size = new Size(120, 25), Font = new Font("Segoe UI", 10F) };
             txtTenKV = new TextBox { Font = new Font("Segoe UI", 10F), Location = new Point(140, yPos), Size = new Size(380, 25) };
             panel.Controls.Add(lblTenKV);
             panel.Controls.Add(txtTenKV);
             yPos += 40;
 
+            // 3. Ghi chú
             Label lblGhiChu = new Label { Text = "Ghi chú:", Location = new Point(20, yPos), Size = new Size(120, 25), Font = new Font("Segoe UI", 10F) };
             txtGhiChu = new TextBox { Font = new Font("Segoe UI", 10F), Location = new Point(140, yPos), Multiline = true, Size = new Size(380, 80) };
             panel.Controls.Add(lblGhiChu);
             panel.Controls.Add(txtGhiChu);
+            yPos += 90; // Tăng yPos sau textbox multiline
+
+            // --- THÊM NÚT LƯU & HỦY VÀO ĐÂY ---
+            
+            // Nút Lưu
+            btnLuu = new Button
+            {
+                Text = "💾 Lưu",
+                Location = new Point(140, yPos), // Canh thẳng hàng với textbox
+                Size = new Size(110, 35),
+                BackColor = Color.FromArgb(52, 152, 219),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Visible = false // Mặc định ẩn
+            };
+            btnLuu.FlatAppearance.BorderSize = 0;
+            btnLuu.Click += BtnLuu_Click;
+            panel.Controls.Add(btnLuu);
+
+            // Nút Hủy
+            btnHuy = new Button
+            {
+                Text = "❌ Hủy",
+                Location = new Point(260, yPos), // Bên cạnh nút Lưu
+                Size = new Size(110, 35),
+                BackColor = Color.FromArgb(149, 165, 166),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                Visible = false // Mặc định ẩn
+            };
+            btnHuy.FlatAppearance.BorderSize = 0;
+            btnHuy.Click += BtnHuy_Click;
+            panel.Controls.Add(btnHuy);
 
             return panel;
         }
@@ -300,15 +340,6 @@ namespace src.GUI.DanhMuc
             btnXoa = CreateButton("🗑️ Xóa", xPos, Color.FromArgb(231, 76, 60), BtnXoa_Click);
             panel.Controls.Add(btnXoa);
             xPos += btnWidth + spacing;
-
-            btnLuu = CreateButton("💾 Lưu", xPos, Color.FromArgb(52, 152, 219), BtnLuu_Click);
-            btnLuu.Enabled = false;
-            panel.Controls.Add(btnLuu);
-            xPos += btnWidth + spacing;
-
-            btnHuy = CreateButton("❌ Hủy", xPos, Color.FromArgb(149, 165, 166), BtnHuy_Click);
-            btnHuy.Enabled = false;
-            panel.Controls.Add(btnHuy);
 
             return panel;
         }

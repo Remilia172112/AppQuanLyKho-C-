@@ -24,6 +24,7 @@ namespace src.GUI.ThongKe
         private DateTimePicker dateEnd;
         private Button btnExport;
         private Button btnReset;
+        private Button btnSearch; // Thêm nút tìm kiếm
 
         public ThongKeNhaCungCap(ThongKeBUS thongkebus)
         {
@@ -54,27 +55,67 @@ namespace src.GUI.ThongKe
 
             // Input: Tên NCC
             System.Windows.Forms.Panel pnlTen = CreateInputPanel("Tìm kiếm nhà cung cấp", out txtTenNCC);
-            txtTenNCC.TextChanged += (s, e) => Filter();
+            // Bấm Enter để tìm
+            txtTenNCC.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) Filter(); };
 
             // Input: Từ ngày
             System.Windows.Forms.Panel pnlStart = CreateDatePanel("Từ ngày", out dateStart);
             dateStart.Value = DateTime.Now.AddYears(-5);
-            dateStart.ValueChanged += (s, e) => Filter();
 
             // Input: Đến ngày
             System.Windows.Forms.Panel pnlEnd = CreateDatePanel("Đến ngày", out dateEnd);
-            dateEnd.ValueChanged += (s, e) => Filter();
 
-            // Buttons
-            System.Windows.Forms.Panel pnlBtn = new System.Windows.Forms.Panel { Size = new Size(280, 50), Padding = new Padding(0, 10, 0, 0) };
-            btnExport = new Button { Text = "Xuất Excel", Width = 100, Height = 35, Location = new Point(0, 10), Cursor = Cursors.Hand };
-            btnReset = new Button { Text = "Làm mới", Width = 100, Height = 35, Location = new Point(110, 10), Cursor = Cursors.Hand };
+            // --- Buttons Container ---
+            System.Windows.Forms.Panel pnlBtn = new System.Windows.Forms.Panel { Size = new Size(290, 50), Padding = new Padding(0, 10, 0, 0) };
             
-            btnExport.Click += BtnExport_Click;
+            // 1. Nút Tìm kiếm (Mới) - Màu Xanh Dương
+            btnSearch = new Button 
+            { 
+                Text = "Tìm kiếm", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(0, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(41, 128, 185),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnSearch.FlatAppearance.BorderSize = 0;
+            btnSearch.Click += (s, e) => Filter();
+
+            // 2. Nút Làm mới - Màu Xám
+            btnReset = new Button 
+            { 
+                Text = "Làm mới", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(95, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(149, 165, 166),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnReset.FlatAppearance.BorderSize = 0;
             btnReset.Click += BtnReset_Click;
 
-            pnlBtn.Controls.Add(btnExport);
+            // 3. Nút Xuất Excel - Màu Xanh Lá
+            btnExport = new Button 
+            { 
+                Text = "Xuất Excel", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(190, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(39, 174, 96),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.Click += BtnExport_Click;
+
+            pnlBtn.Controls.Add(btnSearch);
             pnlBtn.Controls.Add(btnReset);
+            pnlBtn.Controls.Add(btnExport);
 
             flowLeft.Controls.Add(pnlTen);
             flowLeft.Controls.Add(pnlStart);
@@ -95,16 +136,24 @@ namespace src.GUI.ThongKe
             tblNCC.ReadOnly = true;
             tblNCC.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             tblNCC.BackgroundColor = Color.White;
+            
+            // Style Header
+            tblNCC.EnableHeadersVisualStyles = false;
+            tblNCC.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
+            tblNCC.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            tblNCC.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            tblNCC.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            tblNCC.ColumnHeadersHeight = 40;
 
             tblNCC.Columns.Add("STT", "STT");
-            tblNCC.Columns.Add("MaNCC", "Mã nhà cung cấp");
+            tblNCC.Columns.Add("MaNCC", "Mã NCC");
             tblNCC.Columns.Add("TenNCC", "Tên nhà cung cấp");
             tblNCC.Columns.Add("SoLuong", "Số lượng nhập");
             tblNCC.Columns.Add("TongTien", "Tổng số tiền");
 
-            // Format cột
             tblNCC.Columns["STT"].Width = 10;
-            tblNCC.Columns["MaNCC"].Width = 10;
+            tblNCC.Columns["MaNCC"].Width = 15;
+            tblNCC.Columns["SoLuong"].Width = 28;
             tblNCC.Columns["SoLuong"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             tblNCC.Columns["TongTien"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
@@ -131,8 +180,8 @@ namespace src.GUI.ThongKe
             dtp = new DateTimePicker 
             { 
                 Dock = DockStyle.Top, 
-                Format = DateTimePickerFormat.Custom,  // 1. Chế độ Custom
-                CustomFormat = "dd/MM/yyyy",           // 2. Định dạng ngày/tháng/năm
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "dd/MM/yyyy",
                 Height = 30, 
                 Font = new Font("Segoe UI", 11) 
             };
@@ -208,7 +257,17 @@ namespace src.GUI.ThongKe
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            TableExporter.ExportTableToExcel(tblNCC, "TKNCC");
+            try
+            {
+                if (tblNCC.Rows.Count > 0)
+                    TableExporter.ExportTableToExcel(tblNCC, "TKNCC");
+                else
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}");
+            }
         }
     }
 }

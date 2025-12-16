@@ -53,7 +53,7 @@ namespace src.BUS
         {
             if (kvkDAO.insert(kvk) != 0)
             {
-                LoadData(); // Reload để đồng bộ với DB
+                listKVK.Add(kvk);
                 return true;
             }
             return false;
@@ -117,6 +117,10 @@ namespace src.BUS
         public int AddMany(List<KhuVucKhoDTO> listKVK)
         {
             return listKVK.Count(kvk => Add(kvk));
+        }
+        public int getAutoIncrement()
+        {
+            return kvkDAO.getAutoIncrement();
         }
     }
 }

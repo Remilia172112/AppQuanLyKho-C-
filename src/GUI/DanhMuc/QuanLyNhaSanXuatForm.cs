@@ -140,7 +140,7 @@ namespace src.GUI.DanhMuc
 
         private void ClearForm()
         {
-            txtMaNSX.Clear();
+            txtMaNSX.Text = nhaSanXuatBUS.getAutoIncrement().ToString();
             txtTenNSX.Clear();
             txtDiaChi.Clear();
             txtSDT.Clear();
@@ -151,13 +151,20 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("nhasanxuat");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("nhasanxuat");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("nhasanxuat");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+
+            // Khóa bảng khi đang sửa
             dgvNhaSanXuat.Enabled = !editing;
-            
+
+            // Trạng thái các ô nhập liệu
             txtTenNSX.ReadOnly = !editing;
             txtDiaChi.ReadOnly = !editing;
             txtSDT.ReadOnly = !editing;
@@ -168,7 +175,6 @@ namespace src.GUI.DanhMuc
         {
             ClearForm();
             SetButtonStates(true);
-            txtMaNSX.Text = "(Tự động)";
             txtTenNSX.Focus();
         }
 
@@ -333,9 +339,19 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            if (dgvNhaSanXuat.CurrentRow != null)
+
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvNhaSanXuat.Rows.Count > 0)
             {
+                dgvNhaSanXuat.ClearSelection();
+                dgvNhaSanXuat.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn (tránh lỗi focus ảo)
+                dgvNhaSanXuat.CurrentCell = dgvNhaSanXuat.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayNhaSanXuatInfo();
             }
             else

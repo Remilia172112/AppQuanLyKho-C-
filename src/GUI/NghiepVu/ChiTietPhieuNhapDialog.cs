@@ -52,7 +52,7 @@ namespace src.GUI.NghiepVu
 
                 case DialogMode.Add:
                     lblTitle.Text = "THÊM PHIẾU NHẬP MỚI";
-                    txtMaPhieu.Text = "(Tự động)";
+                    txtMaPhieu.Text = phieuNhapBUS.getAutoIncrement().ToString();
                     txtTrangThai.Text = "Chờ duyệt";
                     dtpThoiGian.Value = DateTime.Now;
                     // Set current user as default

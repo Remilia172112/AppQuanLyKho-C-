@@ -45,7 +45,7 @@ namespace src.BUS
         {
             if (nsxDAO.insert(nsx) != 0)
             {
-                LoadData(); // Reload để đồng bộ với DB
+                listNSX.Add(nsx); // Reload để đồng bộ với DB
                 return true;
             }
             return false;
@@ -142,6 +142,10 @@ namespace src.BUS
         public int AddMany(List<NhaSanXuatDTO> listNSX)
         {
             return listNSX.Count(nsx => Add(nsx));
+        }
+        public int getAutoIncrement()
+        {
+            return nsxDAO.getAutoIncrement();
         }
     }
 }

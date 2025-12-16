@@ -244,5 +244,9 @@ namespace src.BUS
 
             return allDetails;
         }
+        public int getAutoIncrement()
+        {
+            return phieuXuatDAO.getAutoIncrement();
+        }
     }
 }

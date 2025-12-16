@@ -100,7 +100,7 @@ namespace src.GUI.DanhMuc
             // --- 3. XỬ LÝ BUTTONS DƯỚI (CANH GIỮA LUÔN) ---
             
             Panel pnlActionBox = new Panel();
-            pnlActionBox.Size = new Size(580, 50); // Đủ chứa 5 nút
+            pnlActionBox.Size = new Size(340, 50); // Đủ chứa 3 nút
             pnlActionBox.BackColor = Color.Transparent;
             
             // Tạo các nút chức năng
@@ -108,10 +108,8 @@ namespace src.GUI.DanhMuc
             btnThem = CreateBtnAction("➕ Thêm", 0, Color.FromArgb(46, 204, 113), BtnThem_Click);
             btnSua = CreateBtnAction("✏️ Sửa", 1, Color.FromArgb(52, 152, 219), BtnSua_Click);
             btnXoa = CreateBtnAction("🗑️ Xóa", 2, Color.FromArgb(231, 76, 60), BtnXoa_Click);
-            btnLuu = CreateBtnAction("💾 Lưu", 3, Color.FromArgb(41, 128, 185), BtnLuu_Click);
-            btnHuy = CreateBtnAction("❌ Hủy", 4, Color.FromArgb(149, 165, 166), BtnHuy_Click);
             
-            pnlActionBox.Controls.AddRange(new Control[]{ btnThem, btnSua, btnXoa, btnLuu, btnHuy });
+            pnlActionBox.Controls.AddRange(new Control[]{ btnThem, btnSua, btnXoa});
             pnlButtons.Controls.Add(pnlActionBox);
 
             // --- 4. SỰ KIỆN RESIZE ĐỂ CANH GIỮA (QUAN TRỌNG) ---
@@ -188,7 +186,7 @@ namespace src.GUI.DanhMuc
             int inputW = 230;
             int startX = 15;
 
-            // Hình ảnh
+            // 1. Hình ảnh
             picHinhAnh = new PictureBox();
             picHinhAnh.BorderStyle = BorderStyle.FixedSingle;
             picHinhAnh.Location = new Point(startX + 40, y);
@@ -205,10 +203,12 @@ namespace src.GUI.DanhMuc
             btnChonAnh.Size = new Size(90, 30);
             btnChonAnh.Text = "Chọn ảnh";
             btnChonAnh.Click += BtnChonAnh_Click;
+            btnChonAnh.Visible = false; // Mặc định ẩn
             panel.Controls.Add(btnChonAnh);
 
             y += 50;
             
+            // Hàm phụ để tạo input nhanh
             void AddInput(string label, Control control)
             {
                 Label lbl = new Label { Text = label, Location = new Point(startX, y + 3), Size = new Size(labelW, 25) };
@@ -219,6 +219,7 @@ namespace src.GUI.DanhMuc
                 y += 40;
             }
 
+            // 2. Các trường nhập liệu
             txtMaSP = new TextBox { ReadOnly = true, BackColor = SystemColors.Control };
             AddInput("Mã SP:", txtMaSP);
 
@@ -246,6 +247,32 @@ namespace src.GUI.DanhMuc
 
             txtSoLuong = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Center };
             AddInput("Số lượng:", txtSoLuong);
+
+            // --- 3. THÊM NÚT LƯU & HỦY VÀO ĐÂY ---
+            y += 20; 
+
+            btnLuu = new Button();
+            btnLuu.Text = "💾 Lưu";
+            btnLuu.Size = new Size(110, 35);
+            btnLuu.Location = new Point(startX + labelW, y); // Căn thẳng hàng với input
+            btnLuu.BackColor = Color.FromArgb(41, 128, 185);
+            btnLuu.ForeColor = Color.White;
+            btnLuu.FlatStyle = FlatStyle.Flat;
+            btnLuu.Click += BtnLuu_Click;
+            btnLuu.Visible = false; // Mặc định ẩn
+
+            btnHuy = new Button();
+            btnHuy.Text = "❌ Hủy";
+            btnHuy.Size = new Size(110, 35);
+            btnHuy.Location = new Point(startX + labelW + 120, y); // Nằm bên phải nút Lưu
+            btnHuy.BackColor = Color.FromArgb(149, 165, 166);
+            btnHuy.ForeColor = Color.White;
+            btnHuy.FlatStyle = FlatStyle.Flat;
+            btnHuy.Click += BtnHuy_Click;
+            btnHuy.Visible = false; // Mặc định ẩn
+
+            panel.Controls.Add(btnLuu);
+            panel.Controls.Add(btnHuy);
 
             return panel;
         }

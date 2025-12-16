@@ -274,14 +274,21 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("taikhoan");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("taikhoan");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("taikhoan");
             btnResetMK.Enabled = !editing;
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+
+            // Khóa bảng khi đang sửa
             dgvTaiKhoan.Enabled = !editing;
 
+            // Trạng thái các ô nhập liệu
             cboMaNV.Enabled = editing && currentMaNV == -1; // Chỉ cho chọn khi thêm mới
             txtTenDangNhap.ReadOnly = !editing;
             txtMatKhau.ReadOnly = !editing;
@@ -464,10 +471,22 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            LoadNhanVien(); // Reload lại danh sách nhân viên
-            if (dgvTaiKhoan.CurrentRow != null)
+            
+            // Reload lại danh sách nhân viên để đảm bảo dữ liệu đúng
+            LoadNhanVien(); 
+
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvTaiKhoan.Rows.Count > 0)
             {
+                dgvTaiKhoan.ClearSelection();
+                dgvTaiKhoan.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn
+                dgvTaiKhoan.CurrentCell = dgvTaiKhoan.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayTaiKhoanInfo();
             }
             else

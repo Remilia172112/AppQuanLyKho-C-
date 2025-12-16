@@ -41,5 +41,32 @@ namespace src.Helper
                 return 0;
             }
         }
+        public static void FormatTextBoxMoney(TextBox txt)
+        {
+            if (string.IsNullOrWhiteSpace(txt.Text)) return;
+
+            try
+            {
+                // 1. Giữ vị trí con trỏ chuột tương đối so với cuối chuỗi
+                // (Để khi thêm dấu phẩy, con trỏ không bị nhảy về đầu)
+                int cursorFromEnd = txt.Text.Length - txt.SelectionStart;
+
+                // 2. Xóa hết dấu phẩy/chấm cũ để lấy số thô
+                string rawText = txt.Text.Replace(",", "").Replace(".", "").Trim();
+
+                if (long.TryParse(rawText, out long value))
+                {
+                    // 3. Format lại có dấu phân cách (N0)
+                    txt.Text = value.ToString("N0");
+
+                    // 4. Tính lại vị trí con trỏ mới
+                    int newCursorPos = txt.Text.Length - cursorFromEnd;
+                    if (newCursorPos < 0) newCursorPos = 0;
+                    
+                    txt.SelectionStart = newCursorPos;
+                }
+            }
+            catch { }
+        }
     }
 }

@@ -75,6 +75,7 @@ namespace src.GUI.NghiepVu
         {
             try
             {
+                phieuKiemKeBUS.LoadData();
                 var list = phieuKiemKeBUS.GetAll();
                 
                 // Áp dụng bộ lọc

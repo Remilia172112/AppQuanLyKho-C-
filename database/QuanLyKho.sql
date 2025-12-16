@@ -144,6 +144,7 @@ CREATE TABLE `SANPHAM` (
 CREATE TABLE `LOAISANPHAM` (
     `MLSP` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Mã loại sản phẩm',
     `TEN` VARCHAR(255) NOT NULL COMMENT 'Tên loại sản phẩm',
+    `TLGX` INT(11) NOT NULL COMMENT 'Tỉ lệ giá xuất',
     `GHICHU` VARCHAR(255) DEFAULT '' COMMENT 'Ghi chú',
     `TT` INT(11) NOT NULL DEFAULT 1 COMMENT 'Trạng thái',
     PRIMARY KEY(`MLSP`)
@@ -334,7 +335,14 @@ VALUES
         (1, 1, 26200000, '2025-12-02 10:30:00', 1),
         (2, 2, 35000000, '2025-12-04 15:20:00', 1),
         (1, 3, 42500000, '2025-12-06 09:15:00', 1),
-        (3, 4, 1800000, '2025-12-07 11:45:00', 1);
+        (3, 4, 1800000, '2025-12-07 11:45:00', 1),
+        (1, 1, 25000000, '2025-12-15 09:30:00', 1),
+        (2, 3, 1500000,  '2025-12-15 14:15:00', 1),
+        (1, 2, 35000000, '2025-12-16 10:00:00', 1),
+        (3, 5, 5500000,  '2025-12-16 16:45:00', 1),
+        (2, 4, 70000000, '2025-12-17 08:30:00', 1),
+        (1, 6, 1200000,  '2025-12-18 11:20:00', 1),
+        (3, 2, 42500000, '2025-12-19 15:10:00', 1);
 
 INSERT INTO `CTPHIEUXUAT` (`MPX`, `MSP`, `SL`,  `TIENXUAT`)
 VALUES
@@ -353,7 +361,17 @@ VALUES
         (8, 5, 5, 5500000),
         (8, 3, 5, 1200000),  
         (8, 4, 5, 1800000),  
-        (9, 4, 1, 1800000);  
+        (9, 4, 1, 1800000),
+        (10, 1, 1, 25000000),
+        (11, 3, 1, 1000000),
+        (11, 4, 1, 500000),
+        (12, 2, 1, 35000000),
+        (13, 5, 1, 5500000),
+        (14, 2, 2, 70000000),
+        (15, 3, 1, 1200000),
+        (16, 1, 1, 25000000),
+        (16, 5, 1, 5500000),
+        (16, 4, 1, 12000000);
 
 INSERT INTO `NHACUNGCAP` (`TEN`, `DIACHI`, `SDT`, `EMAIL`, `TT`) 
 VALUES
@@ -377,7 +395,9 @@ VALUES
         (1, 1, 440000000, '2025-12-01 08:30:00', 1),
         (2, 2, 650000000, '2025-12-03 14:15:00', 1),
         (3, 3, 46000000, '2025-12-05 09:45:00', 1),
-        (1, 5, 96000000, '2025-12-07 10:00:00', 1);
+        (1, 5, 96000000, '2025-12-07 10:00:00', 1),
+        (1, 1, 500000000, '2025-12-15 08:00:00', 1),
+        (2, 3, 25000000,  '2025-12-17 13:30:00', 1);
 
 
 INSERT INTO `CTPHIEUNHAP` (`MPN`, `MSP`, `SL`, `TIENNHAP`, `HINHTHUC`)
@@ -394,13 +414,19 @@ VALUES
         (7, 4, 10, 3000000, 0),  
         (8, 3, 40, 900000, 0), 
         (8, 4, 20, 500000, 0),   
-        (9, 5, 20, 4800000, 0);  
+        (9, 5, 20, 4800000, 0),
+        (10, 1, 20, 440000000, 0),
+        (10, 6, 5,  60000000, 0),
+        (11, 3, 50, 15000000, 0),
+        (11, 4, 20, 10000000, 0);
 
 INSERT INTO `PHIEUKIEMKE` (`MNV`, `TG`, `TT`) 
 VALUES
     (1, '2024-05-20 09:00:00', 1), -- Phiếu số 1: Đã duyệt (NV 1 kiểm)
     (2, '2025-12-10 14:30:00', 2), -- Phiếu số 2: Chờ duyệt (NV 2 đang kiểm)
-    (3, '2024-06-15 10:00:00', 0); -- Phiếu số 3: Đã hủy/Xóa
+    (3, '2024-06-15 10:00:00', 0), -- Phiếu số 3: Đã hủy/Xóa
+    (1, '2025-12-16 09:15:00', 1),
+    (2, '2025-12-18 14:00:00', 2);
 
 
 /* BƯỚC 3: Tạo Chi tiết kiểm kê (Detail) khớp với bảng SANPHAM */
@@ -417,7 +443,11 @@ VALUES
     (2, 18, 0, 'Phát hiện thiếu dây cáp đi kèm'),     -- Kiểm MSP 18: Chuột Logitech MX Master 3S (Lỗi)
 
     -- --- Chi tiết cho Phiếu 3 (Phiếu bị hủy) ---
-    (3, 5, 1, 'Nhân viên kiểm đếm sai quy trình');    -- Kiểm MSP 5: Màn hình LG
+    (3, 5, 1, 'Nhân viên kiểm đếm sai quy trình'),   -- Kiểm MSP 5: Màn hình LG
+    (4, 1, 1, 'Đủ số lượng, tình trạng tốt'),
+    (4, 6, 1, 'Mới nhập hôm qua, đủ hàng'),
+    (5, 3, 0, 'Hộp bị rách seal 2 cái'),
+    (5, 4, 1, 'Đủ số lượng');
 
 
 INSERT INTO `SANPHAM` (`TEN`, `HINHANH`, `DANHMUC`, `MNSX`, `MKVK`, `MLSP`, `TIENX`, `TIENN`, `SL`, `TT`) 
@@ -475,13 +505,13 @@ VALUES
 	    ('Máy hủy tài liệu Silicon', 'shredder.png', 'Văn phòng', 10, 3, 5, 2100000, 1500000, 10, 1),
 	    ('Máy chấm công vân tay', 'fingerprint.png', 'Văn phòng', 9, 3, 5, 2500000, 1800000, 7, 1);
 
-INSERT INTO `LOAISANPHAM` (`TEN`, `GHICHU`, `TT`) 
+INSERT INTO `LOAISANPHAM` (`TEN`, `TLGX`, `GHICHU`, `TT`) 
 VALUES
-        ('Thiết bị điện tử', 'Các thiết bị như Laptop, PC, Màn hình, Điện thoại', 1),
-        ('Phụ kiện máy tính', 'Bàn phím, Chuột, Tai nghe, Lót chuột', 1),
-        ('Linh kiện điện tử', 'RAM, SSD, HDD, Mainboard, CPU', 1),
-        ('Thiết bị mạng', 'Router, Switch, Dây cáp mạng', 1),
-        ('Thiết bị văn phòng', 'Máy in, Máy chiếu, Máy hủy tài liệu', 1);
+        ('Thiết bị điện tử', 10, 'Các thiết bị như Laptop, PC, Màn hình, Điện thoại', 1),
+        ('Phụ kiện máy tính', 20, 'Bàn phím, Chuột, Tai nghe, Lót chuột', 1),
+        ('Linh kiện điện tử', 15, 'RAM, SSD, HDD, Mainboard, CPU', 1),
+        ('Thiết bị mạng', 12, 'Router, Switch, Dây cáp mạng', 1),
+        ('Thiết bị văn phòng', 10, 'Máy in, Máy chiếu, Máy hủy tài liệu', 1);
 
 
 INSERT INTO `NHASANXUAT` (`TEN`, `DIACHI`, `SDT`, `EMAIL`, `TT`) 

@@ -57,8 +57,7 @@ namespace src.GUI.DanhMuc
             dgvLoaiSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvLoaiSanPham.SelectionChanged += DgvLoaiSanPham_SelectionChanged;
 
-            // --- 2. XỬ LÝ HEADER (TITLE + SEARCH CENTER) ---
-
+            // --- 2. XỬ LÝ HEADER ---
             Label lblTitle = new Label();
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
@@ -67,63 +66,44 @@ namespace src.GUI.DanhMuc
             lblTitle.Text = "QUẢN LÝ LOẠI SẢN PHẨM";
             pnlHeader.Controls.Add(lblTitle);
 
-            // TẠO CONTAINER RIÊNG CHO CỤM TÌM KIẾM ĐỂ DỄ CANH GIỮA
             Panel pnlSearchBox = new Panel();
-            pnlSearchBox.Size = new Size(680, 40); // Chiều rộng đủ chứa TextBox + 4 Nút
+            pnlSearchBox.Size = new Size(680, 40);
             pnlSearchBox.BackColor = Color.Transparent;
-            
-            // Các control tìm kiếm
+
             txtTimKiem = new TextBox();
             txtTimKiem.Location = new Point(0, 8);
-            txtTimKiem.Size = new Size(250, 25);
-            txtTimKiem.PlaceholderText = "Nhập tên loại sản phẩm...";
+            txtTimKiem.Size = new Size(300, 25);
+            txtTimKiem.PlaceholderText = "Nhập từ khóa...";
 
-            btnTimKiem = CreateButtonSmall("🔍 Tìm", 260, Color.FromArgb(41, 128, 185), BtnTimKiem_Click);
-            btnRefresh = CreateButtonSmall("⟳ Load", 360, Color.FromArgb(52, 152, 219), (s, e) => LoadData());
-            btnImport = CreateButtonSmall("📥 Import", 460, Color.FromArgb(46, 204, 113), BtnImport_Click);
-            btnExport = CreateButtonSmall("📤 Export", 560, Color.FromArgb(39, 174, 96), BtnExport_Click);
+            Button btnTimKiem = CreateButtonSmall("🔍 Tìm", 310, Color.FromArgb(41, 128, 185), BtnTimKiem_Click);
+            Button btnRefresh = CreateButtonSmall("⟳ Load", 400, Color.FromArgb(52, 152, 219), BtnRefresh_Click);
+            btnImport = CreateButtonSmall("📥 Import", 490, Color.FromArgb(46, 204, 113), BtnImport_Click);
+            btnExport = CreateButtonSmall("📤 Export", 580, Color.FromArgb(39, 174, 96), BtnExport_Click);
 
-            pnlSearchBox.Controls.AddRange(new Control[] { 
-                txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport 
-            });
-
+            pnlSearchBox.Controls.AddRange(new Control[] { txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport });
             pnlHeader.Controls.Add(pnlSearchBox);
 
             // --- 3. XỬ LÝ BUTTONS DƯỚI (CANH GIỮA) ---
-
             Panel pnlActionBox = new Panel();
-            pnlActionBox.Size = new Size(580, 50); // Đủ chứa 5 nút
+            pnlActionBox.Size = new Size(340, 50); 
             pnlActionBox.BackColor = Color.Transparent;
 
-            // Tạo các nút chức năng
             btnThem = CreateBtnAction("➕ Thêm", 0, Color.FromArgb(46, 204, 113), BtnThem_Click);
             btnSua = CreateBtnAction("✏️ Sửa", 1, Color.FromArgb(52, 152, 219), BtnSua_Click);
             btnXoa = CreateBtnAction("🗑️ Xóa", 2, Color.FromArgb(231, 76, 60), BtnXoa_Click);
-            btnLuu = CreateBtnAction("💾 Lưu", 3, Color.FromArgb(41, 128, 185), BtnLuu_Click);
-            btnHuy = CreateBtnAction("❌ Hủy", 4, Color.FromArgb(149, 165, 166), BtnHuy_Click);
 
-            pnlActionBox.Controls.AddRange(new Control[] { btnThem, btnSua, btnXoa, btnLuu, btnHuy });
+            pnlActionBox.Controls.AddRange(new Control[] { btnThem, btnSua, btnXoa });
             pnlButtons.Controls.Add(pnlActionBox);
 
-            // --- 4. SỰ KIỆN RESIZE ĐỂ CANH GIỮA ---
-
-            // Khi pnlHeader resize -> Canh giữa pnlSearchBox
+            // --- 4. SỰ KIỆN RESIZE ---
             pnlHeader.Resize += (s, e) => {
-                pnlSearchBox.Location = new Point(
-                    (pnlHeader.Width - pnlSearchBox.Width) / 2,
-                    60 // Y cố định
-                );
+                pnlSearchBox.Location = new Point((pnlHeader.Width - pnlSearchBox.Width) / 2, 60);
             };
-
-            // Khi pnlButtons resize -> Canh giữa pnlActionBox
             pnlButtons.Resize += (s, e) => {
-                pnlActionBox.Location = new Point(
-                    (pnlButtons.Width - pnlActionBox.Width) / 2,
-                    10 // Y cố định
-                );
+                pnlActionBox.Location = new Point((pnlButtons.Width - pnlActionBox.Width) / 2, 10);
             };
 
-            // --- 5. ADD CONTROLS VÀO FORM ---
+            // --- 5. ADD CONTROLS ---
             Controls.Add(dgvLoaiSanPham);
             Controls.Add(pnlForm);
             Controls.Add(pnlHeader);
@@ -133,14 +113,12 @@ namespace src.GUI.DanhMuc
             this.ResumeLayout(false);
         }
 
-        // --- CÁC HÀM HELPER ---
-
         private Button CreateButtonSmall(string text, int x, Color color, EventHandler click)
         {
             Button btn = new Button();
             btn.Text = text;
             btn.Location = new Point(x, 5);
-            btn.Size = new Size(90, 30);
+            btn.Size = new Size(85, 30);
             btn.BackColor = color;
             btn.ForeColor = Color.White;
             btn.FlatStyle = FlatStyle.Flat;
@@ -173,12 +151,11 @@ namespace src.GUI.DanhMuc
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            int y = 40; // Start Y cao hơn xíu vì Form này ít trường hơn
+            int y = 40; 
             int labelW = 90;
             int inputW = 230;
             int startX = 15;
 
-            // Helper cục bộ để thêm Input
             void AddInput(string labelText, Control control, int height = 25)
             {
                 Label lbl = new Label { Text = labelText, Location = new Point(startX, y + 3), Size = new Size(labelW, 25) };
@@ -186,7 +163,7 @@ namespace src.GUI.DanhMuc
                 control.Size = new Size(inputW, height);
                 panel.Controls.Add(lbl);
                 panel.Controls.Add(control);
-                y += height + 20; // Khoảng cách giữa các dòng
+                y += height + 20; 
             }
 
             // 1. Mã Loại
@@ -197,9 +174,43 @@ namespace src.GUI.DanhMuc
             txtTenLSP = new TextBox();
             AddInput("Tên Loại: *", txtTenLSP);
 
-            // 3. Ghi Chú (Multiline)
+            // 3. Tỉ lệ giá xuất (MỚI)
+            txtTLGX = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Right };
+            // Chỉ cho nhập số
+            txtTLGX.KeyPress += (s, e) => {
+                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true;
+            };
+            AddInput("Tỉ lệ GX (%):", txtTLGX);
+
+            // 4. Ghi Chú (Multiline)
             txtGhiChu = new TextBox { Multiline = true };
-            AddInput("Ghi chú:", txtGhiChu, 150); // Chiều cao 150 cho ghi chú
+            AddInput("Ghi chú:", txtGhiChu, 150); 
+
+            // --- NÚT LƯU & HỦY ---
+            y += 10; 
+
+            btnLuu = new Button();
+            btnLuu.Text = "💾 Lưu";
+            btnLuu.Size = new Size(110, 35);
+            btnLuu.Location = new Point(startX + labelW, y);
+            btnLuu.BackColor = Color.FromArgb(41, 128, 185);
+            btnLuu.ForeColor = Color.White;
+            btnLuu.FlatStyle = FlatStyle.Flat;
+            btnLuu.Click += BtnLuu_Click;
+            btnLuu.Visible = false;
+
+            btnHuy = new Button();
+            btnHuy.Text = "❌ Hủy";
+            btnHuy.Size = new Size(110, 35);
+            btnHuy.Location = new Point(startX + labelW + 120, y);
+            btnHuy.BackColor = Color.FromArgb(149, 165, 166);
+            btnHuy.ForeColor = Color.White;
+            btnHuy.FlatStyle = FlatStyle.Flat;
+            btnHuy.Click += BtnHuy_Click;
+            btnHuy.Visible = false;
+
+            panel.Controls.Add(btnLuu);
+            panel.Controls.Add(btnHuy);
 
             return panel;
         }
@@ -208,6 +219,7 @@ namespace src.GUI.DanhMuc
         private DataGridView dgvLoaiSanPham;
         private TextBox txtMaLSP;
         private TextBox txtTenLSP;
+        private TextBox txtTLGX; // <--- MỚI
         private TextBox txtGhiChu;
         private TextBox txtTimKiem;
         
@@ -218,8 +230,6 @@ namespace src.GUI.DanhMuc
         private Button btnXoa;
         private Button btnLuu;
         private Button btnHuy;
-        private Button btnTimKiem;
-        private Button btnRefresh;
         #endregion
     }
 }

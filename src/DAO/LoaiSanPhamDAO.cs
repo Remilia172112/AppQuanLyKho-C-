@@ -39,6 +39,7 @@ namespace src.DAO
                                 LoaiSanPhamDTO lsp = new LoaiSanPhamDTO();
                                 lsp.MLSP = rs.GetInt32("MLSP");
                                 lsp.TEN = rs.GetString("TEN");
+                                lsp.TLGX = rs.GetInt32("TLGX"); // <--- MỚI: Đọc TLGX
                                 lsp.GHICHU = rs.IsDBNull(rs.GetOrdinal("GHICHU")) ? "" : rs.GetString("GHICHU");
                                 lsp.TT = rs.GetInt32("TT");
                                 result.Add(lsp);
@@ -54,18 +55,20 @@ namespace src.DAO
             return result;
         }
 
-        public int Insert(LoaiSanPhamDTO lsp)
+        public int insert(LoaiSanPhamDTO lsp)
         {
             int result = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "INSERT INTO LOAISANPHAM (TEN, GHICHU, TT) VALUES (@TEN, @GHICHU, 1)";
+                    // Thêm TLGX vào câu lệnh INSERT
+                    string sql = "INSERT INTO LOAISANPHAM (TEN, TLGX, GHICHU, TT) VALUES (@TEN, @TLGX, @GHICHU, 1)";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@TEN", lsp.TEN);
-                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU);
+                        cmd.Parameters.AddWithValue("@TLGX", lsp.TLGX); // <--- MỚI
+                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU ?? "");
                         result = cmd.ExecuteNonQuery();
                     }
                 }
@@ -77,18 +80,20 @@ namespace src.DAO
             return result;
         }
 
-        public int Update(LoaiSanPhamDTO lsp)
+        public int update(LoaiSanPhamDTO lsp)
         {
             int result = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    string sql = "UPDATE LOAISANPHAM SET TEN=@TEN, GHICHU=@GHICHU WHERE MLSP=@MLSP";
+                    // Thêm TLGX vào câu lệnh UPDATE
+                    string sql = "UPDATE LOAISANPHAM SET TEN = @TEN, TLGX = @TLGX, GHICHU = @GHICHU WHERE MLSP = @MLSP";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@TEN", lsp.TEN);
-                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU);
+                        cmd.Parameters.AddWithValue("@TLGX", lsp.TLGX); // <--- MỚI
+                        cmd.Parameters.AddWithValue("@GHICHU", lsp.GHICHU ?? "");
                         cmd.Parameters.AddWithValue("@MLSP", lsp.MLSP);
                         result = cmd.ExecuteNonQuery();
                     }
@@ -101,15 +106,14 @@ namespace src.DAO
             return result;
         }
 
-        public int Delete(int mlsp)
+        public int delete(int mlsp)
         {
             int result = 0;
             try
             {
                 using (MySqlConnection conn = DatabaseHelper.GetConnection())
                 {
-                    // Xóa mềm (Soft delete)
-                    string sql = "UPDATE LOAISANPHAM SET TT=0 WHERE MLSP=@MLSP";
+                    string sql = "UPDATE LOAISANPHAM SET TT = 0 WHERE MLSP = @MLSP";
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@MLSP", mlsp);
@@ -120,6 +124,33 @@ namespace src.DAO
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi Delete LoaiSanPham: " + ex.Message);
+            }
+            return result;
+        }
+
+        public int getAutoIncrement()
+        {
+            int result = -1;
+            try
+            {
+                using (MySqlConnection conn = DatabaseHelper.GetConnection())
+                {
+                    string sql = "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'quanlykho' AND TABLE_NAME = 'LOAISANPHAM'";
+                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    {
+                        using (MySqlDataReader rs = cmd.ExecuteReader())
+                        {
+                            if (rs.Read())
+                            {
+                                result = rs.IsDBNull(0) ? 1 : rs.GetInt32("AUTO_INCREMENT");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi getAutoIncrement LoaiSanPham: " + ex.Message);
             }
             return result;
         }

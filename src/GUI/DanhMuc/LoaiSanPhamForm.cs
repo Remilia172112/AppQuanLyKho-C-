@@ -26,7 +26,6 @@ namespace src.GUI.DanhMuc
 
         private void CheckPermissions()
         {
-            // Kiểm tra quyền trên chức năng "loaisanpham"
             btnThem.Enabled = SessionManager.CanCreate("loaisanpham");
             btnSua.Enabled = SessionManager.CanUpdate("loaisanpham");
             btnXoa.Enabled = SessionManager.CanDelete("loaisanpham");
@@ -35,7 +34,6 @@ namespace src.GUI.DanhMuc
         private void InitializeDataGridView()
         {
             dgvLoaiSanPham.Columns.Clear();
-            // Ngăn tự động tạo cột để tránh lặp và dễ kiểm soát
             dgvLoaiSanPham.AutoGenerateColumns = false; 
 
             // 1. Mã Loại Sản Phẩm
@@ -43,11 +41,9 @@ namespace src.GUI.DanhMuc
             {
                 Name = "MLSP",
                 DataPropertyName = "MLSP",
-                HeaderText = "Mã loại",
-                Width = 80,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                HeaderText = "Mã Loại",
+                Width = 5,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
             // 2. Tên Loại Sản Phẩm
@@ -55,23 +51,30 @@ namespace src.GUI.DanhMuc
             {
                 Name = "TEN",
                 DataPropertyName = "TEN",
-                HeaderText = "Tên loại sản phẩm",
-                Width = 200,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                Resizable = DataGridViewTriState.True
+                HeaderText = "Tên Loại Sản Phẩm",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
 
-            // 3. Ghi Chú (Cho giãn hết phần còn lại)
+            // 3. Tỉ Lệ Giá Xuất (MỚI)
+            dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "TLGX",
+                DataPropertyName = "TLGX",
+                HeaderText = "Tỉ Lệ GX (%)",
+                Width = 10,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            // 4. Ghi Chú
             dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "GHICHU",
                 DataPropertyName = "GHICHU",
-                HeaderText = "Ghi chú",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                Resizable = DataGridViewTriState.True
+                HeaderText = "Ghi Chú",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
 
-            // --- CỘT ẨN (Trạng thái) ---
+            // 5. Trạng Thái (Ẩn)
             dgvLoaiSanPham.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "TT",
@@ -84,194 +87,182 @@ namespace src.GUI.DanhMuc
         {
             try
             {
-                var listLoaiSP = lspBUS.GetAll();
-
-                if (listLoaiSP == null)
-                {
-                    listLoaiSP = new System.Collections.Generic.List<LoaiSanPhamDTO>();
-                }
-
-                // Dùng BindingList để hỗ trợ cập nhật giao diện tốt hơn
-                dgvLoaiSanPham.DataSource = new System.ComponentModel.BindingList<LoaiSanPhamDTO>(listLoaiSP);
+                dgvLoaiSanPham.DataSource = lspBUS.GetAll();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", 
-                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi tải dữ liệu: {ex.Message}");
+            }
+        }
+
+        // Sự kiện khi click vào bảng -> Hiển thị lên Form
+        private void DgvLoaiSanPham_SelectionChanged(object sender, EventArgs e)
+        {
+            // Kiểm tra dòng hiện tại khác null và không đang ở chế độ thêm/sửa
+            if (dgvLoaiSanPham.CurrentRow != null && !isEditing)
+            {
+                var row = dgvLoaiSanPham.CurrentRow;
+                
+                // Gán dữ liệu từ Grid lên các TextBox
+                txtMaLSP.Text = row.Cells["MLSP"].Value?.ToString() ?? "";
+                txtTenLSP.Text = row.Cells["TEN"].Value?.ToString() ?? "";
+                txtTLGX.Text = row.Cells["TLGX"].Value?.ToString() ?? "0"; // <--- Cột Tỉ lệ giá xuất
+                txtGhiChu.Text = row.Cells["GHICHU"].Value?.ToString() ?? "";
             }
         }
 
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
-            // Nếu đang edit thì khóa các nút Thêm/Sửa/Xóa, mở Lưu/Hủy
+            
             btnThem.Enabled = !editing && SessionManager.CanCreate("loaisanpham");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("loaisanpham");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("loaisanpham");
             
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
             
-            // Control states
             txtTenLSP.ReadOnly = !editing;
+            txtTLGX.ReadOnly = !editing; // <--- MỚI
             txtGhiChu.ReadOnly = !editing;
+            
             dgvLoaiSanPham.Enabled = !editing;
-        }
-
-        private void ClearForm()
-        {
-            txtMaLSP.Clear();
-            txtTenLSP.Clear();
-            txtGhiChu.Clear();
-            currentID = -1;
-        }
-
-        private void DgvLoaiSanPham_SelectionChanged(object sender, EventArgs e)
-        {
-            if (dgvLoaiSanPham.SelectedRows.Count > 0 && !isEditing)
-            {
-                try
-                {
-                    var row = dgvLoaiSanPham.SelectedRows[0];
-                    txtMaLSP.Text = row.Cells["MLSP"].Value?.ToString();
-                    txtTenLSP.Text = row.Cells["TEN"].Value?.ToString();
-                    txtGhiChu.Text = row.Cells["GHICHU"].Value?.ToString();
-                }
-                catch { }
-            }
         }
 
         private void BtnThem_Click(object sender, EventArgs e)
         {
             ClearForm();
             SetButtonStates(true);
+            currentID = -1; 
+            txtMaLSP.Text = lspBUS.getAutoIncrement().ToString();
             txtTenLSP.Focus();
         }
 
         private void BtnSua_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtMaLSP.Text))
+            if (dgvLoaiSanPham.CurrentRow == null)
             {
-                MessageBox.Show("Vui lòng chọn loại sản phẩm cần sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn loại sản phẩm cần sửa!");
                 return;
             }
             currentID = int.Parse(txtMaLSP.Text);
             SetButtonStates(true);
+            txtTenLSP.Focus();
         }
 
         private void BtnXoa_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtMaLSP.Text))
+            if (dgvLoaiSanPham.CurrentRow == null) return;
+            
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa loại sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                MessageBox.Show("Vui lòng chọn loại sản phẩm cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (MessageBox.Show("Bạn có chắc chắn muốn xóa loại sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                try
+                int id = int.Parse(txtMaLSP.Text);
+                if (lspBUS.Delete(id))
                 {
-                    int id = int.Parse(txtMaLSP.Text);
-                    if (lspBUS.Delete(id))
-                    {
-                        MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData();
-                        ClearForm();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Xóa thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("Xóa thành công!");
+                    LoadData();
+                    ClearForm();
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Xóa thất bại!");
                 }
             }
         }
 
         private void BtnLuu_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtTenLSP.Text))
+            string ten = txtTenLSP.Text.Trim();
+            string ghichu = txtGhiChu.Text.Trim();
+            
+            if (string.IsNullOrEmpty(ten))
             {
-                MessageBox.Show("Vui lòng nhập tên loại sản phẩm!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập tên loại sản phẩm!");
                 return;
             }
 
-            try
+            // Validate TLGX
+            if (!int.TryParse(txtTLGX.Text, out int tlgx) || tlgx < 0)
             {
-                LoaiSanPhamDTO lsp = new LoaiSanPhamDTO
-                {
-                    MLSP = currentID == -1 ? 0 : currentID,
-                    TEN = txtTenLSP.Text.Trim(),
-                    GHICHU = txtGhiChu.Text.Trim(),
-                    TT = 1
-                };
+                MessageBox.Show("Vui lòng nhập tỉ lệ giá xuất hợp lệ (số nguyên >= 0)!");
+                return;
+            }
 
-                bool success;
-                if (currentID == -1) // Thêm mới
+            if (currentID == -1) // Thêm mới
+            {
+                if (lspBUS.IsTenExists(ten))
                 {
-                    success = lspBUS.Add(lsp);
-                }
-                else // Cập nhật
-                {
-                    success = lspBUS.Update(lsp);
+                    MessageBox.Show("Tên loại sản phẩm đã tồn tại!");
+                    return;
                 }
 
-                if (success)
+                if (lspBUS.Add(ten, tlgx, ghichu)) // <--- MỚI: Truyền tlgx
                 {
-                    MessageBox.Show("Lưu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Thêm thành công!");
                     LoadData();
                     SetButtonStates(false);
                     ClearForm();
                 }
-                else
-                {
-                    MessageBox.Show("Lưu thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
             }
-            catch (Exception ex)
+            else // Cập nhật
             {
-                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (lspBUS.IsTenExists(ten, currentID))
+                {
+                    MessageBox.Show("Tên loại sản phẩm đã tồn tại!");
+                    return;
+                }
+
+                if (lspBUS.Update(currentID, ten, tlgx, ghichu)) // <--- MỚI: Truyền tlgx
+                {
+                    MessageBox.Show("Cập nhật thành công!");
+                    LoadData();
+                    SetButtonStates(false);
+                    ClearForm();
+                }
             }
         }
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
             SetButtonStates(false);
-            ClearForm();
-            // Select lại dòng đầu nếu có
             if (dgvLoaiSanPham.Rows.Count > 0)
-                DgvLoaiSanPham_SelectionChanged(null, null);
+            {
+                dgvLoaiSanPham.ClearSelection();
+                dgvLoaiSanPham.Rows[0].Selected = true;
+                dgvLoaiSanPham.CurrentCell = dgvLoaiSanPham.Rows[0].Cells[0];
+                DgvLoaiSanPham_SelectionChanged(sender, e);
+            }
+            else
+            {
+                ClearForm();
+            }
+        }
+
+        private void ClearForm()
+        {
+            txtMaLSP.Text = "";
+            txtTenLSP.Text = "";
+            txtTLGX.Text = "0"; // <--- MỚI
+            txtGhiChu.Text = "";
         }
 
         private void BtnTimKiem_Click(object sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim().ToLower();
-            if (string.IsNullOrEmpty(keyword))
-            {
-                LoadData();
-                return;
-            }
-
-            var all = lspBUS.GetAll();
-            var filtered = all.FindAll(x => x.TEN.ToLower().Contains(keyword) ||x.GHICHU.ToLower().Contains(keyword));
-            
-            dgvLoaiSanPham.DataSource = null;
-            dgvLoaiSanPham.DataSource = filtered;
+            string kw = txtTimKiem.Text.Trim();
+            dgvLoaiSanPham.DataSource = lspBUS.Search(kw);
         }
-        // Sự kiện nút Xuất Excel
+
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            txtTimKiem.Clear();
+            LoadData();
+        }
+
         private void BtnExport_Click(object sender, EventArgs e)
         {
             try
             {
-                if (dgvLoaiSanPham.Rows.Count == 0)
-                {
-                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                
-                // Gọi Helper xuất Excel (Prefix file là "LSP")
+                if (dgvLoaiSanPham.Rows.Count == 0) return;
                 TableExporter.ExportTableToExcel(dgvLoaiSanPham, "LSP");
             }
             catch (Exception ex)
@@ -280,27 +271,22 @@ namespace src.GUI.DanhMuc
             }
         }
 
-        // Sự kiện nút Nhập Excel
         private void BtnImport_Click(object sender, EventArgs e)
         {
             try
             {
-                // 1. Gọi Helper để đọc file và lấy List DTO
                 List<LoaiSanPhamDTO> listNewData = ExcelHelper.ReadLoaiSanPhamFromExcel();
-
                 if (listNewData != null && listNewData.Count > 0)
                 {
-                    // 2. Gọi BUS để thêm hàng loạt vào DB
                     int count = lspBUS.AddMany(listNewData);
-
                     if (count > 0)
                     {
                         MessageBox.Show($"Đã nhập thành công {count} loại sản phẩm!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData(); // Load lại Grid
+                        LoadData();
                     }
                     else
                     {
-                        MessageBox.Show("Không thêm được dữ liệu nào (Có thể do lỗi DB hoặc dữ liệu trống).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Không thêm được dữ liệu nào.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }

@@ -148,5 +148,10 @@ namespace src.BUS
         // LINQ: Thêm nhiều sản phẩm
         public int AddMany(List<SanPhamDTO> listSP)
             => listSP.Count(sp => Add(sp));
+        
+        public int getAutoIncrement()
+        {
+            return spDAO.getAutoIncrement();
+        }
     }
 }

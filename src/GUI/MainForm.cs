@@ -39,7 +39,7 @@ namespace src.GUI.Auth
         {
             this.SuspendLayout();
 
-            this.Size = new Size(1600, 900);
+            this.Size = new Size(1600, 1000);
             this.Text = "Hệ thống Quản lý Kho hàng";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimumSize = new Size(1200, 600);

@@ -163,7 +163,7 @@ namespace src.GUI.DanhMuc
 
         private void ClearForm()
         {
-            txtMaKV.Clear();
+            txtMaKV.Text = khuVucKhoBUS.getAutoIncrement().ToString();
             txtTenKV.Clear();
             txtGhiChu.Clear();
             currentMaKV = -1;
@@ -175,13 +175,20 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("khuvuckho");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("khuvuckho");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("khuvuckho");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+
+            // Khóa bảng khi đang sửa
             dgvKhuVucKho.Enabled = !editing;
 
+            // Trạng thái các ô nhập liệu
             txtTenKV.ReadOnly = !editing;
             txtGhiChu.ReadOnly = !editing;
         }
@@ -190,7 +197,6 @@ namespace src.GUI.DanhMuc
         {
             ClearForm();
             SetButtonStates(true);
-            txtMaKV.Text = "(Tự động)";
             txtTenKV.Focus();
         }
 
@@ -321,18 +327,29 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            if (dgvKhuVucKho.CurrentRow != null)
+
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvKhuVucKho.Rows.Count > 0)
             {
+                dgvKhuVucKho.ClearSelection();
+                dgvKhuVucKho.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn (tránh lỗi focus ảo)
+                dgvKhuVucKho.CurrentCell = dgvKhuVucKho.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayKhuVucKhoInfo();
-                DgvKhuVucKho_SelectionChanged(null, null); // Trigger lại để load sản phẩm
+                
+                // Trigger lại sự kiện selection changed để load sản phẩm của khu vực đó
+                DgvKhuVucKho_SelectionChanged(null, null);
             }
             else
             {
                 ClearForm();
             }
         }
-
         private void BtnTimKiem_Click(object sender, EventArgs e)
         {
             string keyword = txtTimKiem.Text.Trim();

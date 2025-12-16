@@ -130,5 +130,9 @@ namespace src.BUS
                 return null;
             }
         }
+        public int getAutoIncrement()
+        {
+            return taiKhoanDAO.getAutoIncrement();
+        }
     }
 }

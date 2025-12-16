@@ -210,5 +210,9 @@ namespace src.BUS
             }
             return result;
         }
+        public int getAutoIncrement()
+        {
+            return phieunhapDAO.getAutoIncrement();
+        }
     }
 }

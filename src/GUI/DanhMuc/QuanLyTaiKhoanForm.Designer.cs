@@ -98,20 +98,18 @@ namespace src.GUI.DanhMuc
             // --- 3. XỬ LÝ BUTTONS DƯỚI (CANH GIỮA) ---
 
             Panel pnlActionBox = new Panel();
-            pnlActionBox.Size = new Size(700, 50); // Rộng hơn để chứa nút Reset MK
+            pnlActionBox.Size = new Size(480, 50); // Rộng hơn để chứa nút Reset MK
             pnlActionBox.BackColor = Color.Transparent;
 
             // Tạo các nút chức năng (Thêm nút Reset MK vào cuối)
             btnThem = CreateBtnAction("➕ Thêm", 0, Color.FromArgb(46, 204, 113), BtnThem_Click);
             btnSua = CreateBtnAction("✏️ Sửa", 1, Color.FromArgb(52, 152, 219), BtnSua_Click);
             btnXoa = CreateBtnAction("🗑️ Xóa", 2, Color.FromArgb(231, 76, 60), BtnXoa_Click);
-            btnLuu = CreateBtnAction("💾 Lưu", 3, Color.FromArgb(41, 128, 185), BtnLuu_Click);
-            btnHuy = CreateBtnAction("❌ Hủy", 4, Color.FromArgb(149, 165, 166), BtnHuy_Click);
             
             // Nút Reset MK
             btnResetMK = CreateBtnAction("🔑 Reset MK", 5, Color.FromArgb(230, 126, 34), BtnResetMK_Click);
 
-            pnlActionBox.Controls.AddRange(new Control[] { btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnResetMK });
+            pnlActionBox.Controls.AddRange(new Control[] { btnThem, btnSua, btnXoa, btnResetMK });
             pnlButtons.Controls.Add(pnlActionBox);
 
             // --- 4. SỰ KIỆN RESIZE ---
@@ -231,6 +229,32 @@ namespace src.GUI.DanhMuc
             // 6. Nhóm quyền
             cboNhomQuyen = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
             AddInput("Quyền: *", cboNhomQuyen);
+
+            // --- THÊM NÚT LƯU & HỦY VÀO ĐÂY ---
+            y += 10; 
+
+            btnLuu = new Button();
+            btnLuu.Text = "💾 Lưu";
+            btnLuu.Size = new Size(110, 35);
+            btnLuu.Location = new Point(startX + labelW, y); // Căn thẳng hàng với input
+            btnLuu.BackColor = Color.FromArgb(41, 128, 185);
+            btnLuu.ForeColor = Color.White;
+            btnLuu.FlatStyle = FlatStyle.Flat;
+            btnLuu.Click += BtnLuu_Click;
+            btnLuu.Visible = false; // Mặc định ẩn
+
+            btnHuy = new Button();
+            btnHuy.Text = "❌ Hủy";
+            btnHuy.Size = new Size(110, 35);
+            btnHuy.Location = new Point(startX + labelW + 120, y); // Nằm bên phải nút Lưu
+            btnHuy.BackColor = Color.FromArgb(149, 165, 166);
+            btnHuy.ForeColor = Color.White;
+            btnHuy.FlatStyle = FlatStyle.Flat;
+            btnHuy.Click += BtnHuy_Click;
+            btnHuy.Visible = false; // Mặc định ẩn
+
+            panel.Controls.Add(btnLuu);
+            panel.Controls.Add(btnHuy);
 
             return panel;
         }

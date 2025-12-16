@@ -113,7 +113,7 @@ namespace src.GUI.DanhMuc
             try
             {
                 var list = nhanVienBUS.GetAll();
-                if (list == null) list = new List<NhanVienDTO>();
+                if (list == null) list = new System.Collections.Generic.List<NhanVienDTO>();
 
                 dgvNhanVien.DataSource = null; // Reset để tránh lỗi
                 dgvNhanVien.DataSource = new BindingList<NhanVienDTO>(list);
@@ -180,7 +180,7 @@ namespace src.GUI.DanhMuc
             try
             {
                 // Gọi Helper đọc file
-                List<NhanVienDTO> listNewData = ExcelHelper.ReadNhanVienFromExcel();
+                System.Collections.Generic.List<NhanVienDTO> listNewData = ExcelHelper.ReadNhanVienFromExcel();
 
                 if (listNewData != null && listNewData.Count > 0)
                 {
@@ -224,7 +224,7 @@ namespace src.GUI.DanhMuc
 
         private void ClearForm()
         {
-            txtMaNV.Clear();
+            txtMaNV.Text = nhanVienBUS.getAutoIncrement().ToString();
             txtHoTen.Clear();
             txtSDT.Clear();
             txtEmail.Clear();
@@ -236,13 +236,20 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+            
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("nhanvien");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("nhanvien");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("nhanvien");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+            
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+            
+            // Khóa bảng khi đang sửa
             dgvNhanVien.Enabled = !editing;
 
+            // Trạng thái các ô nhập liệu
             txtHoTen.ReadOnly = !editing;
             txtSDT.ReadOnly = !editing;
             txtEmail.ReadOnly = !editing;
@@ -407,9 +414,19 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            if (dgvNhanVien.CurrentRow != null)
+            
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvNhanVien.Rows.Count > 0)
             {
+                dgvNhanVien.ClearSelection();
+                dgvNhanVien.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn (tránh lỗi focus ảo)
+                dgvNhanVien.CurrentCell = dgvNhanVien.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayNhanVienInfo();
             }
             else
@@ -417,6 +434,7 @@ namespace src.GUI.DanhMuc
                 ClearForm();
             }
         }
+
         private void DgvNhanVien_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             // Kiểm tra nếu đang ở cột "GIOITINH" và giá trị không null

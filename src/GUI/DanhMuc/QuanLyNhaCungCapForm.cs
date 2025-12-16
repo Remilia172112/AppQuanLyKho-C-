@@ -224,7 +224,7 @@ namespace src.GUI.DanhMuc
         }
         private void ClearForm()
         {
-            txtMaNCC.Clear();
+            txtMaNCC.Text = nhaCungCapBUS.getAutoIncrement().ToString();
             txtTenNCC.Clear();
             txtDiaChi.Clear();
             txtSDT.Clear();
@@ -235,13 +235,20 @@ namespace src.GUI.DanhMuc
         private void SetButtonStates(bool editing)
         {
             isEditing = editing;
+
+            // Nhóm nút chức năng chính (Enable/Disable)
             btnThem.Enabled = !editing && SessionManager.CanCreate("nhacungcap");
             btnSua.Enabled = !editing && SessionManager.CanUpdate("nhacungcap");
             btnXoa.Enabled = !editing && SessionManager.CanDelete("nhacungcap");
-            btnLuu.Enabled = editing;
-            btnHuy.Enabled = editing;
+
+            // Nhóm nút Lưu/Hủy (Ẩn/Hiện - Visible)
+            btnLuu.Visible = editing;
+            btnHuy.Visible = editing;
+
+            // Khóa bảng khi đang sửa
             dgvNhaCungCap.Enabled = !editing;
 
+            // Trạng thái các ô nhập liệu
             txtTenNCC.ReadOnly = !editing;
             txtDiaChi.ReadOnly = !editing;
             txtSDT.ReadOnly = !editing;
@@ -393,9 +400,19 @@ namespace src.GUI.DanhMuc
 
         private void BtnHuy_Click(object sender, EventArgs e)
         {
+            // 1. Quay về chế độ xem
             SetButtonStates(false);
-            if (dgvNhaCungCap.CurrentRow != null)
+
+            // 2. Select lại dòng đầu tiên (Item 1)
+            if (dgvNhaCungCap.Rows.Count > 0)
             {
+                dgvNhaCungCap.ClearSelection();
+                dgvNhaCungCap.Rows[0].Selected = true;
+                
+                // Đặt current cell về dòng đầu để focus chuẩn (tránh lỗi focus ảo)
+                dgvNhaCungCap.CurrentCell = dgvNhaCungCap.Rows[0].Cells[0];
+                
+                // Gọi hàm hiển thị thông tin để load dữ liệu từ grid lên textbox
                 DisplayNhaCungCapInfo();
             }
             else

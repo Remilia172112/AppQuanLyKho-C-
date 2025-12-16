@@ -141,6 +141,10 @@ namespace src.BUS
         {
             return listKH.Count(kh => Add(kh));
         }
+        public int getAutoIncrement()
+        {
+            return khDAO.getAutoIncrement();
+        }
     }
 
 }

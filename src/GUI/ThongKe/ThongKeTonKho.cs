@@ -24,6 +24,7 @@ namespace src.GUI.ThongKe
         private DateTimePicker dateEnd;
         private Button btnExport;
         private Button btnReset;
+        private Button btnSearch; // Nút tìm kiếm mới
 
         public ThongKeTonKho(ThongKeBUS thongkeBUS)
         {
@@ -54,27 +55,68 @@ namespace src.GUI.ThongKe
 
             // Input: Tên sản phẩm
             Panel pnlTen = CreateInputPanel("Tìm kiếm sản phẩm", out txtTenSanPham);
-            txtTenSanPham.TextChanged += (s, e) => Filter();
+            txtTenSanPham.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) Filter(); }; // Enter để tìm
 
             // Input: Từ ngày
             Panel pnlStart = CreateDatePanel("Từ ngày", out dateStart);
             dateStart.Value = DateTime.Now.AddYears(-5);
-            dateStart.ValueChanged += (s, e) => Filter();
+            // dateStart.ValueChanged += (s, e) => Filter(); // Bỏ auto filter nếu muốn phải ấn nút tìm
 
             // Input: Đến ngày
             Panel pnlEnd = CreateDatePanel("Đến ngày", out dateEnd);
-            dateEnd.ValueChanged += (s, e) => Filter();
+            // dateEnd.ValueChanged += (s, e) => Filter();
 
-            // Buttons
-            Panel pnlBtn = new Panel { Size = new Size(280, 50), Padding = new Padding(0, 10, 0, 0) };
-            btnExport = new Button { Text = "Xuất Excel", Width = 100, Height = 35, Location = new Point(0, 10), Cursor = Cursors.Hand };
-            btnReset = new Button { Text = "Làm mới", Width = 100, Height = 35, Location = new Point(110, 10), Cursor = Cursors.Hand };
+            // Buttons Container
+            Panel pnlBtn = new Panel { Size = new Size(290, 50), Padding = new Padding(0, 10, 0, 0) };
             
-            btnExport.Click += BtnExport_Click;
+            // 1. Nút Tìm kiếm (Mới) - Màu Xanh Dương
+            btnSearch = new Button 
+            { 
+                Text = "Tìm kiếm", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(0, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(41, 128, 185),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnSearch.FlatAppearance.BorderSize = 0;
+            btnSearch.Click += (s, e) => Filter();
+
+            // 2. Nút Làm mới (Kế bên Tìm kiếm) - Màu Xám
+            btnReset = new Button 
+            { 
+                Text = "Làm mới", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(95, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(149, 165, 166),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnReset.FlatAppearance.BorderSize = 0;
             btnReset.Click += BtnReset_Click;
 
-            pnlBtn.Controls.Add(btnExport);
+            // 3. Nút Xuất Excel (Sau Làm mới) - Màu Xanh Lá
+            btnExport = new Button 
+            { 
+                Text = "Xuất Excel", 
+                Width = 90, 
+                Height = 35, 
+                Location = new Point(190, 10), 
+                Cursor = Cursors.Hand,
+                BackColor = Color.FromArgb(39, 174, 96),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.Click += BtnExport_Click;
+
+            pnlBtn.Controls.Add(btnSearch);
             pnlBtn.Controls.Add(btnReset);
+            pnlBtn.Controls.Add(btnExport);
 
             flowLeft.Controls.Add(pnlTen);
             flowLeft.Controls.Add(pnlStart);
@@ -95,6 +137,16 @@ namespace src.GUI.ThongKe
             tblTonKho.ReadOnly = true;
             tblTonKho.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             tblTonKho.BackgroundColor = Color.White;
+            tblTonKho.ColumnHeadersHeight = 40;
+            tblTonKho.RowTemplate.Height = 30;
+            
+            // Header Style
+            tblTonKho.EnableHeadersVisualStyles = false;
+            tblTonKho.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 128, 185);
+            tblTonKho.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            tblTonKho.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            tblTonKho.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
             // Sự kiện double click
             tblTonKho.CellDoubleClick += TblTonKho_CellDoubleClick;
 
@@ -108,7 +160,10 @@ namespace src.GUI.ThongKe
 
             // Format cột
             tblTonKho.Columns["STT"].Width = 10;
-            tblTonKho.Columns["MaSP"].Width = 10;
+            tblTonKho.Columns["MaSP"].Width = 15;
+            tblTonKho.Columns["TenSP"].Width = 50;
+            tblTonKho.Columns["STT"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            tblTonKho.Columns["MaSP"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             tblTonKho.Columns["TonDau"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             tblTonKho.Columns["Nhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             tblTonKho.Columns["Xuat"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -123,7 +178,7 @@ namespace src.GUI.ThongKe
         private Panel CreateInputPanel(string title, out TextBox txt)
         {
             Panel p = new Panel { Size = new Size(280, 60), Margin = new Padding(0, 0, 0, 10) };
-            Label lbl = new Label { Text = title, Dock = DockStyle.Top, Height = 25 };
+            Label lbl = new Label { Text = title, Dock = DockStyle.Top, Height = 25, Font = new Font("Segoe UI", 10) };
             txt = new TextBox { Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 11) };
             p.Controls.Add(txt);
             p.Controls.Add(lbl);
@@ -133,12 +188,12 @@ namespace src.GUI.ThongKe
         private Panel CreateDatePanel(string title, out DateTimePicker dtp)
         {
             Panel p = new Panel { Size = new Size(280, 60), Margin = new Padding(0, 0, 0, 10) };
-            Label lbl = new Label { Text = title, Dock = DockStyle.Top, Height = 25 };
+            Label lbl = new Label { Text = title, Dock = DockStyle.Top, Height = 25, Font = new Font("Segoe UI", 10) };
             dtp = new DateTimePicker 
             { 
                 Dock = DockStyle.Top, 
-                Format = DateTimePickerFormat.Custom,  // 1. Chế độ Custom
-                CustomFormat = "dd/MM/yyyy",           // 2. Định dạng ngày/tháng/năm
+                Format = DateTimePickerFormat.Custom, 
+                CustomFormat = "dd/MM/yyyy", 
                 Height = 30, 
                 Font = new Font("Segoe UI", 11) 
             };
@@ -193,10 +248,6 @@ namespace src.GUI.ThongKe
             int k = 1;
             foreach (var item in list)
             {
-                // Logic tính toán số lượng: Trong C# BUS, hàm GetSoluong nhận List<DTO>
-                // Nhưng ở đây listSp là List phẳng, không phải HashMap như Java
-                // Nên ta hiển thị trực tiếp giá trị của item
-                
                 tblTonKho.Rows.Add(
                     k,
                     item.Masp,
@@ -220,7 +271,17 @@ namespace src.GUI.ThongKe
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            TableExporter.ExportTableToExcel(tblTonKho, "TKTK");
+            try
+            {
+                if (tblTonKho.Rows.Count > 0)
+                    TableExporter.ExportTableToExcel(tblTonKho, "ThongKeTonKho");
+                else
+                    MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất Excel: {ex.Message}");
+            }
         }
 
         private void TblTonKho_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -229,8 +290,6 @@ namespace src.GUI.ThongKe
             {
                 int masp = (int)tblTonKho.Rows[e.RowIndex].Cells["MaSP"].Value;
                 MessageBox.Show($"Xem chi tiết tồn kho sản phẩm ID: {masp} (Tính năng đang phát triển)");
-                // ThongKePBSPTonKho dialog = new ThongKePBSPTonKho(...);
-                // dialog.ShowDialog();
             }
         }
     }
