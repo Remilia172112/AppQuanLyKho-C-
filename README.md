@@ -15,3 +15,8 @@
 -   Tạo cơ sở dữ liệu trên MySQL Workbench đặt username là “root”, password là “1234” với port là “3306” sau đó chạy file “database/QuanLyKhoHang.sql” vào cơ sở dữ liệu vừa tạo (hoặc có thể vào file java src/config/DatabaseHelper.cs để sửa username, password, port).
 -   Kiểm tra kết nối cơ sở dữ liệu.
 -   Ở Terminal: cd src và chạy ứng dụng bằng lệnh dotnet run.
+-   Các tài khoản:
+-     Quản lý kho hàng: QL1 123456
+-     Quản lý xuất hàng: NV2 123456
+-     Quản lý nhập hàng: NV3 123456
+-     Admin: admin 123456
