@@ -54,7 +54,6 @@ namespace src.GUI.DanhMuc
             dgvNhanVien.AllowUserToAddRows = false;
             dgvNhanVien.ReadOnly = true;
             dgvNhanVien.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvNhanVien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvNhanVien.SelectionChanged += DgvNhanVien_SelectionChanged;
 
             // --- 2. XỬ LÝ HEADER (TITLE + SEARCH CENTER) ---

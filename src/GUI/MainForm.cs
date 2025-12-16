@@ -4,7 +4,7 @@ using src.GUI.NghiepVu;
 using src.GUI.PhanQuyen;
 using System.Drawing.Drawing2D;
 using System.IO;
-using Svg; // <--- QUAN TRỌNG: Thêm thư viện này
+using Svg; 
 
 namespace src.GUI.Auth
 {

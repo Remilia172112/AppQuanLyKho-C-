@@ -69,7 +69,7 @@ namespace src.GUI.DanhMuc
 
             // TẠO CONTAINER RIÊNG CHO CỤM TÌM KIẾM ĐỂ DỄ CANH GIỮA
             Panel pnlSearchBox = new Panel();
-            pnlSearchBox.Size = new Size(820, 40); // Chiều rộng đủ chứa các nút
+            pnlSearchBox.Size = new Size(900, 40); // Chiều rộng đủ chứa các nút
             pnlSearchBox.BackColor = Color.Transparent;
             // Tạm thời để location 0,0, lát nữa sự kiện Resize sẽ chỉnh lại
             
@@ -90,9 +90,10 @@ namespace src.GUI.DanhMuc
             btnRefresh = CreateButtonSmall("⟳ Load", 500, Color.FromArgb(52, 152, 219), (s,e)=>LoadData());
             btnImport = CreateButtonSmall("📥 Import", 600, Color.FromArgb(46, 204, 113), BtnImport_Click);
             btnExport = CreateButtonSmall("📤 Export", 700, Color.FromArgb(39, 174, 96), BtnExport_Click);
+            btnCaiDat = CreateButtonSmall("⚙ Cài đặt", 800, Color.Gray, BtnCaiDat_Click);
 
             pnlSearchBox.Controls.AddRange(new Control[] { 
-                cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport 
+                cboTimKiem, txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport, btnCaiDat
             });
 
             pnlHeader.Controls.Add(pnlSearchBox);
@@ -232,6 +233,7 @@ namespace src.GUI.DanhMuc
 
             cboLoaiSP = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
             AddInput("Loại SP: *", cboLoaiSP);
+            cboLoaiSP.SelectedIndexChanged += cboLoaiSP_SelectedIndexChanged;
 
             cboNhaSX = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
             AddInput("Nhà SX: *", cboNhaSX);
@@ -241,6 +243,7 @@ namespace src.GUI.DanhMuc
 
             txtGiaNhap = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Right };
             AddInput("Giá nhập:", txtGiaNhap);
+            txtGiaNhap.TextChanged += txtGiaNhap_TextChanged;
 
             txtGiaXuat = new TextBox { Text = "0", TextAlign = HorizontalAlignment.Right };
             AddInput("Giá xuất:", txtGiaXuat);
@@ -334,6 +337,7 @@ namespace src.GUI.DanhMuc
         private PictureBox picHinhAnh;
         private Button btnImport;
         private Button btnExport;
+        private Button btnCaiDat;
         private Button btnThem;
         private Button btnSua;
         private Button btnXoa;

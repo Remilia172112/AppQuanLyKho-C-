@@ -54,7 +54,6 @@ namespace src.GUI.DanhMuc
             dgvLoaiSanPham.AllowUserToAddRows = false;
             dgvLoaiSanPham.ReadOnly = true;
             dgvLoaiSanPham.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvLoaiSanPham.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvLoaiSanPham.SelectionChanged += DgvLoaiSanPham_SelectionChanged;
 
             // --- 2. XỬ LÝ HEADER ---
@@ -67,7 +66,7 @@ namespace src.GUI.DanhMuc
             pnlHeader.Controls.Add(lblTitle);
 
             Panel pnlSearchBox = new Panel();
-            pnlSearchBox.Size = new Size(680, 40);
+            pnlSearchBox.Size = new Size(700, 40);
             pnlSearchBox.BackColor = Color.Transparent;
 
             txtTimKiem = new TextBox();
@@ -76,9 +75,9 @@ namespace src.GUI.DanhMuc
             txtTimKiem.PlaceholderText = "Nhập từ khóa...";
 
             Button btnTimKiem = CreateButtonSmall("🔍 Tìm", 310, Color.FromArgb(41, 128, 185), BtnTimKiem_Click);
-            Button btnRefresh = CreateButtonSmall("⟳ Load", 400, Color.FromArgb(52, 152, 219), BtnRefresh_Click);
-            btnImport = CreateButtonSmall("📥 Import", 490, Color.FromArgb(46, 204, 113), BtnImport_Click);
-            btnExport = CreateButtonSmall("📤 Export", 580, Color.FromArgb(39, 174, 96), BtnExport_Click);
+            Button btnRefresh = CreateButtonSmall("⟳ Load", 410, Color.FromArgb(52, 152, 219), BtnRefresh_Click);
+            btnImport = CreateButtonSmall("📥 Import", 510, Color.FromArgb(46, 204, 113), BtnImport_Click);
+            btnExport = CreateButtonSmall("📤 Export", 610, Color.FromArgb(39, 174, 96), BtnExport_Click);
 
             pnlSearchBox.Controls.AddRange(new Control[] { txtTimKiem, btnTimKiem, btnRefresh, btnImport, btnExport });
             pnlHeader.Controls.Add(pnlSearchBox);
@@ -118,7 +117,7 @@ namespace src.GUI.DanhMuc
             Button btn = new Button();
             btn.Text = text;
             btn.Location = new Point(x, 5);
-            btn.Size = new Size(85, 30);
+            btn.Size = new Size(90, 30);
             btn.BackColor = color;
             btn.ForeColor = Color.White;
             btn.FlatStyle = FlatStyle.Flat;

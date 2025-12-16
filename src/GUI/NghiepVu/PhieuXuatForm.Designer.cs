@@ -122,22 +122,22 @@ namespace src.GUI.NghiepVu
             txtSearch.PlaceholderText = "Nhập mã phiếu...";
 
             lblKH.AutoSize = true;
-            lblKH.Location = new Point(330, 15); // Đẩy ra 330
+            lblKH.Location = new Point(330, 15);
             lblKH.Text = "Khách hàng:";
             lblKH.Font = new Font("Segoe UI", 10F);
 
             cboKhachHang.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboKhachHang.Location = new Point(440, 12); // Đẩy ra 440
+            cboKhachHang.Location = new Point(440, 12); 
             cboKhachHang.Size = new Size(200, 25);
             cboKhachHang.Font = new Font("Segoe UI", 10F);
 
             lblNV.AutoSize = true;
-            lblNV.Location = new Point(670, 15); // Đẩy ra 670
+            lblNV.Location = new Point(670, 15); 
             lblNV.Text = "Nhân viên:";
             lblNV.Font = new Font("Segoe UI", 10F);
 
             cboNhanVien.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboNhanVien.Location = new Point(760, 12); // Đẩy ra 760
+            cboNhanVien.Location = new Point(765, 12); 
             cboNhanVien.Size = new Size(200, 25);
             cboNhanVien.Font = new Font("Segoe UI", 10F);
 
@@ -162,12 +162,12 @@ namespace src.GUI.NghiepVu
             dtpDenNgay.CustomFormat = "dd-MM-yyyy";
             dtpDenNgay.Enabled = false;
             dtpDenNgay.Format = DateTimePickerFormat.Custom;
-            dtpDenNgay.Location = new Point(330, 52);
+            dtpDenNgay.Location = new Point(340, 52);
             dtpDenNgay.Size = new Size(130, 25);
             dtpDenNgay.Font = new Font("Segoe UI", 10F);
 
             chkLocTheoNgay.AutoSize = true;
-            chkLocTheoNgay.Location = new Point(480, 54); // Đẩy ra 480
+            chkLocTheoNgay.Location = new Point(490, 54); 
             chkLocTheoNgay.Text = "Lọc ngày";
             chkLocTheoNgay.Font = new Font("Segoe UI", 10F);
             chkLocTheoNgay.CheckedChanged += (s, e) =>
@@ -177,23 +177,23 @@ namespace src.GUI.NghiepVu
             };
 
             lblTrangThai.AutoSize = true;
-            lblTrangThai.Location = new Point(580, 55); // Đẩy ra 580
+            lblTrangThai.Location = new Point(590, 55); 
             lblTrangThai.Text = "Trạng thái:";
             lblTrangThai.Font = new Font("Segoe UI", 10F);
 
             rdoTatCa.AutoSize = true;
             rdoTatCa.Checked = true;
-            rdoTatCa.Location = new Point(660, 54);
+            rdoTatCa.Location = new Point(685, 54);
             rdoTatCa.Text = "Tất cả";
             rdoTatCa.Font = new Font("Segoe UI", 10F);
 
             rdoChoDuyet.AutoSize = true;
-            rdoChoDuyet.Location = new Point(740, 54);
+            rdoChoDuyet.Location = new Point(765, 54);
             rdoChoDuyet.Text = "Chờ duyệt";
             rdoChoDuyet.Font = new Font("Segoe UI", 10F);
 
             rdoDaDuyet.AutoSize = true;
-            rdoDaDuyet.Location = new Point(840, 54);
+            rdoDaDuyet.Location = new Point(875, 54);
             rdoDaDuyet.Text = "Đã duyệt";
             rdoDaDuyet.Font = new Font("Segoe UI", 10F);
 

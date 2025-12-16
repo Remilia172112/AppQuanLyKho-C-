@@ -15,9 +15,14 @@ namespace src.GUI.DanhMuc
         private NhaSanXuatBUS nhaSanXuatBUS;
         private KhuVucKhoBUS khuVucKhoBUS;
         private LoaiSanPhamBUS loaiSanPhamBUS;
+        private List<LoaiSanPhamDTO> listLoaiSP;
+        private int tlgx = 0;
         private string selectedImagePath = "";
         private bool isEditing = false;
         private int currentMaSP = -1;
+        private int limitRed = 5;      // Mức Đỏ (Hết/Sắp hết)
+        private int limitOrange = 10;  // Mức Cam (Cảnh báo cấp 2)
+        private int limitYellow = 20;  // Mức Vàng (Cảnh báo nhẹ)
 
         public QuanLySanPhamForm()
         {
@@ -27,9 +32,12 @@ namespace src.GUI.DanhMuc
             nhaSanXuatBUS = new NhaSanXuatBUS();
             khuVucKhoBUS = new KhuVucKhoBUS();
             loaiSanPhamBUS = new LoaiSanPhamBUS();
+            listLoaiSP = loaiSanPhamBUS.GetAll();
             LoadData();
             LoadComboBoxData();
             SetButtonStates(false);
+            txtGiaXuat.ReadOnly = true;
+            txtGiaNhap.ReadOnly = true;
             CheckPermissions();
         }
 
@@ -118,19 +126,20 @@ namespace src.GUI.DanhMuc
 
                 if (cellValue != null && int.TryParse(cellValue.ToString(), out int soLuong))
                 {
-                    if (soLuong <= 5)
+                    // SỬ DỤNG BIẾN THAY VÌ SỐ CỨNG
+                    if (soLuong <= limitRed) 
                     {
                         e.CellStyle.BackColor = Color.Red;
                         e.CellStyle.ForeColor = Color.White;
                         e.CellStyle.Font = new Font(dgvSanPham.Font, FontStyle.Bold);
                     }
-                    else if (soLuong <= 10)
+                    else if (soLuong <= limitOrange)
                     {
                         e.CellStyle.BackColor = Color.OrangeRed;
                         e.CellStyle.ForeColor = Color.White;
                         e.CellStyle.Font = new Font(dgvSanPham.Font, FontStyle.Bold);
                     }
-                    else if (soLuong <= 20)
+                    else if (soLuong <= limitYellow)
                     {
                         e.CellStyle.BackColor = Color.Yellow;
                         e.CellStyle.ForeColor = Color.Black;
@@ -224,8 +233,6 @@ namespace src.GUI.DanhMuc
             txtTenSP.ReadOnly = !editing;
             cboDanhMuc.Enabled = editing;
             cboLoaiSP.Enabled = editing;
-            txtGiaNhap.ReadOnly = !editing;
-            txtGiaXuat.ReadOnly = !editing;
             txtSoLuong.ReadOnly = !editing;
             cboNhaSX.Enabled = editing;
             cboKhuVuc.Enabled = editing;
@@ -246,6 +253,46 @@ namespace src.GUI.DanhMuc
             picHinhAnh.Image = null;
             selectedImagePath = "";
             currentMaSP = -1;
+        }
+        
+        private void txtGiaNhap_TextChanged(object sender, EventArgs e)
+        {
+
+            if (decimal.TryParse(txtGiaNhap.Text, out decimal giaNhap))
+            {
+                decimal giaXuat = giaNhap; 
+                if(tlgx > 0)  giaXuat = giaNhap + (giaNhap * tlgx / 100);
+                
+                txtGiaXuat.Text = giaXuat.ToString("N0"); 
+            }
+            else
+            {
+                txtGiaXuat.Text = "0";
+            }
+        }
+        public LoaiSanPhamDTO LayThongTinTheoMaLoaiSP(string maLoai)
+        {
+            return listLoaiSP.FirstOrDefault(x => x.MLSP == Convert.ToInt32(maLoai));
+
+        }
+        private void cboLoaiSP_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboLoaiSP.SelectedValue != null)
+            {
+                string MLSP = cboLoaiSP.SelectedValue.ToString();
+                tlgx = LayThongTinTheoMaLoaiSP(MLSP).TLGX;
+                if (decimal.TryParse(txtGiaNhap.Text, out decimal giaNhap))
+                {
+                    decimal giaXuat = giaNhap; 
+                    if(tlgx > 0)  giaXuat = giaNhap + (giaNhap * tlgx / 100);
+                    
+                    txtGiaXuat.Text = giaXuat.ToString("N0"); 
+                }
+                else
+                {
+                    txtGiaXuat.Text = "0";
+                }
+            }
         }
 
         private void DgvSanPham_SelectionChanged(object? sender, EventArgs e)
@@ -436,7 +483,7 @@ namespace src.GUI.DanhMuc
                 ClearForm();
             }
         }
-
+    
         private void BtnChonAnh_Click(object? sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -604,6 +651,51 @@ namespace src.GUI.DanhMuc
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi nhập Excel: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void BtnCaiDat_Click(object? sender, EventArgs e)
+        {
+            // Tạo Form cài đặt nhanh
+            Form fSetting = new Form();
+            fSetting.Text = "Cấu hình cảnh báo tồn kho";
+            fSetting.Size = new Size(350, 250);
+            fSetting.StartPosition = FormStartPosition.CenterParent;
+            fSetting.FormBorderStyle = FormBorderStyle.FixedDialog;
+            fSetting.MaximizeBox = false;
+            fSetting.MinimizeBox = false;
+
+            // Helper tạo label và numeric input
+            NumericUpDown nudRed = new NumericUpDown { Minimum = 0, Maximum = 1000, Value = limitRed, Location = new Point(180, 20), Width = 100 };
+            NumericUpDown nudOrange = new NumericUpDown { Minimum = 0, Maximum = 1000, Value = limitOrange, Location = new Point(180, 60), Width = 100 };
+            NumericUpDown nudYellow = new NumericUpDown { Minimum = 0, Maximum = 1000, Value = limitYellow, Location = new Point(180, 100), Width = 100 };
+
+            Label lblRed = new Label { Text = "Mức Đỏ (Nguy cấp):", Location = new Point(20, 22), AutoSize = true, ForeColor = Color.Red, Font = new Font(Font, FontStyle.Bold) };
+            Label lblOrange = new Label { Text = "Mức Cam (Cảnh báo):", Location = new Point(20, 62), AutoSize = true, ForeColor = Color.OrangeRed, Font = new Font(Font, FontStyle.Bold) };
+            Label lblYellow = new Label { Text = "Mức Vàng (Lưu ý):", Location = new Point(20, 102), AutoSize = true, ForeColor = Color.Goldenrod, Font = new Font(Font, FontStyle.Bold) };
+
+            // Nút Lưu
+            Button btnSave = new Button { Text = "Lưu thay đổi", DialogResult = DialogResult.OK, Location = new Point(100, 150), Size = new Size(120, 35), BackColor = Color.FromArgb(41, 128, 185), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+
+            fSetting.Controls.AddRange(new Control[] { lblRed, nudRed, lblOrange, nudOrange, lblYellow, nudYellow, btnSave });
+
+            // Hiển thị Form và đợi kết quả
+            if (fSetting.ShowDialog() == DialogResult.OK)
+            {
+                // 1. Cập nhật giá trị mới vào biến
+                limitRed = (int)nudRed.Value;
+                limitOrange = (int)nudOrange.Value;
+                limitYellow = (int)nudYellow.Value;
+
+                // 2. Validate logic (Đỏ < Cam < Vàng) - Tùy chọn
+                if(limitRed > limitOrange || limitOrange > limitYellow)
+                {
+                    MessageBox.Show("Lưu ý: Bạn đang đặt mức Nguy cấp lớn hơn Cảnh báo, màu sắc có thể hiển thị không như ý muốn!", "Cảnh báo logic", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                // 3. Vẽ lại bảng ngay lập tức để thấy màu đổi
+                dgvSanPham.Refresh(); 
+                
+                MessageBox.Show("Đã cập nhật cấu hình màu sắc!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

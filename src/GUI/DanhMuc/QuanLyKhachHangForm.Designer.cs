@@ -54,7 +54,6 @@ namespace src.GUI.DanhMuc
             dgvKhachHang.AllowUserToAddRows = false;
             dgvKhachHang.ReadOnly = true;
             dgvKhachHang.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvKhachHang.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvKhachHang.SelectionChanged += DgvKhachHang_SelectionChanged;
 
             // --- 2. XỬ LÝ HEADER (TITLE + SEARCH CENTER) ---

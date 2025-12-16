@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting; // Thư viện Chart
 using src.BUS;
 using src.DTO.ThongKe;
@@ -15,8 +11,8 @@ namespace src.GUI.ThongKe
         private List<ThongKeTheoThangDTO> dataset;
 
         // UI Components
-        private System.Windows.Forms.Panel pnlTop;
-        private System.Windows.Forms.Panel pnlChartContainer;
+        private Panel pnlTop;
+        private Panel pnlChartContainer;
         private DataGridView tableThongKe;
         private ComboBox cboNam;
         private Button btnExport;
@@ -35,12 +31,12 @@ namespace src.GUI.ThongKe
 
         private void InitComponent()
         {
-            this.Size = new Size(1000, 700);
-            this.BackColor = Color.White;
-            this.Padding = new Padding(10);
+            Size = new Size(1000, 700);
+            BackColor = Color.White;
+            Padding = new Padding(10);
 
             // --- 1. Panel Top (Chọn năm) ---
-            pnlTop = new System.Windows.Forms.Panel();
+            pnlTop = new Panel();
             pnlTop.Height = 50;
             pnlTop.Dock = DockStyle.Top;
             pnlTop.Padding = new Padding(5);
@@ -69,7 +65,7 @@ namespace src.GUI.ThongKe
             flowTop.Controls.Add(btnExport);
 
             pnlTop.Controls.Add(flowTop);
-            this.Controls.Add(pnlTop);
+            Controls.Add(pnlTop);
 
             // --- 2. DataGridView (Table) ---
             tableThongKe = new DataGridView();
@@ -91,7 +87,7 @@ namespace src.GUI.ThongKe
             tableThongKe.Columns["DoanhThu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             tableThongKe.Columns["LoiNhuan"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
-            this.Controls.Add(tableThongKe);
+            Controls.Add(tableThongKe);
 
             // --- 3. Chart Area ---
             pnlChartContainer = new System.Windows.Forms.Panel();
@@ -101,7 +97,7 @@ namespace src.GUI.ThongKe
             InitChart();
             pnlChartContainer.Controls.Add(chartDoanhThu);
 
-            this.Controls.Add(pnlChartContainer);
+            Controls.Add(pnlChartContainer);
 
             // Z-Order
             pnlTop.BringToFront();

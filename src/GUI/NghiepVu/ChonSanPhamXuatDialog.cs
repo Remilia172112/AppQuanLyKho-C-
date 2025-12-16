@@ -32,6 +32,7 @@ namespace src.GUI.NghiepVu
             {
                 LoadExistingItem();
             }
+            txtGia.ReadOnly = true;
         }
         private void InitializeDataGridView()
         {

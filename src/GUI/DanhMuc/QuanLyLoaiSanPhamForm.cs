@@ -42,7 +42,7 @@ namespace src.GUI.DanhMuc
                 Name = "MLSP",
                 DataPropertyName = "MLSP",
                 HeaderText = "Mã Loại",
-                Width = 5,
+                Width = 75,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 
@@ -61,7 +61,7 @@ namespace src.GUI.DanhMuc
                 Name = "TLGX",
                 DataPropertyName = "TLGX",
                 HeaderText = "Tỉ Lệ GX (%)",
-                Width = 10,
+                Width = 75,
                 DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
 

@@ -183,7 +183,7 @@ namespace src.GUI.DanhMuc
             // Button Tìm kiếm
             btnTimKiem = new Button
             {
-                Text = "Tìm kiếm",
+                Text = "🔍 Tìm kiếm",
                 Location = new System.Drawing.Point(430, 10),
                 Size = new System.Drawing.Size(90, 30),
                 BackColor = System.Drawing.Color.FromArgb(52, 152, 219),
@@ -197,7 +197,7 @@ namespace src.GUI.DanhMuc
             // Button Làm mới
             btnRefresh = new Button
             {
-                Text = "Làm mới",
+                Text = "⟳ Làm mới",
                 Location = new System.Drawing.Point(530, 10),
                 Size = new System.Drawing.Size(90, 30),
                 BackColor = System.Drawing.Color.FromArgb(149, 165, 166),
@@ -210,7 +210,7 @@ namespace src.GUI.DanhMuc
 
             btnImport = new Button
             {
-                Text = "📥 Nhập Excel",
+                Text = "📥 Import",
                 Location = new System.Drawing.Point(630, 10),
                 Size = new System.Drawing.Size(100, 30),
                 BackColor = System.Drawing.Color.FromArgb(46, 204, 113), // Xanh lá
@@ -223,7 +223,7 @@ namespace src.GUI.DanhMuc
 
             btnExport = new Button
             {
-                Text = "📤 Xuất Excel",
+                Text = "📤 Export",
                 Location = new System.Drawing.Point(740, 10),
                 Size = new System.Drawing.Size(100, 30),
                 BackColor = System.Drawing.Color.FromArgb(39, 174, 96), // Xanh đậm
