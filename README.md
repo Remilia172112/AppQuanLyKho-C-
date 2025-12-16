@@ -16,7 +16,7 @@
 -   Kiểm tra kết nối cơ sở dữ liệu.
 -   Ở Terminal: cd src và chạy ứng dụng bằng lệnh dotnet run.
 -   Các tài khoản:
--     Quản lý kho hàng: QL1 123456
--     Quản lý xuất hàng: NV2 123456
--     Quản lý nhập hàng: NV3 123456
--     Admin: admin 123456
++ Quản lý kho hàng: QL1 123456
++ Nhân viên xuất hàng: NV2 123456
++ Nhân viên nhập hàng và kiểm kê: NV3 123456
++ admin: admin 123456
