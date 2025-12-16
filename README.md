@@ -10,3 +10,8 @@
 |  4  | 3122410239 | [LÊ THẾ MINH ](https://www.facebook.com/minh.lethe.186590)           |
 |  5  | 3122410267 | [HUỲNH KHÔI NGUYÊN ](https://www.facebook.com/nguyen.huynhkhoi.6921) |
 |  6  | 3122410274 | [TRẦN GIA NGUYỄN ](https://www.facebook.com/Remilia1704/)            |
+
+-   Tải ứng dụng:
+-   Tạo cơ sở dữ liệu trên MySQL Workbench đặt username là “root”, password là “1234” với port là “3306” sau đó chạy file “database/QuanLyKhoHang.sql” vào cơ sở dữ liệu vừa tạo (hoặc có thể vào file java src/config/DatabaseHelper.cs để sửa username, password, port).
+-   Kiểm tra kết nối cơ sở dữ liệu.
+-   Ở Terminal: cd src và chạy ứng dụng bằng lệnh dotnet run.
